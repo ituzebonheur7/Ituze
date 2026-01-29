@@ -1,0 +1,3059 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>New Tab - Ituze</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --accent: #00ff9c;
+      --matrix-color: #00ff9c;
+      --glass-bg: rgba(0,0,0,0.18);
+      --glass-border: rgba(255,255,255,0.22);
+      --text-main: #e5e7eb;
+
+      /* Launcher transparency control */
+      --launcher-opacity: 0.32;
+      --launcher-border-color: rgba(255,255,255,0.18);
+      --launcher-section-bg: rgba(15,23,42,0.55);
+      --launcher-section-border: rgba(148,163,184,0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    /* Hide visible scrollbars globally while keeping elements scrollable */
+    html, body, * {
+      -ms-overflow-style: none;  /* IE/Edge */
+      scrollbar-width: none;     /* Firefox */
+    }
+    /* Webkit-based browsers */
+    *::-webkit-scrollbar { display: none !important; width: 0; height: 0; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background: #020617;
+      background-image: radial-gradient(circle at top, #0b1120 0%, #020617 55%, #000 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      overflow: hidden;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: -1;
+      background: transparent !important;
+    }
+
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+    }
+
+    .top-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 10px 26px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      border-radius: 25px;
+      text-decoration: none;
+      transition: 0.3s;
+      z-index: 1200;
+    }
+    .top-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.7);
+    }
+
+    #settingsToggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0.8;
+      font-size: 20px;
+      transition: 0.3s;
+      z-index: 1500;
+    }
+    #settingsToggle:hover {
+      opacity: 1;
+      transform: rotate(45deg) scale(1.06);
+      box-shadow: 0 0 18px var(--accent);
+    }
+
+    /* Settings panel: now scrollable and constrained to viewport */
+    #settingsPanel {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 420px;
+      padding: 20px;
+      border-radius: 16px;
+      opacity: 0;
+      transform: translateY(-16px);
+      pointer-events: none;
+      transition: 0.3s ease;
+      z-index: 2000;
+
+      /* Make the panel scrollable if content exceeds viewport */
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    }
+    #settingsPanel.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    #settingsPanel h3 {
+      margin: 0 0 12px;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .settings-group {
+      margin-bottom: 16px;
+    }
+
+    .settings-group label {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 6px;
+      color: #93c5fd;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .settings-group select, .settings-group input[type="text"], .settings-group input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.35);
+      color: #e5e7eb;
+      outline: none;
+      appearance: none;
+    }
+
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .settings-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      background: linear-gradient(135deg, var(--accent), #22c55e);
+      color: #020617;
+      transition: 0.2s;
+      transform-origin: center;
+    }
+    .save-btn:hover {
+      transform: scale(1.04);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    }
+
+    .container {
+      position: absolute;
+      top: 43%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(980px, 96vw);
+      text-align: center;
+    }
+
+    .date { font-size: 15px; opacity: 0.8; margin-bottom: 4px; }
+    .clock { font-size: 40px; font-weight: 600; margin-bottom: 4px; }
+    .greeting {
+      font-size: 46px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      text-shadow: 0 0 22px var(--accent);
+    }
+
+    .chrome-search-wrapper {
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto 25px;
+      position: relative;
+    }
+
+    .chrome-search {
+      display: flex;
+      align-items: center;
+      height: 52px;
+      padding: 0 16px;
+      border-radius: 32px;
+    }
+
+    .chrome-search input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 17px;
+      color: #fff;
+      outline: none;
+    }
+
+    .chrome-search input::placeholder {
+      color: rgba(255,255,255,0.75);
+    }
+
+    .chrome-icons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.75;
+      color: #fff;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      transform-origin: center;
+    }
+    .icon-btn:hover {
+      opacity: 1;
+      text-shadow: 0 0 12px var(--accent);
+      transform: scale(1.06);
+    }
+
+    .icon-btn.listening {
+      box-shadow: 0 0 18px var(--accent), 0 0 42px color-mix(in srgb, var(--accent) 30%, rgba(0,0,0,0));
+      transform: scale(1.04);
+    }
+
+    .ai-mode-btn {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+      transform-origin: center;
+    }
+    .ai-mode-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 18px var(--accent);
+      transform: scale(1.04);
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 58px;
+      left: 0;
+      width: 100%;
+      border-radius: 18px;
+      display: none;
+      overflow: hidden;
+      z-index: 1000;
+      text-align: left;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 6px 0;
+    }
+
+    .suggestion-item {
+      padding: 12px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: #fff;
+      text-align: left;
+      background: transparent;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      transform-origin: left center;
+      transition: 0.12s ease;
+    }
+    .suggestion-item:hover,
+    .suggestion-item.active {
+      background: rgba(255,255,255,0.04);
+      transform: scale(1.01);
+    }
+    .suggestion-meta {
+      opacity: 0.7;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .shortcuts {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .shortcuts-row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .shortcut {
+      padding: 12px;
+      border-radius: 14px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 14px;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 500;
+      transform-origin: center;
+    }
+    .shortcut:hover {
+      transform: scale(1.06);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.7);
+      border-color: var(--accent);
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s;
+      z-index: 2500;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Battery placed behind panels (lower z-index) */
+    #battery {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 50; /* lowered so it sits behind panels/launchers/settings */
+    }
+
+    #battery-icon {
+      width: 18px;
+      height: 10px;
+      border-radius: 3px;
+      border: 2px solid #e5e7eb;
+      position: relative;
+    }
+
+    #battery-icon::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 2px;
+      width: 3px;
+      height: 6px;
+      border-radius: 1px;
+      background: #e5e7eb;
+    }
+
+    #battery-level-bar {
+      position: absolute;
+      left: 1px;
+      top: 1px;
+      bottom: 1px;
+      border-radius: 2px;
+      background: var(--accent);
+      width: 50%;
+    }
+
+    .waffle-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 2000;
+      transition: 0.25s ease;
+      overflow: hidden;
+      transform-origin: center;
+    }
+
+    .waffle-btn::before {
+      content: "";
+      width: 22px;
+      height: 22px;
+      background-image: url('https://ssl.gstatic.com/gb/images/bar/al-icon.png');
+      background-size: cover;
+      opacity: 0.9;
+      transition: 0.25s ease;
+    }
+
+    .waffle-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 18px var(--accent);
+    }
+
+    .waffle-btn.open {
+      opacity: 0;
+      transform: scale(0.6);
+      pointer-events: none;
+      box-shadow: none;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 999px;
+      transform: scale(0);
+      animation: ripple 0.5s ease-out;
+      pointer-events: none;
+      background: color-mix(in srgb, var(--accent) 35%, white);
+      opacity: 0.4;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(3.5);
+        opacity: 0;
+      }
+    }
+
+    .glass-launcher {
+      position: fixed;
+      bottom: 80px;
+      left: 20px;
+      width: 360px;
+      max-height: 520px;
+      padding: 18px 18px 14px;
+
+      background: rgba(15,23,42,var(--launcher-opacity));
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--launcher-border-color);
+
+      border-radius: 26px;
+      box-shadow:
+        0 18px 45px rgba(0,0,0,0.75),
+        0 0 40px var(--accent);
+
+      display: none;
+      z-index: 2100;
+      overflow: hidden;
+
+      opacity: 0;
+      transform: translateY(20px) scale(0.96);
+      transition: opacity .28s ease, transform .28s ease;
+    }
+
+    .glass-launcher.open {
+      display: block;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .launcher-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .launcher-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--accent) 70%, #e5e7eb);
+    }
+
+    .launcher-close {
+      border: none;
+      background: transparent;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 16px;
+      opacity: 0.7;
+      transition: 0.2s;
+      position: relative;
+      overflow: hidden;
+      border-radius: 999px;
+      padding: 4px 8px;
+      transform-origin: center;
+    }
+    .launcher-close:hover {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+
+    .launcher-search {
+      margin-bottom: 10px;
+    }
+
+    .launcher-search-input {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.6);
+      color: #e5e7eb;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .launcher-scroll {
+      max-height: 440px;
+      overflow-y: scroll;
+      padding-right: 4px;
+      scrollbar-width: none;
+    }
+    .launcher-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .launcher-section {
+      margin-bottom: 14px;
+      border-radius: 16px;
+      background: var(--launcher-section-bg);
+      border: 1px solid var(--launcher-section-border);
+      overflow: hidden;
+    }
+
+    .launcher-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .launcher-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      opacity: 0.9;
+    }
+
+    .launcher-section-toggle {
+      font-size: 14px;
+      color: #9ca3af;
+      transition: transform 0.2s ease;
+    }
+
+    .launcher-section.collapsed .launcher-section-toggle {
+      transform: rotate(-90deg);
+    }
+
+    .launcher-list-wrapper {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    .launcher-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .launcher-item {
+      border-top: 1px solid rgba(31,41,55,0.9);
+    }
+
+    .launcher-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      font-size: 13px;
+      text-decoration: none;
+      color: #e5e7eb;
+      transition: background 0.18s ease, transform 0.12s ease;
+      position: relative;
+      overflow: hidden;
+      border-radius: 0;
+    }
+
+    .launcher-link span {
+      opacity: 0.95;
+    }
+
+    .launcher-link small {
+      font-size: 11px;
+      color: #9ca3af;
+      opacity: 0.85;
+      margin-left: 8px;
+    }
+
+    .launcher-link:hover {
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--accent) 25%, transparent),
+        rgba(15,23,42,0.9)
+      );
+      transform: scale(1.02);
+    }
+
+    .launcher-empty {
+      font-size: 12px;
+      color: #9ca3af;
+      padding: 6px 10px 2px;
+      font-style: italic;
+    }
+
+    /* Custom color UI inside settings */
+    .custom-color-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .custom-color-row input[type="color"] {
+      width: 40px;
+      height: 34px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    .custom-color-row input[type="text"] {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.35);
+      color: #e5e7eb;
+      outline: none;
+      font-family: monospace;
+    }
+
+    /* AI sidebar */
+    .ai-sidebar {
+      position: fixed;
+      right: 20px;
+      top: 90px;
+      width: 380px;
+      height: calc(100vh - 140px);
+      background: rgba(10,12,15,0.75);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 12px;
+      display: none;
+      flex-direction: column;
+      z-index: 2200;
+      backdrop-filter: blur(12px);
+    }
+    .ai-sidebar.open {
+      display: flex;
+    }
+    .ai-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      gap: 8px;
+    }
+    .ai-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .ai-input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.35);
+      color: #e5e7eb;
+      outline: none;
+    }
+    .ai-send {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), #22c55e);
+      color: #020617;
+      cursor: pointer;
+      font-weight: 600;
+      transform-origin: center;
+    }
+    .ai-send:hover { transform: scale(1.03); }
+    .ai-msg {
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      font-size: 14px;
+      line-height: 1.3;
+    }
+    .ai-msg.assistant {
+      background: rgba(0,0,0,0.45);
+    }
+
+    /* shortcut help modal */
+    .help-modal {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.98);
+      width: min(720px, 96vw);
+      max-height: 80vh;
+      overflow-y: auto;
+      background: rgba(10,12,15,0.95);
+      border: 1px solid var(--glass-border);
+      padding: 18px;
+      border-radius: 12px;
+      display: none;
+      z-index: 4000;
+    }
+    .help-modal.open {
+      display: block;
+    }
+
+    /* custom context menu for links (open in bg/fg) */
+    .link-menu {
+      position: fixed;
+      background: rgba(5,7,10,0.98);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 8px;
+      z-index: 5000;
+      display: none;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+      min-width: 160px;
+    }
+    .link-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .link-menu button:hover { background: rgba(255,255,255,0.03); }
+
+    /* drag-drop overlay */
+    .drop-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 6000;
+      pointer-events: none;
+    }
+    .drop-overlay.active {
+      display: flex;
+      pointer-events: all;
+    }
+    .drop-hint {
+      padding: 18px 22px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.6);
+      border: 1px dashed rgba(255,255,255,0.12);
+      color: var(--text-main);
+      font-size: 16px;
+      backdrop-filter: blur(6px);
+    }
+
+    /* Weather wedge (bottom-left, next to apps) */
+    #weatherWedge {
+      position: fixed;
+      bottom: 20px;
+      left: 80px; /* next to waffle at left:20px */
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(10,12,15,0.6);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      font-size: 13px;
+      z-index: 2050;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      cursor: default;
+      transition: transform 0.18s ease;
+    }
+    #weatherWedge:hover { transform: scale(1.03); }
+
+    @media (max-width: 900px) {
+      .shortcuts-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      #settingsPanel { width: 340px; right: 12px; }
+      .ai-sidebar { width: calc(100% - 24px); left: 12px; right: 12px; top: auto; bottom: 12px; height: 320px; }
+      #weatherWedge { left: 76px; } /* maintain spacing on smaller widths */
+    }
+
+    @media (max-width: 600px) {
+      .shortcuts-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .glass-launcher {
+        left: 10px;
+        right: 10px;
+        width: auto;
+      }
+      #weatherWedge { display: none; } /* hide wedge on very small screens to avoid overlap */
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="matrix"></canvas>
+
+  <a id="topLink" href="https://www.google.com/search?udm=50&amp;aep=11&amp;q=Who%27s+Ituze+Bonheur"
+     class="top-btn glass" rel="noopener noreferrer">
+    Ituze Bonheur
+  </a>
+
+  <div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
+
+  <div id="settingsPanel" class="glass" role="dialog" aria-modal="false" aria-hidden="true">
+    <h3>Settings</h3>
+
+    <div class="settings-group">
+      <label>Default Search Engine</label>
+      <select id="engineSelect" aria-label="Default search engine">
+        <option value="google">Google</option>
+        <option value="bing">Bing</option>
+        <option value="duckduckgo">DuckDuckGo</option>
+        <option value="brave">Brave</option>
+        <option value="startpage">Startpage</option>
+        <option value="you">You.com</option>
+      </select>
+    </div>
+
+    <div class="settings-group">
+      <label>Theme Color</label>
+      <select id="themeSelect" aria-label="Theme color">
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+        <option value="red">Red</option>
+        <option value="yellow">Yellow</option>
+        <option value="custom">Custom</option>
+      </select>
+
+      <!-- Custom color UI (shown when Custom is selected). Label remains "Theme Color" -->
+      <div id="customColorPicker" class="custom-color-row" style="display:none;">
+        <input id="customColorInput" type="color" aria-label="Custom accent color picker" value="#00ff9c">
+        <input id="customColorHex" type="text" aria-label="Custom accent hex value" placeholder="#00ff9c">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>Search Options</label>
+      <div class="settings-row">
+        <span>Show suggestions</span>
+        <input type="checkbox" id="toggleSuggestions" aria-label="Show suggestions">
+      </div>
+      <div class="settings-row">
+        <span>Auto-search after voice</span>
+        <input type="checkbox" id="toggleVoiceAuto" aria-label="Auto search after voice">
+      </div>
+      <div class="settings-row">
+        <span>Keyboard shortcuts</span>
+        <input type="checkbox" id="toggleKeyboard" aria-label="Keyboard shortcuts">
+      </div>
+      <div class="settings-row">
+        <span>Open links in new tab (default)</span>
+        <input type="checkbox" id="toggleNewTab" aria-label="Open links in new tab">
+      </div>
+      <div class="settings-row">
+        <span>Local-only suggestions (privacy)</span>
+        <input type="checkbox" id="toggleLocalOnly" aria-label="Local-only suggestions">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>Visuals</label>
+      <div class="settings-row">
+        <span>Disable Matrix</span>
+        <input type="checkbox" id="toggleMatrix" aria-label="Disable matrix">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>Google Apps Launcher</label>
+      <div class="settings-row">
+        <span>Transparency</span>
+        <select id="launcherOpacitySelect" aria-label="Launcher transparency">
+          <option value="0.24">Subtle</option>
+          <option value="0.32">Balanced</option>
+          <option value="0.42">Solid</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span>Compact list density</span>
+        <input type="checkbox" id="launcherCompact" aria-label="Compact launcher list">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>OpenAI (AI Assistant)</label>
+      <input id="openaiKeyInput" type="password" placeholder="Paste OpenAI API key (optional)" aria-label="OpenAI API Key">
+      <div style="font-size:12px;opacity:0.85;margin-top:8px;">
+        Client-side API usage stores your key in localStorage — not recommended for public devices. Prefer a server-side proxy.
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>Weather</label>
+      <div style="font-size:13px;color:#cbd5e1;">Weather uses a free no-key API (Open-Meteo). You can also set location manually below.</div>
+      <input id="manualLocation" type="text" placeholder="City, Country (optional)" aria-label="Manual weather location" style="margin-top:8px;">
+    </div>
+
+    <div class="settings-group">
+      <label>Storage</label>
+      <div style="display:flex;gap:8px;">
+        <button id="exportSettings" class="save-btn" style="flex:1;background:linear-gradient(135deg,#60a5fa,#06b6d4);">Export</button>
+        <button id="importSettings" class="save-btn" style="flex:1;background:linear-gradient(135deg,#f97316,#fb7185);">Import</button>
+      </div>
+      <div style="margin-top:8px;">
+        <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data & reset</button>
+      </div>
+    </div>
+
+    <!-- Save & Apply removed — changes are applied automatically -->
+
+  </div>
+
+  <div id="toast" class="glass" role="status" aria-live="polite">Settings saved</div>
+
+  <div id="battery" class="glass" aria-hidden="false">
+    <div id="battery-icon">
+      <div id="battery-level-bar"></div>
+    </div>
+    <span id="battery-text">Battery: --%</span>
+  </div>
+
+  <!-- Google Apps waffle button -->
+  <button id="openWaffle" class="waffle-btn glass" aria-label="Open apps launcher"></button>
+
+  <!-- Weather wedge -->
+  <div id="weatherWedge" class="glass" aria-hidden="true" title="Current weather (click to refresh)">
+    <div id="weatherIcon">☀️</div>
+    <div id="weatherText">Weather: --</div>
+  </div>
+
+  <!-- Liquid glass Google Apps launcher -->
+  <div class="glass-launcher" id="waffleMenu" aria-hidden="true">
+    <div class="launcher-header">
+      <div class="launcher-title">Google Apps</div>
+      <button class="launcher-close ripple-target" id="closeWaffle" aria-label="Close apps">✕</button>
+    </div>
+
+    <div class="launcher-search">
+      <input
+        id="launcherSearch"
+        class="launcher-search-input"
+        type="text"
+        placeholder="Search Google apps…"
+        aria-label="Search Google apps"
+      >
+    </div>
+
+    <div class="launcher-scroll" id="launcherScroll">
+      <!-- Sections (same as original) -->
+      <div class="launcher-section collapsed" data-section="productivity">
+        <div class="launcher-section-header ripple-target">
+          <div class="launcher-section-title">Productivity & Workspace</div>
+          <div class="launcher-section-toggle">▾</div>
+        </div>
+        <div class="launcher-list-wrapper">
+          <ul class="launcher-list">
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="gmail" href="https://mail.google.com" rel="noopener noreferrer">
+                <span>Gmail</span><small>mail.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google drive" href="https://drive.google.com" rel="noopener noreferrer">
+                <span>Google Drive</span><small>drive.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google calendar" href="https://calendar.google.com" rel="noopener noreferrer">
+                <span>Google Calendar</span><small>calendar.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google docs" href="https://docs.google.com" rel="noopener noreferrer">
+                <span>Google Docs</span><small>docs.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google sheets" href="https://sheets.google.com" rel="noopener noreferrer">
+                <span>Google Sheets</span><small>sheets.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google slides" href="https://slides.google.com" rel="noopener noreferrer">
+                <span>Google Slides</span><small>slides.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google meet" href="https://meet.google.com" rel="noopener noreferrer">
+                <span>Google Meet</span><small>meet.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google chat" href="https://chat.google.com" rel="noopener noreferrer">
+                <span>Google Chat</span><small>chat.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google keep" href="https://keep.google.com" rel="noopener noreferrer">
+                <span>Google Keep</span><small>keep.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google forms" href="https://forms.google.com" rel="noopener noreferrer">
+                <span>Google Forms</span><small>forms.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google sites" href="https://sites.google.com" rel="noopener noreferrer">
+                <span>Google Sites</span><small>sites.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google contacts" href="https://contacts.google.com" rel="noopener noreferrer">
+                <span>Google Contacts</span><small>contacts.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google voice" href="https://voice.google.com" rel="noopener noreferrer">
+                <span>Google Voice</span><small>voice.google.com</small>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="launcher-section collapsed" data-section="utilities">
+        <div class="launcher-section-header ripple-target">
+          <div class="launcher-section-title">Utilities & Tools</div>
+          <div class="launcher-section-toggle">▾</div>
+        </div>
+        <div class="launcher-list-wrapper">
+          <ul class="launcher-list">
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google search" href="https://www.google.com" rel="noopener noreferrer">
+                <span>Google Search</span><small>google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="gemini ai" href="https://gemini.google.com" rel="noopener noreferrer">
+                <span>Gemini (AI)</span><small>gemini.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google maps" href="https://maps.google.com" rel="noopener noreferrer">
+                <span>Google Maps</span><small>maps.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google photos" href="https://photos.google.com" rel="noopener noreferrer">
+                <span>Google Photos</span><small>photos.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google translate" href="https://translate.google.com" rel="noopener noreferrer">
+                <span>Google Translate</span><small>translate.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google news" href="https://news.google.com" rel="noopener noreferrer">
+                <span>Google News</span><small>news.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google finance" href="https://www.google.com/finance" rel="noopener noreferrer">
+                <span>Google Finance</span><small>google.com/finance</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google flights" href="https://www.google.com/flights" rel="noopener noreferrer">
+                <span>Google Flights</span><small>google.com/flights</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google travel" href="https://www.google.com/travel" rel="noopener noreferrer">
+                <span>Google Travel</span><small>google.com/travel</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google earth" href="https://earth.google.com" rel="noopener noreferrer">
+                <span>Google Earth</span><small>earth.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google collections" href="https://www.google.com/save" rel="noopener noreferrer">
+                <span>Google Collections</span><small>google.com/save</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google arts and culture" href="https://artsandculture.google.com" rel="noopener noreferrer">
+                <span>Google Arts &amp; Culture</span><small>artsandculture.google.com</small>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="launcher-section collapsed" data-section="business">
+        <div class="launcher-section-header ripple-target">
+          <div class="launcher-section-title">Business & Developers</div>
+          <div class="launcher-section-toggle">▾</div>
+        </div>
+        <div class="launcher-list-wrapper">
+          <ul class="launcher-list">
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google analytics" href="https://analytics.google.com" rel="noopener noreferrer">
+                <span>Google Analytics</span><small>analytics.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google tag manager" href="https://tagmanager.google.com" rel="noopener noreferrer">
+                <span>Google Tag Manager</span><small>tagmanager.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google ads" href="https://ads.google.com" rel="noopener noreferrer">
+                <span>Google Ads</span><small>ads.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google adsense" href="https://adsense.google.com" rel="noopener noreferrer">
+                <span>Google AdSense</span><small>adsense.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google ad manager" href="https://admanager.google.com" rel="noopener noreferrer">
+                <span>Google Ad Manager</span><small>admanager.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google admob" href="https://apps.admob.com" rel="noopener noreferrer">
+                <span>Google AdMob</span><small>apps.admob.com</small>
+              </a>
+            </li>
+
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google cloud console" href="https://console.cloud.google.com" rel="noopener noreferrer">
+                <span>Google Cloud Console</span><small>console.cloud.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="firebase console" href="https://console.firebase.google.com" rel="noopener noreferrer">
+                <span>Firebase Console</span><small>console.firebase.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="project idx" href="https://idx.dev" rel="noopener noreferrer">
+                <span>Project IDX (Firebase Studio)</span><small>idx.dev</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google cloud shell" href="https://shell.cloud.google.com" rel="noopener noreferrer">
+                <span>Google Cloud Shell</span><small>shell.cloud.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google apis library" href="https://console.cloud.google.com/apis" rel="noopener noreferrer">
+                <span>Google APIs Library</span><small>console.cloud.google.com/apis</small>
+              </a>
+            </li>
+
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google play console" href="https://play.google.com/console" rel="noopener noreferrer">
+                <span>Google Play Console</span><small>play.google.com/console</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="chrome web store dashboard" href="https://chrome.google.com/webstore/devconsole" rel="noopener noreferrer">
+                <span>Chrome Web Store Dashboard</span><small>chrome.google.com/webstore/devconsole</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google search console" href="https://search.google.com/search-console" rel="noopener noreferrer">
+                <span>Google Search Console</span><small>search.google.com/search-console</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="actions on google" href="https://console.actions.google.com" rel="noopener noreferrer">
+                <span>Actions on Google (Assistant)</span><small>console.actions.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="programmable search engine" href="https://programmablesearchengine.google.com" rel="noopener noreferrer">
+                <span>Programmable Search Engine</span><small>programmablesearchengine.google.com</small>
+              </a>
+            </li>
+
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google pay business console" href="https://pay.google.com/business/console" rel="noopener noreferrer">
+                <span>Google Pay Business Console</span><small>pay.google.com/business/console</small>
+              </a>
+            </li>
+
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google ai studio" href="https://aistudio.google.com" rel="noopener noreferrer">
+                <span>Google AI Studio</span><small>aistudio.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google colab" href="https://colab.research.google.com" rel="noopener noreferrer">
+                <span>Google Colab</span><small>colab.research.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="looker studio" href="https://lookerstudio.google.com" rel="noopener noreferrer">
+                <span>Looker Studio</span><small>lookerstudio.google.com</small>
+              </a>
+            </li>
+
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="pagespeed insights" href="https://pagespeed.web.dev" rel="noopener noreferrer">
+                <span>PageSpeed Insights</span><small>pagespeed.web.dev</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="apps script dashboard" href="https://script.google.com" rel="noopener noreferrer">
+                <span>Apps Script Dashboard</span><small>script.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="workspace admin" href="https://admin.google.com" rel="noopener noreferrer">
+                <span>Workspace Admin</span><small>admin.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google fonts" href="https://fonts.google.com" rel="noopener noreferrer">
+                <span>Google Fonts</span><small>fonts.google.com</small>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="launcher-section collapsed" data-section="entertainment">
+        <div class="launcher-section-header ripple-target">
+          <div class="launcher-section-title">Entertainment & Media</div>
+          <div class="launcher-section-toggle">▾</div>
+        </div>
+        <div class="launcher-list-wrapper">
+          <ul class="launcher-list">
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="youtube" href="https://youtube.com" rel="noopener noreferrer">
+                <span>YouTube</span><small>youtube.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="youtube music" href="https://music.youtube.com" rel="noopener noreferrer">
+                <span>YouTube Music</span><small>music.youtube.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="youtube tv" href="https://tv.youtube.com" rel="noopener noreferrer">
+                <span>YouTube TV</span><small>tv.youtube.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="google play store" href="https://play.google.com" rel="noopener noreferrer">
+                <span>Google Play Store</span><small>play.google.com</small>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="launcher-section collapsed" data-section="security">
+        <div class="launcher-section-header ripple-target">
+          <div class="launcher-section-title">Account & Security</div>
+          <div class="launcher-section-toggle">▾</div>
+        </div>
+        <div class="launcher-list-wrapper">
+          <ul class="launcher-list">
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="my account" href="https://myaccount.google.com" rel="noopener noreferrer">
+                <span>My Account</span><small>myaccount.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="password manager" href="https://passwords.google.com" rel="noopener noreferrer">
+                <span>Password Manager</span><small>passwords.google.com</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="find my device" href="https://www.google.com/android/find" rel="noopener noreferrer">
+                <span>Find My Device</span><small>google.com/android/find</small>
+              </a>
+            </li>
+            <li class="launcher-item">
+              <a class="launcher-link ripple-target" data-name="my activity" href="https://myactivity.google.com" rel="noopener noreferrer">
+                <span>My Activity</span><small>myactivity.google.com</small>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="launcher-empty" id="launcherEmpty" style="display:none;">
+        No apps match your search.
+      </div>
+
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="date" id="date"></div>
+    <div class="clock" id="clock"></div>
+    <div class="greeting" id="greeting"></div>
+
+    <div class="chrome-search-wrapper">
+      <div class="chrome-search glass" id="searchSurface">
+        <input id="searchInput" placeholder="Search or type a URL (try :calc 2+2 or wiki:javascript)" autocomplete="off" aria-label="Search or type a URL" />
+        <div class="chrome-icons">
+          <button id="voiceBtn" class="icon-btn" aria-pressed="false" aria-label="Toggle voice search">🎤</button>
+          <button id="aiModeBtn" class="ai-mode-btn glass" aria-label="AI Mode">AI</button>
+        </div>
+      </div>
+      <div id="suggestions" class="suggestions glass" role="listbox" aria-expanded="false" aria-label="Search suggestions"></div>
+    </div>
+
+    <div class="shortcuts">
+      <div class="shortcuts-row" id="shortcutsRow1">
+        <a class="shortcut glass" href="https://aspen.cps.edu/">Aspen</a>
+        <a class="shortcut glass" href="https://google.com">Google</a>
+        <a class="shortcut glass" href="https://mail.google.com">Gmail</a>
+        <a class="shortcut glass" href="https://youtube.com">YouTube</a>
+        <a class="shortcut glass" href="https://github.com">GitHub</a>
+      </div>
+
+      <div class="shortcuts-row" id="shortcutsRow2">
+        <a class="shortcut glass" href="https://chat.openai.com">ChatGPT</a>
+        <a class="shortcut glass" href="https://copilot.microsoft.com/">Copilot</a>
+        <a class="shortcut glass" href="https://x.com">Twitter</a>
+        <a class="shortcut glass" href="https://www.instagram.com">Instagram</a>
+        <a class="shortcut glass" href="https://www.facebook.com">Facebook</a>
+      </div>
+
+      <div class="shortcuts-row" id="shortcutsRow3">
+        <a class="shortcut glass" href="https://www.tiktok.com">TikTok</a>
+        <a class="shortcut glass" href="https://gemini.google.com">Gemini</a>
+        <a class="shortcut glass" href="https://web.whatsapp.com">WhatsApp</a>
+        <a class="shortcut glass" href="https://smashkarts.io">Smash Karks</a>
+        <a class="shortcut glass" href="https://smash-karts.org">SmashKartsUnblocked</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI sidebar -->
+  <div class="ai-sidebar glass" id="aiSidebar" role="region" aria-label="AI assistant">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-weight:700;">AI Assistant</div>
+      <div style="font-size:12px;opacity:0.85;">(client-side mode)</div>
+    </div>
+    <div class="ai-messages" id="aiMessages" aria-live="polite"></div>
+    <div class="ai-input-row">
+      <input id="aiInput" class="ai-input" placeholder="Ask a question..." />
+      <button id="aiSend" class="ai-send">Send</button>
+    </div>
+  </div>
+
+  <!-- Help modal (keyboard shortcuts) -->
+  <div class="help-modal glass" id="helpModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <h3>Keyboard Shortcuts</h3>
+    <ul>
+      <li><strong>/</strong> — Focus search</li>
+      <li><strong>Ctrl/Cmd + L</strong> — Focus & select search</li>
+      <li><strong>Arrow Up / Arrow Down</strong> — Navigate suggestions</li>
+      <li><strong>Enter</strong> — Search / open suggestion</li>
+      <li><strong>Esc</strong> — Clear search / close settings</li>
+      <li><strong>Ctrl + Alt + /</strong> — Show this help</li>
+      <li><strong>Right-click (on launcher links)</strong> — Set per-link open behavior (background/foreground)</li>
+      <li><strong>Drag & Drop image</strong> — Reverse image search (Google Lens / Images)</li>
+      <li><strong>AI Mode</strong> — Toggle AI sidebar</li>
+    </ul>
+    <div style="margin-top:12px;text-align:right;">
+      <button id="closeHelp" class="save-btn" style="width:160px;">Close</button>
+    </div>
+  </div>
+
+  <!-- Custom link context menu -->
+  <div id="linkMenu" class="link-menu" role="menu">
+    <button id="linkOpenForeground">Open (foreground)</button>
+    <button id="linkOpenBackground">Open (background)</button>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 0;">
+    <button id="linkRememberBg">Remember as background</button>
+    <button id="linkRememberFg">Remember as foreground</button>
+  </div>
+
+  <!-- Drag & drop overlay -->
+  <div id="dropOverlay" class="drop-overlay">
+    <div class="drop-hint">Drop an image here to search (Google Lens)</div>
+  </div>
+
+  <script>
+    /* =========================================
+       Constants & basic UI wiring
+       ========================================= */
+    const SEARCH_ENGINES = {
+      google: "https://google.com/search?q=",
+      bing: "https://bing.com/search?q=",
+      duckduckgo: "https://duckduckgo.com/?q=",
+      brave: "https://search.brave.com/search?q=",
+      startpage: "https://www.startpage.com/do/search?q=",
+      you: "https://you.com/search?q=",
+      gemini: "https://gemini.google.com/app/search?q="
+    };
+
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    let matrixInterval = null;
+    let matrixEnabled = true;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      initDrops();
+    });
+
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const fontSize = 16;
+    let columns = canvas.width / fontSize;
+    let drops = [];
+
+    function initDrops() {
+      columns = Math.floor(canvas.width / fontSize);
+      drops = Array.from({ length: columns }, () => 1);
+    }
+    initDrops();
+
+    function drawMatrix() {
+      if (!matrixEnabled) return;
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = getComputedStyle(document.documentElement)
+        .getPropertyValue("--matrix-color") || "#00ff9c";
+
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    function startMatrix() {
+      if (!matrixInterval) {
+        matrixInterval = setInterval(drawMatrix, 35);
+      }
+    }
+
+    function stopMatrix() {
+      clearInterval(matrixInterval);
+      matrixInterval = null;
+    }
+
+    startMatrix();
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopMatrix();
+      else startMatrix();
+    });
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("clock").textContent =
+        now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      document.getElementById("date").textContent =
+        now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function updateGreeting() {
+      const hour = new Date().getHours();
+      let text = "Welcome, Ituze";
+      if (hour < 12) text = "Good morning, Ituze";
+      else if (hour < 18) text = "Good afternoon, Ituze";
+      else text = "Good evening, Ituze";
+      document.getElementById("greeting").textContent = text;
+    }
+    updateGreeting();
+
+    /* =========================================
+       Search / suggestions + history + omnibox commands
+       ========================================= */
+
+    const searchInput = document.getElementById("searchInput");
+    const suggestionsBox = document.getElementById("suggestions");
+    const toggleSuggestionsEl = document.getElementById("toggleSuggestions");
+    const toggleLocalOnlyEl = document.getElementById("toggleLocalOnly");
+    const engineSelect = document.getElementById("engineSelect");
+    const toggleKeyboardEl = document.getElementById("toggleKeyboard");
+    const toggleNewTabEl = document.getElementById("toggleNewTab");
+    let activeSuggestionIndex = -1;
+    let openInNewTabSetting = true;
+    const MAX_HISTORY = 30;
+    const HISTORY_KEY = "searchHistoryV2";
+
+    function getEngineUrl() {
+      const key = localStorage.getItem("searchEngine") || "google";
+      return SEARCH_ENGINES[key] || SEARCH_ENGINES.google;
+    }
+
+    function saveToHistory(q) {
+      if (!q || !q.trim()) return;
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        let arr = raw ? JSON.parse(raw) : [];
+        // dedupe most recent identical
+        arr = arr.filter(x => x !== q);
+        arr.unshift(q);
+        if (arr.length > MAX_HISTORY) arr = arr.slice(0, MAX_HISTORY);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+      } catch (e) { /* ignore */ }
+    }
+
+    function readHistory(limit = 8) {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        let arr = raw ? JSON.parse(raw) : [];
+        return arr.slice(0, limit);
+      } catch (e) { return []; }
+    }
+
+    // Clear search input immediately and hide suggestions.
+    function clearSearchImmediate() {
+      try {
+        searchInput.value = "";
+        hideSuggestions();
+        searchInput.blur();
+      } catch (e) { /* ignore */ }
+      try {
+        localStorage.setItem("clearSearchOnReturn", "1");
+      } catch (e) { /* ignore */ }
+    }
+
+    // When opening links via code paths use this so clearing always happens.
+    function openLink(url, opts = { background: undefined }) {
+      // Clear the search input in-page so the state is reset when the user returns.
+      clearSearchImmediate();
+
+      // Explicit background preference or global setting
+      const preferBackground = opts.background !== undefined ? opts.background : openInNewTabSetting;
+
+      if (preferBackground) {
+        // open in background by opening a new window and immediately focusing back to this (some browsers will open in new tab)
+        const newWin = window.open(url, "_blank", "noopener,noreferrer");
+        // try to blur new window (not always allowed)
+        try { newWin.blur(); window.focus(); } catch (e) { /* ignore */ }
+      } else {
+        window.location.href = url;
+      }
+    }
+
+    function performSearch(query) {
+      if (!query || !query.trim()) return;
+      const trimmed = query.trim();
+
+      // handle omnibox commands
+      if (trimmed.startsWith(":")) {
+        // :calc or :math
+        const cmd = trimmed.slice(1).trim();
+        const m = cmd.match(/^calc\s+(.+)$/i);
+        if (m) {
+          const expr = m[1];
+          const result = safeCalc(expr);
+          showInlineSuggestion(`${expr} = ${result}`, `calc result`, expr);
+          saveToHistory(query);
+          return;
+        }
+        // fallback echo
+        showInlineSuggestion(`Unknown command`, `command`);
+        return;
+      }
+
+      if (/^wiki:/i.test(trimmed)) {
+        const term = trimmed.replace(/^wiki:/i, "").trim();
+        if (!term) return;
+        openLink("https://en.wikipedia.org/w/index.php?search=" + encodeURIComponent(term));
+        saveToHistory(query);
+        return;
+      }
+
+      // if looks like URL
+      if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+        openLink(trimmed);
+        saveToHistory(query);
+        return;
+      } else if (trimmed.includes(".") && !trimmed.includes(" ")) {
+        openLink("https://" + trimmed);
+        saveToHistory(query);
+        return;
+      } else {
+        const engineUrl = getEngineUrl();
+        openLink(engineUrl + encodeURIComponent(trimmed));
+        saveToHistory(query);
+      }
+    }
+
+    // show a single transient suggestion (helpful for calc)
+    function showInlineSuggestion(text, meta, originalQuery) {
+      suggestionsBox.innerHTML = "";
+      const div = document.createElement("div");
+      div.className = "suggestion-item";
+      div.setAttribute("role", "option");
+      div.dataset.query = originalQuery || text;
+      div.innerHTML = `<span>${escapeHtml(text)}</span><span class="suggestion-meta">${escapeHtml(meta || "")}</span>`;
+      const handler = (e) => {
+        e.preventDefault();
+        const q = div.dataset.query || text;
+        hideSuggestions();
+        performSearch(q);
+      };
+      div.addEventListener("pointerdown", handler);
+      div.addEventListener("mousedown", handler);
+      div.addEventListener("click", handler);
+      suggestionsBox.appendChild(div);
+      suggestionsBox.style.display = "block";
+      suggestionsBox.setAttribute("aria-expanded", "true");
+      activeSuggestionIndex = -1;
+    }
+
+    // Simple safe calculator: only allow digits, spaces and +-*/().% operators
+    function safeCalc(expr) {
+      try {
+        const sanitized = expr.replace(/[^0-9+\-*/().%\s]/g, "");
+        if (!/^[0-9+\-*/().%\s]+$/.test(sanitized) || sanitized.trim().length === 0) return "invalid";
+        const res = Function('"use strict";return (' + sanitized + ')')();
+        if (typeof res === "number" && isFinite(res)) return res;
+        return String(res);
+      } catch (e) {
+        return "error";
+      }
+    }
+
+    function isMathExpression(q) {
+      // Consider typical math forms: contain digits and arithmetic operators, and not whitespace-only words
+      if (!q || typeof q !== "string") return false;
+      const trimmed = q.trim();
+      // disallow if it contains letters (to avoid "2 apples")
+      if (/[a-zA-Z]/.test(trimmed)) return false;
+      // allow digits, spaces and . + - * / % ( )
+      return /^[0-9\s\+\-\*\/\.\%\(\)]+$/.test(trimmed) && /[0-9]/.test(trimmed);
+    }
+
+    /* Keyboard navigation for suggestions */
+    searchInput.addEventListener("keydown", e => {
+      const items = Array.from(suggestionsBox.querySelectorAll(".suggestion-item"));
+      if (e.key === "ArrowDown" && items.length > 0) {
+        e.preventDefault();
+        activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
+        updateActiveSuggestion(items);
+      } else if (e.key === "ArrowUp" && items.length > 0) {
+        e.preventDefault();
+        activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
+        updateActiveSuggestion(items);
+      } else if (e.key === "Enter") {
+        if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
+          e.preventDefault();
+          const text = items[activeSuggestionIndex].dataset.query || items[activeSuggestionIndex].textContent;
+          searchInput.value = text;
+          hideSuggestions();
+          performSearch(text);
+        } else {
+          performSearch(searchInput.value);
+        }
+      } else if (e.key === "Escape") {
+        if (searchInput.value) searchInput.value = "";
+        hideSuggestions();
+      }
+    });
+
+    function updateActiveSuggestion(items) {
+      items.forEach((el, idx) => {
+        el.classList.toggle("active", idx === activeSuggestionIndex);
+      });
+    }
+
+    // Debounce helper
+    function debounce(fn, wait) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), wait);
+      };
+    }
+
+    let suggestionAbortController = null;
+
+    const fetchSuggestions = debounce(async (query) => {
+      if (!toggleSuggestionsEl.checked || !query || query.length < 2 || toggleLocalOnlyEl.checked) {
+        populateHistorySuggestions(query);
+        return;
+      }
+
+      if (suggestionAbortController) suggestionAbortController.abort();
+      suggestionAbortController = new AbortController();
+
+      try {
+        const url = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`;
+        const res = await fetch(url, { signal: suggestionAbortController.signal });
+        if (!res.ok) throw new Error("suggest fetch failed");
+        const data = await res.json();
+        window.showSuggestionsFromFetch(data);
+      } catch (err) {
+        jsonpFallback(query);
+      }
+    }, 160);
+
+    function jsonpFallback(query) {
+      try {
+        const cbName = "jsonp_cb_" + Date.now();
+        window[cbName] = function(data) {
+          try {
+            window.showSuggestionsFromFetch(data);
+          } finally {
+            delete window[cbName];
+            script.remove();
+          }
+        };
+        const script = document.createElement("script");
+        script.src = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(query)}&callback=${cbName}`;
+        script.onerror = function() {
+          try { populateHistorySuggestions(query); } finally { delete window[cbName]; script.remove(); }
+        };
+        document.body.appendChild(script);
+      } catch (e) {
+        populateHistorySuggestions(query);
+      }
+    }
+
+    window.showSuggestionsFromFetch = function(data) {
+      const results = Array.isArray(data) && data.length > 1 ? data[1] : [];
+      suggestionsBox.innerHTML = "";
+      activeSuggestionIndex = -1;
+
+      if (results && results.length > 0) {
+        suggestionsBox.style.display = "block";
+        suggestionsBox.setAttribute("aria-expanded", "true");
+        results.slice(0, 6).forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "suggestion-item";
+          div.setAttribute("role", "option");
+          div.setAttribute("aria-selected", "false");
+          div.dataset.query = item;
+          div.innerHTML = `<span>${escapeHtml(item)}</span><span class="suggestion-meta">suggest</span>`;
+
+          const handler = (e) => {
+            e.preventDefault();
+            searchInput.value = item;
+            hideSuggestions();
+            performSearch(item);
+          };
+          div.addEventListener("pointerdown", handler);
+          div.addEventListener("mousedown", handler);
+          div.addEventListener("click", (e) => {
+            e.preventDefault();
+            searchInput.value = item;
+            hideSuggestions();
+            performSearch(item);
+          });
+
+          suggestionsBox.appendChild(div);
+        });
+      } else {
+        populateHistorySuggestions(searchInput.value.trim());
+      }
+    };
+
+    function populateHistorySuggestions(query = "") {
+      const hist = readHistory(8).filter(x => !query || x.toLowerCase().includes(query.toLowerCase()));
+      suggestionsBox.innerHTML = "";
+      activeSuggestionIndex = -1;
+
+      if (hist.length > 0) {
+        suggestionsBox.style.display = "block";
+        suggestionsBox.setAttribute("aria-expanded", "true");
+        hist.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "suggestion-item";
+          div.dataset.query = item;
+          div.innerHTML = `<span>${escapeHtml(item)}</span><span class="suggestion-meta">recent</span>`;
+
+          const handler = (e) => {
+            e.preventDefault();
+            searchInput.value = item;
+            hideSuggestions();
+            performSearch(item);
+          };
+          div.addEventListener("pointerdown", handler);
+          div.addEventListener("mousedown", handler);
+          div.addEventListener("click", handler);
+
+          suggestionsBox.appendChild(div);
+        });
+      } else {
+        hideSuggestions();
+      }
+    }
+
+    function hideSuggestions() {
+      suggestionsBox.style.display = "none";
+      suggestionsBox.setAttribute("aria-expanded", "false");
+      suggestionsBox.innerHTML = "";
+      activeSuggestionIndex = -1;
+    }
+
+    // Weather suggestion helper (returns a string or null)
+    async function fetchWeatherSummaryForQuery(query) {
+      // Query could be 'weather' or 'weather City, Country'
+      const cleaned = query.trim();
+      const after = cleaned.replace(/^weather[:\s]*/i, "").trim();
+      try {
+        if (after) {
+          // geocode with nominatim
+          const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(after)}&format=json&limit=1`);
+          if (!r.ok) throw new Error("geo fail");
+          const d = await r.json();
+          if (d && d.length) {
+            const { lat, lon } = d[0];
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&timezone=auto`;
+            const w = await fetch(url);
+            if (!w.ok) throw new Error("weather fail");
+            const jd = await w.json();
+            if (jd.current_weather) {
+              return `${jd.current_weather.temperature}°C, wind ${jd.current_weather.windspeed} km/h`;
+            }
+          }
+        } else if (navigator.geolocation) {
+          // attempt to get current location (best-effort)
+          const pos = await new Promise((res, rej) => {
+            const t = setTimeout(() => rej(new Error("geo timeout")), 8000);
+            navigator.geolocation.getCurrentPosition(p => { clearTimeout(t); res(p); }, err => { clearTimeout(t); rej(err); }, { timeout: 8000 });
+          });
+          if (pos && pos.coords) {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(pos.coords.latitude)}&longitude=${encodeURIComponent(pos.coords.longitude)}&current_weather=true&timezone=auto`;
+            const w = await fetch(url);
+            if (!w.ok) throw new Error("weather fail");
+            const jd = await w.json();
+            if (jd.current_weather) {
+              return `${jd.current_weather.temperature}°C, wind ${jd.current_weather.windspeed} km/h`;
+            }
+          }
+        }
+      } catch (e) {
+        // ignore and return null to fallback to other suggestions
+      }
+      return null;
+    }
+
+    // show math suggestion (display answer but search original expression)
+    function showMathSuggestion(query, result) {
+      suggestionsBox.innerHTML = "";
+      const div = document.createElement("div");
+      div.className = "suggestion-item";
+      div.setAttribute("role", "option");
+      div.dataset.query = query; // ensure clicking uses original expression
+      div.innerHTML = `<span>${escapeHtml(query)} = ${escapeHtml(String(result))}</span><span class="suggestion-meta">calc</span>`;
+      const handler = (e) => {
+        e.preventDefault();
+        hideSuggestions();
+        performSearch(query);
+      };
+      div.addEventListener("pointerdown", handler);
+      div.addEventListener("mousedown", handler);
+      div.addEventListener("click", handler);
+      suggestionsBox.appendChild(div);
+      suggestionsBox.style.display = "block";
+      suggestionsBox.setAttribute("aria-expanded", "true");
+      activeSuggestionIndex = -1;
+    }
+
+    // show weather suggestion (display weather info but search original query)
+    function showWeatherSuggestion(originalQuery, summary) {
+      suggestionsBox.innerHTML = "";
+      const div = document.createElement("div");
+      div.className = "suggestion-item";
+      div.setAttribute("role", "option");
+      div.dataset.query = originalQuery;
+      div.innerHTML = `<span>${escapeHtml(originalQuery)} — ${escapeHtml(summary)}</span><span class="suggestion-meta">weather</span>`;
+      const handler = (e) => {
+        e.preventDefault();
+        hideSuggestions();
+        performSearch(originalQuery);
+      };
+      div.addEventListener("pointerdown", handler);
+      div.addEventListener("mousedown", handler);
+      div.addEventListener("click", handler);
+      suggestionsBox.appendChild(div);
+      suggestionsBox.style.display = "block";
+      suggestionsBox.setAttribute("aria-expanded", "true");
+      activeSuggestionIndex = -1;
+    }
+
+    // main input listener: enhanced — math and weather first
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.trim();
+      if (!toggleSuggestionsEl.checked || query.length === 0) {
+        populateHistorySuggestions(query);
+        return;
+      }
+
+      if (isMathExpression(query)) {
+        const result = safeCalc(query);
+        showMathSuggestion(query, result);
+        return;
+      }
+
+      // weather trigger: display inline weather but keep original query for search
+      if (/^weather\b/i.test(query)) {
+        // show a "loading" suggestion and attempt to fetch weather then replace suggestion content
+        suggestionsBox.innerHTML = "";
+        const loading = document.createElement("div");
+        loading.className = "suggestion-item";
+        loading.innerHTML = `<span>Loading weather…</span><span class="suggestion-meta">weather</span>`;
+        suggestionsBox.appendChild(loading);
+        suggestionsBox.style.display = "block";
+        (async () => {
+          const summary = await fetchWeatherSummaryForQuery(query);
+          if (summary) {
+            showWeatherSuggestion(query, summary);
+          } else {
+            populateHistorySuggestions(query);
+          }
+        })();
+        return;
+      }
+
+      if (!toggleSuggestionsEl.checked || query.length < 2 || toggleLocalOnlyEl.checked) {
+        populateHistorySuggestions(query);
+        return;
+      }
+
+      fetchSuggestions(query);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+        hideSuggestions();
+      }
+    });
+
+    searchInput.addEventListener("blur", () => {
+      setTimeout(() => {
+        hideSuggestions();
+      }, 120);
+    });
+
+    /* =========================================
+       Voice integration
+       ========================================= */
+
+    const voiceBtn = document.getElementById("voiceBtn");
+    const toggleVoiceAutoEl = document.getElementById("toggleVoiceAuto");
+    let recognition = null;
+    let isListening = false;
+    let supportsSpeech = false;
+
+    function setMicUI(listening) {
+      isListening = !!listening;
+      voiceBtn.classList.toggle("listening", isListening);
+      voiceBtn.setAttribute("aria-pressed", String(isListening));
+      try {
+        localStorage.setItem("voiceActive", isListening ? "1" : "0");
+      } catch (e) { /* ignore */ }
+    }
+
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      supportsSpeech = true;
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => setMicUI(true);
+      recognition.onend = () => setMicUI(false);
+      recognition.onerror = () => setMicUI(false);
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        searchInput.value = transcript;
+        if (toggleVoiceAutoEl.checked) performSearch(transcript);
+        try { recognition.stop(); } catch (e) {}
+        setMicUI(false);
+      };
+    } else {
+      supportsSpeech = false;
+      voiceBtn.classList.add("disabled");
+      voiceBtn.title = "Voice search not supported in this browser";
+    }
+
+    async function startRecognition() {
+      if (!supportsSpeech || !recognition) return;
+      if (isListening) return;
+      try {
+        recognition.start();
+        setMicUI(true);
+      } catch (e) {
+        setMicUI(false);
+      }
+    }
+
+    function stopRecognition() {
+      if (!supportsSpeech || !recognition) return;
+      try { recognition.stop(); } catch (e) {}
+      finally { setMicUI(false); }
+    }
+
+    voiceBtn.addEventListener("click", (e) => {
+      if (!supportsSpeech) return;
+      if (isListening) stopRecognition();
+      else startRecognition();
+    });
+
+    (function restoreVoiceState() {
+      try {
+        const saved = localStorage.getItem("voiceActive");
+        if (saved === "1") {
+          voiceBtn.classList.add("listening");
+          voiceBtn.setAttribute("aria-pressed", "false");
+        }
+      } catch (e) { /* ignore */ }
+    })();
+
+    /* =========================================
+       Settings panel & theme handling (auto-save)
+       ========================================= */
+
+    const settingsToggle = document.getElementById("settingsToggle");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const toggleMatrixEl = document.getElementById("toggleMatrix");
+    const toast = document.getElementById("toast");
+    const themeSelect = document.getElementById("themeSelect");
+    const launcherOpacitySelect = document.getElementById("launcherOpacitySelect");
+    const launcherCompact = document.getElementById("launcherCompact");
+    const customColorPicker = document.getElementById("customColorPicker");
+    const customColorInput = document.getElementById("customColorInput");
+    const customColorHex = document.getElementById("customColorHex");
+    const openaiKeyInput = document.getElementById("openaiKeyInput");
+    const manualLocationInput = document.getElementById("manualLocation");
+    const weatherWedge = document.getElementById("weatherWedge");
+    const weatherText = document.getElementById("weatherText");
+    const weatherIcon = document.getElementById("weatherIcon");
+
+    function showToast(msg, ms = 1100) {
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(window._ituze_toast_t);
+      window._ituze_toast_t = setTimeout(() => {
+        toast.classList.remove("show");
+      }, ms);
+    }
+
+    // PANEL MANAGEMENT: strict closeAllPanels
+    function closeAllPanels(exclude = []) {
+      // exclude may contain DOM elements to keep open
+      const exEls = Array.isArray(exclude) ? exclude.filter(Boolean) : [];
+      if (!exEls.includes(settingsPanel)) {
+        settingsPanel.classList.remove("open");
+        settingsPanel.setAttribute("aria-hidden", "true");
+      }
+      if (!exEls.includes(waffleMenu)) {
+        waffleMenu.classList.remove("open");
+        waffleBtn.classList.remove("open");
+        waffleMenu.setAttribute("aria-hidden", "true");
+        // ensure hidden from display after close animation
+        setTimeout(() => {
+          if (!waffleMenu.classList.contains("open")) waffleMenu.style.display = "none";
+        }, 280);
+      }
+      if (!exEls.includes(aiSidebar)) {
+        aiSidebar.classList.remove("open");
+        aiSidebar.setAttribute("aria-hidden", "true");
+      }
+      if (!exEls.includes(helpModal)) {
+        helpModal.classList.remove("open");
+        helpModal.setAttribute("aria-hidden", "true");
+      }
+      if (!exEls.includes(linkMenu)) {
+        hideLinkMenu();
+      }
+      hideDropOverlay();
+    }
+
+    function openSettings() {
+      closeAllPanels([settingsPanel]);
+      // allow panel open after closing others
+      settingsPanel.classList.add("open");
+      settingsPanel.setAttribute("aria-hidden", "false");
+    }
+
+    function closeSettings() {
+      settingsPanel.classList.remove("open");
+      settingsPanel.setAttribute("aria-hidden", "true");
+    }
+
+    function toggleSettings() {
+      if (settingsPanel.classList.contains("open")) closeSettings();
+      else openSettings();
+    }
+
+    settingsToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleSettings();
+    });
+
+    document.addEventListener("click", (e) => {
+      // If click is inside an open panel or its toggle controls, ignore.
+      const target = e.target;
+      if (target.closest && (target.closest("#settingsPanel") || target.closest("#settingsToggle") ||
+          target.closest("#waffleMenu") || target.closest("#openWaffle") ||
+          target.closest(".ai-sidebar") || target.closest(".help-modal") || target.closest("#linkMenu"))) {
+        return;
+      }
+      // clicking the background closes everything
+      closeAllPanels();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && settingsPanel.classList.contains("open")) {
+        closeSettings();
+      }
+    });
+
+    // applyThemeKeyed supports both theme keys ('green','blue',...) and explicit hex colors.
+    function applyThemeKeyed(themeKeyOrColor) {
+      const root = document.documentElement;
+      const isExplicitColor = typeof themeKeyOrColor === "string" && themeKeyOrColor.startsWith("#");
+      if (isExplicitColor) {
+        const ac = themeKeyOrColor;
+        document.documentElement.style.setProperty('--accent', ac);
+        document.documentElement.style.setProperty('--matrix-color', ac);
+        document.documentElement.style.setProperty('--launcher-border-color', `color-mix(in srgb, ${ac} 25%, rgba(255,255,255,0.18))`);
+        document.documentElement.style.setProperty('--launcher-section-bg', 'rgba(15,23,42,0.6)');
+        document.documentElement.style.setProperty('--launcher-section-border', `color-mix(in srgb, ${ac} 30%, rgba(148,163,184,0.35))`);
+        return;
+      }
+
+      const themes = {
+        green:  { accent: "#00ff9c", matrix: "#00ff9c" },
+        blue:   { accent: "#4da3ff", matrix: "#4da3ff" },
+        red:    { accent: "#ff4d4d", matrix: "#ff4d4d" },
+        yellow: { accent: "#ffe44d", matrix: "#ffe44d" }
+      };
+      const t = themes[themeKeyOrColor] || themes.green;
+      root.style.setProperty("--accent", t.accent);
+      root.style.setProperty("--matrix-color", t.matrix);
+      root.style.setProperty("--launcher-border-color", `color-mix(in srgb, ${t.accent} 35%, rgba(255,255,255,0.18))`);
+      root.style.setProperty("--launcher-section-bg", "rgba(15,23,42,0.6)");
+      root.style.setProperty("--launcher-section-border", `color-mix(in srgb, ${t.accent} 30%, rgba(148,163,184,0.35))`);
+    }
+
+    // Save settings (keeps behavior but no longer closes panel). This is used by auto-save listeners.
+    function saveSettings() {
+      try {
+        localStorage.setItem("searchEngine", engineSelect.value);
+        localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0");
+        localStorage.setItem("voiceAuto", toggleVoiceAutoEl.checked ? "1" : "0");
+        localStorage.setItem("matrixEnabled", toggleMatrixEl.checked ? "0" : "1");
+        localStorage.setItem("keyboardShortcuts", toggleKeyboardEl.checked ? "1" : "0");
+        localStorage.setItem("themeColor", themeSelect.value);
+        localStorage.setItem("openInNewTab", toggleNewTabEl.checked ? "1" : "0");
+        localStorage.setItem("launcherOpacity", launcherOpacitySelect.value);
+        localStorage.setItem("launcherCompact", launcherCompact.checked ? "1" : "0");
+        localStorage.setItem("voiceActive", isListening ? "1" : (localStorage.getItem("voiceActive") || "0"));
+        localStorage.setItem("localOnlySuggestions", toggleLocalOnlyEl.checked ? "1" : "0");
+        localStorage.setItem("manualWeatherLocation", manualLocationInput.value || "");
+        const key = openaiKeyInput.value.trim();
+        if (key) {
+          localStorage.setItem("openaiKey", key);
+        }
+        if (themeSelect.value === "custom") {
+          const hex = (customColorHex.value || customColorInput.value || "#00ff9c").trim();
+          localStorage.setItem("customAccent", hex);
+        }
+      } catch (e) {}
+
+      applySettings();
+      showToast("Saved", 900);
+    }
+
+    const autoSave = debounce(saveSettings, 280);
+
+    function applySettings() {
+      const engineKey = localStorage.getItem("searchEngine") || "google";
+      engineSelect.value = engineKey;
+
+      const showSuggestions = localStorage.getItem("showSuggestions") === "1";
+      toggleSuggestionsEl.checked = showSuggestions;
+
+      const voiceAuto = localStorage.getItem("voiceAuto") === "1";
+      toggleVoiceAutoEl.checked = voiceAuto;
+
+      const matrixStored = localStorage.getItem("matrixEnabled");
+      matrixEnabled = matrixStored !== "0";
+      toggleMatrixEl.checked = !matrixEnabled;
+      if (!matrixEnabled) {
+        stopMatrix();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      } else {
+        startMatrix();
+      }
+
+      const keyboardShortcuts = localStorage.getItem("keyboardShortcuts") === "1";
+      toggleKeyboardEl.checked = keyboardShortcuts;
+
+      const savedTheme = localStorage.getItem("themeColor") || "green";
+      themeSelect.value = savedTheme;
+
+      const savedCustom = localStorage.getItem("customAccent") || "#00ff9c";
+      customColorInput.value = savedCustom;
+      customColorHex.value = savedCustom;
+
+      if (savedTheme === "custom") {
+        customColorPicker.style.display = "";
+        applyThemeKeyed(savedCustom);
+      } else {
+        customColorPicker.style.display = "none";
+        applyThemeKeyed(savedTheme);
+      }
+
+      openInNewTabSetting = localStorage.getItem("openInNewTab") !== "0";
+      toggleNewTabEl.checked = openInNewTabSetting;
+
+      const launcherOpacity = localStorage.getItem("launcherOpacity") || "0.32";
+      launcherOpacitySelect.value = launcherOpacity;
+      document.documentElement.style.setProperty("--launcher-opacity", launcherOpacity);
+
+      const compact = localStorage.getItem("launcherCompact") === "1";
+      launcherCompact.checked = compact;
+      document.querySelectorAll(".launcher-link").forEach(link => {
+        link.style.padding = compact ? "6px 9px" : "8px 10px";
+      });
+
+      try {
+        const savedMic = localStorage.getItem("voiceActive");
+        if (savedMic === "1") {
+          voiceBtn.classList.add("listening");
+          voiceBtn.setAttribute("aria-pressed", "false");
+        } else {
+          voiceBtn.classList.remove("listening");
+          voiceBtn.setAttribute("aria-pressed", "false");
+        }
+      } catch (e) {}
+
+      // local-only suggestions
+      const localOnly = localStorage.getItem("localOnlySuggestions") === "1";
+      toggleLocalOnlyEl.checked = localOnly;
+
+      // OpenAI key populate input (masked)
+      const savedKey = localStorage.getItem("openaiKey") || "";
+      openaiKeyInput.value = savedKey;
+      manualLocationInput.value = localStorage.getItem("manualWeatherLocation") || "";
+    }
+
+    window.saveSettings = saveSettings;
+    applySettings();
+
+    // Theme select: show custom color controls when "custom" selected.
+    themeSelect.addEventListener("change", () => {
+      const v = themeSelect.value;
+      if (v === "custom") {
+        customColorPicker.style.display = "";
+        const custom = localStorage.getItem("customAccent") || customColorInput.value || "#00ff9c";
+        customColorInput.value = custom;
+        customColorHex.value = custom;
+        applyThemeKeyed(custom);
+      } else {
+        customColorPicker.style.display = "none";
+        applyThemeKeyed(v);
+      }
+      autoSave();
+    });
+
+    // Sync color picker + hex input
+    customColorInput.addEventListener("input", () => {
+      const val = customColorInput.value;
+      customColorHex.value = val;
+      applyThemeKeyed(val);
+      autoSave();
+    });
+    customColorHex.addEventListener("input", () => {
+      const val = customColorHex.value.trim();
+      if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(val)) {
+        customColorInput.value = val;
+        applyThemeKeyed(val);
+        autoSave();
+      }
+    });
+
+    // Attach auto-save listeners for all settings controls
+    [
+      engineSelect,
+      toggleSuggestionsEl,
+      toggleVoiceAutoEl,
+      toggleKeyboardEl,
+      toggleNewTabEl,
+      toggleLocalOnlyEl,
+      toggleMatrixEl,
+      launcherOpacitySelect,
+      launcherCompact,
+      customColorInput,
+      customColorHex,
+      openaiKeyInput,
+      manualLocationInput
+    ].forEach(el => {
+      if (!el) return;
+      const ev = (el.tagName === "INPUT" && el.type === "text") || el.tagName === "TEXTAREA" || el.type === "password" ? "input" : "change";
+      el.addEventListener(ev, () => autoSave());
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const keyboardEnabled = toggleKeyboardEl.checked;
+      if (!keyboardEnabled) return;
+
+      if (e.key === "/" && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+
+      // Ctrl + Alt + / show help modal (user requested)
+      if (e.ctrlKey && e.altKey && e.key === "/") {
+        e.preventDefault();
+        toggleHelp(true);
+      }
+    });
+
+    document.querySelectorAll(".shortcut").forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        // open in preferred mode (global or per-link setting)
+        openLinkWithPrefs(link.href);
+      });
+    });
+
+    /* =========================================
+       Clear data / import / export
+       ========================================= */
+    document.getElementById("resetStorage").addEventListener("click", () => {
+      if (!confirm("Clear all saved settings, history, and customizations? This cannot be undone.")) return;
+      try {
+        localStorage.clear();
+        showToast("Local data cleared");
+        setTimeout(() => location.reload(), 350);
+      } catch (e) {
+        showToast("Failed to clear data");
+      }
+    });
+
+    document.getElementById("exportSettings").addEventListener("click", () => {
+      try {
+        const exportObj = {
+          settings: {
+            searchEngine: localStorage.getItem("searchEngine"),
+            themeColor: localStorage.getItem("themeColor"),
+            customAccent: localStorage.getItem("customAccent"),
+            openInNewTab: localStorage.getItem("openInNewTab"),
+            launcherOpacity: localStorage.getItem("launcherOpacity"),
+            launcherCompact: localStorage.getItem("launcherCompact"),
+            localOnlySuggestions: localStorage.getItem("localOnlySuggestions"),
+            manualWeatherLocation: localStorage.getItem("manualWeatherLocation") || ""
+          },
+          history: JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]")
+        };
+        const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ituze-settings.json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast("Exported settings");
+      } catch (e) { showToast("Export failed"); }
+    });
+
+    document.getElementById("importSettings").addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "application/json";
+      input.addEventListener("change", () => {
+        const f = input.files && input.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const obj = JSON.parse(reader.result);
+            if (obj.settings) {
+              Object.entries(obj.settings).forEach(([k, v]) => {
+                if (v === null || v === undefined) return;
+                localStorage.setItem(k, v);
+              });
+            }
+            if (obj.history) {
+              localStorage.setItem(HISTORY_KEY, JSON.stringify(obj.history));
+            }
+            applySettings();
+            showToast("Imported settings");
+          } catch (e) {
+            showToast("Invalid file");
+          }
+        };
+        reader.readAsText(f);
+      });
+      input.click();
+    });
+
+    /* =========================================
+       Weather widget (Open-Meteo, no API key)
+       ========================================= */
+    const batteryText = document.getElementById("battery-text");
+    const batteryLevelBar = document.getElementById("battery-level-bar");
+    const weatherElId = "battery"; // reused area for now: replace with dedicated UI if desired
+
+    function updateBatteryDisplay(level, charging) {
+      const percent = Math.round(level * 100);
+      batteryText.textContent = `Battery: ${percent}%${charging ? " ⚡" : ""}`;
+      batteryLevelBar.style.width = Math.max(5, percent) + "%";
+    }
+
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        updateBatteryDisplay(battery.level, battery.charging);
+        battery.addEventListener("levelchange", () => updateBatteryDisplay(battery.level, battery.charging));
+        battery.addEventListener("chargingchange", () => updateBatteryDisplay(battery.level, battery.charging));
+      }).catch(() => { batteryText.textContent = "Battery: N/A"; });
+    } else {
+      batteryText.textContent = "Battery: N/A";
+    }
+
+    async function fetchWeatherByCoordsSimple(lat, lon) {
+      try {
+        // Open-Meteo simple current weather
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&timezone=auto`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("weather failed");
+        const data = await res.json();
+        const cw = data.current_weather;
+        if (cw) {
+          return `${cw.temperature}°C, wind ${cw.windspeed} km/h`;
+        }
+      } catch (e) {
+        return null;
+      }
+      return null;
+    }
+
+    async function refreshWeatherWidget() {
+      const manual = (localStorage.getItem("manualWeatherLocation") || "").trim();
+      let summary = null;
+      if (manual) {
+        try {
+          const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(manual)}&format=json&limit=1`);
+          if (!r.ok) throw new Error("geo fail");
+          const d = await r.json();
+          if (d && d.length) {
+            const { lat, lon } = d[0];
+            summary = await fetchWeatherByCoordsSimple(lat, lon);
+          }
+        } catch (e) { /* fallback to geolocation */ }
+      }
+      if (!summary && navigator.geolocation) {
+        try {
+          const pos = await new Promise((res, rej) => {
+            const t = setTimeout(() => rej(new Error("geo timeout")), 8000);
+            navigator.geolocation.getCurrentPosition(p => { clearTimeout(t); res(p); }, err => { clearTimeout(t); rej(err); }, { timeout: 8000 });
+          });
+          if (pos && pos.coords) {
+            summary = await fetchWeatherByCoordsSimple(pos.coords.latitude, pos.coords.longitude);
+          }
+        } catch (e) { /* ignore */ }
+      }
+      if (summary) {
+        weatherText.textContent = `Weather: ${summary}`;
+        weatherWedge.setAttribute("aria-hidden", "false");
+      } else {
+        weatherText.textContent = `Weather: N/A`;
+        weatherWedge.setAttribute("aria-hidden", "true");
+      }
+    }
+
+    // click weather wedge to refresh
+    weatherWedge.addEventListener("click", (e) => {
+      e.stopPropagation();
+      refreshWeatherWidget();
+      showToast("Weather refreshed", 900);
+    });
+
+    refreshWeatherWidget();
+
+    async function updateWeather() {
+      // kept for compatibility with other code paths – uses toast notifications
+      await refreshWeatherWidget();
+    }
+
+    updateWeather();
+
+    /* =========================================
+       Launcher (preserved) + per-link open preferences
+       ========================================= */
+    const waffleBtn = document.getElementById("openWaffle");
+    const waffleMenu = document.getElementById("waffleMenu");
+    const closeWaffle = document.getElementById("closeWaffle");
+    const launcherSearch = document.getElementById("launcherSearch");
+    const launcherEmpty = document.getElementById("launcherEmpty");
+    const sections = document.querySelectorAll(".launcher-section");
+    const launcherScroll = document.getElementById("launcherScroll");
+
+    function resetLauncherState() {
+      launcherSearch.value = "";
+      launcherEmpty.style.display = "none";
+
+      sections.forEach(section => {
+        section.style.display = "";
+        section.classList.add("collapsed");
+        const wrapper = section.querySelector(".launcher-list-wrapper");
+        const items = section.querySelectorAll(".launcher-item");
+        items.forEach(li => li.style.display = "");
+        wrapper.style.maxHeight = "0px";
+      });
+    }
+
+    function openLauncher() {
+      closeAllPanels([waffleMenu]);
+      resetLauncherState();
+      waffleMenu.style.display = "block";
+      setTimeout(() => {
+        waffleMenu.classList.add("open");
+        waffleBtn.classList.add("open");
+        waffleMenu.setAttribute("aria-hidden", "false");
+      }, 10);
+    }
+
+    function closeLauncher() {
+      waffleMenu.classList.remove("open");
+      waffleBtn.classList.remove("open");
+      waffleMenu.setAttribute("aria-hidden", "true");
+      setTimeout(() => {
+        waffleMenu.style.display = "none";
+        resetLauncherState();
+      }, 250);
+    }
+
+    function toggleWaffle() {
+      const isOpen = waffleMenu.classList.contains("open");
+      if (isOpen) closeLauncher();
+      else openLauncher();
+    }
+
+    waffleBtn.addEventListener("click", (e) => {
+      createRipple(e, waffleBtn);
+      e.stopPropagation();
+      toggleWaffle();
+    });
+
+    closeWaffle.addEventListener("click", (e) => {
+      createRipple(e, closeWaffle);
+      closeLauncher();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!waffleMenu.contains(e.target) && e.target !== waffleBtn) {
+        if (waffleMenu.classList.contains("open")) closeLauncher();
+      }
+    });
+
+    function createRipple(event, element) {
+      const rect = element.getBoundingClientRect();
+      const ripple = document.createElement("span");
+      ripple.classList.add("ripple");
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width = ripple.style.height = size + "px";
+      ripple.style.left = (event.clientX - rect.left - size / 2) + "px";
+      ripple.style.top = (event.clientY - rect.top - size / 2) + "px";
+      element.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 500);
+    }
+
+    document.querySelectorAll(".ripple-target").forEach(el => {
+      el.addEventListener("click", (e) => {
+        createRipple(e, el);
+      });
+    });
+
+    sections.forEach(section => {
+      const header = section.querySelector(".launcher-section-header");
+      const wrapper = section.querySelector(".launcher-list-wrapper");
+      wrapper.style.maxHeight = "0px";
+
+      header.addEventListener("click", (e) => {
+        if (e.target.closest("a")) return;
+
+        const isCollapsed = section.classList.contains("collapsed");
+
+        if (isCollapsed) {
+          sections.forEach(other => {
+            if (other !== section) {
+              other.classList.add("collapsed");
+              const w = other.querySelector(".launcher-list-wrapper");
+              w.style.maxHeight = "0px";
+            }
+          });
+          section.classList.remove("collapsed");
+          wrapper.style.maxHeight = wrapper.scrollHeight + "px";
+          try {
+            section.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+          } catch (err) {
+            const rect = section.getBoundingClientRect();
+            const containerRect = launcherScroll.getBoundingClientRect();
+            launcherScroll.scrollTop += rect.top - containerRect.top - 8;
+          }
+        } else {
+          section.classList.add("collapsed");
+          wrapper.style.maxHeight = "0px";
+        }
+      });
+    });
+
+    /* =========================================
+       Per-link open-in-background vs foreground preference
+       ========================================= */
+    const linkMenu = document.getElementById("linkMenu");
+    let currentContextLink = null; // anchor element
+    const LINK_PREF_KEY = "linkOpenPrefsV1"; // store mapping url->"bg"|"fg"
+
+    function loadLinkPrefs() {
+      try {
+        return JSON.parse(localStorage.getItem(LINK_PREF_KEY) || "{}");
+      } catch (e) { return {}; }
+    }
+    function saveLinkPrefs(p) {
+      try { localStorage.setItem(LINK_PREF_KEY, JSON.stringify(p)); } catch (e) {}
+    }
+
+    document.addEventListener("contextmenu", (evt) => {
+      const anchor = evt.target.closest && evt.target.closest("a");
+      if (!anchor) return;
+      evt.preventDefault();
+      currentContextLink = anchor;
+      const rect = anchor.getBoundingClientRect();
+      const x = evt.clientX;
+      const y = evt.clientY;
+      openLinkMenuAt(x, y, anchor);
+    });
+
+    function openLinkMenuAt(x, y, anchor) {
+      const prefs = loadLinkPrefs();
+      const pref = prefs[anchor.href];
+      linkMenu.style.left = x + "px";
+      linkMenu.style.top = y + "px";
+      linkMenu.style.display = "block";
+      linkMenu.style.opacity = "1";
+    }
+
+    document.getElementById("linkOpenForeground").addEventListener("click", () => {
+      if (!currentContextLink) return hideLinkMenu();
+      hideLinkMenu();
+      openLink(currentContextLink.href, { background: false });
+    });
+    document.getElementById("linkOpenBackground").addEventListener("click", () => {
+      if (!currentContextLink) return hideLinkMenu();
+      hideLinkMenu();
+      openLink(currentContextLink.href, { background: true });
+    });
+    document.getElementById("linkRememberBg").addEventListener("click", () => {
+      if (!currentContextLink) return hideLinkMenu();
+      const prefs = loadLinkPrefs();
+      prefs[currentContextLink.href] = "bg";
+      saveLinkPrefs(prefs);
+      hideLinkMenu();
+      showToast("Saved: open in background");
+    });
+    document.getElementById("linkRememberFg").addEventListener("click", () => {
+      if (!currentContextLink) return hideLinkMenu();
+      const prefs = loadLinkPrefs();
+      prefs[currentContextLink.href] = "fg";
+      saveLinkPrefs(prefs);
+      hideLinkMenu();
+      showToast("Saved: open in foreground");
+    });
+
+    function hideLinkMenu() {
+      currentContextLink = null;
+      linkMenu.style.display = "none";
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!linkMenu.contains(e.target)) hideLinkMenu();
+    });
+
+    // Intercept clicks to honor remembered preferences
+    document.addEventListener("click", (evt) => {
+      const anchor = evt.target.closest && evt.target.closest("a");
+      if (!anchor) return;
+      const prefs = loadLinkPrefs();
+      const pref = prefs[anchor.href];
+      if (pref) {
+        evt.preventDefault();
+        openLink(anchor.href, { background: pref === "bg" });
+      } else {
+        // normal behavior
+      }
+    }, true);
+
+    /* =========================================
+       Drag & drop image -> Google reverse image search (Lens/Images)
+       ========================================= */
+    const dropOverlay = document.getElementById("dropOverlay");
+
+    function showDropOverlay() { dropOverlay.classList.add("active"); }
+    function hideDropOverlay() { dropOverlay.classList.remove("active"); }
+
+    // highlight drop area
+    ["dragenter", "dragover"].forEach(ev => {
+      document.addEventListener(ev, (e) => {
+        const hasImage = Array.from(e.dataTransfer?.items || []).some(i => i.type && i.type.startsWith && i.type.startsWith("image/"));
+        if (hasImage) {
+          e.preventDefault();
+          showDropOverlay();
+        }
+      });
+    });
+
+    ["dragleave", "dragend"].forEach(ev => {
+      document.addEventListener(ev, (e) => {
+        hideDropOverlay();
+      });
+    });
+
+    document.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      hideDropOverlay();
+      const files = Array.from(e.dataTransfer.files || []);
+      const img = files.find(f => f.type && f.type.startsWith && f.type.startsWith("image/"));
+      if (!img) { showToast("No image found in drop"); return; }
+
+      try {
+        // Attempt form-based upload approach:
+        const form = document.createElement("form");
+        form.action = "https://www.google.com/searchbyimage/upload";
+        form.method = "POST";
+        form.enctype = "multipart/form-data";
+        form.target = "_blank";
+
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.name = "encoded_image";
+
+        const dt = new DataTransfer();
+        dt.items.add(img);
+        fileInput.files = dt.files;
+        form.appendChild(fileInput);
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
+        showToast("Opened reverse image search");
+      } catch (err) {
+        showToast("Reverse image search failed (browser restrictions)");
+      }
+    });
+
+    /* =========================================
+       Accessibility / UX tweaks
+       ========================================= */
+
+    window.addEventListener("blur", () => {
+      hideSuggestions();
+    });
+
+    // Expose utilities for debugging if needed
+    window._ituze_utils = {
+      performSearch,
+      hideSuggestions,
+      startRecognition,
+      stopRecognition,
+      clearSearchImmediate,
+      readHistory
+    };
+
+    // Focus the search input when page is shown and clear persisted search marker if present.
+    window.addEventListener("pageshow", (evt) => {
+      try {
+        if (localStorage.getItem("clearSearchOnReturn") === "1") {
+          try { searchInput.value = ""; hideSuggestions(); } catch (e) {}
+          try { localStorage.removeItem("clearSearchOnReturn"); } catch (e) {}
+        }
+      } catch (e) {}
+
+      try {
+        if (document.activeElement === document.body || document.activeElement === document.documentElement) {
+          searchInput.focus();
+          const val = searchInput.value;
+          searchInput.setSelectionRange(val.length, val.length);
+        }
+      } catch (e) {}
+    });
+
+    // Global capture-phase click listener to clear local search state before navigation.
+    document.addEventListener("click", (evt) => {
+      const anchor = evt.target.closest && evt.target.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href) return;
+      try { clearSearchImmediate(); } catch (e) {}
+    }, true);
+
+    // Ensure launcher links and other programmatic opens are handled by openLink (which clears search).
+    document.querySelectorAll(".launcher-link").forEach(a => {
+      a.addEventListener("click", (ev) => {
+        // nothing else required; global capture handler already cleared state
+      });
+    });
+
+    // Initial focus on load (with slight delay to allow painting)
+    (function initOnLoad() {
+      try {
+        setTimeout(() => {
+          if (document.activeElement === document.body || document.activeElement === document.documentElement) {
+            searchInput.focus();
+            const v = searchInput.value || "";
+            searchInput.setSelectionRange(v.length, v.length);
+          }
+        }, 60);
+      } catch (e) {}
+    })();
+
+    /* =========================================
+       Help modal handling
+       ========================================= */
+    const helpModal = document.getElementById("helpModal");
+    const closeHelp = document.getElementById("closeHelp");
+    function toggleHelp(show) {
+      if (show) {
+        closeAllPanels([helpModal]);
+        helpModal.classList.add("open");
+        helpModal.setAttribute("aria-hidden", "false");
+      } else {
+        helpModal.classList.remove("open");
+        helpModal.setAttribute("aria-hidden", "true");
+      }
+    }
+    closeHelp.addEventListener("click", () => toggleHelp(false));
+
+    /* =========================================
+       AI Assistant (client-side usage of OpenAI or via proxy)
+       ========================================= */
+    const aiSidebar = document.getElementById("aiSidebar");
+    const aiMessages = document.getElementById("aiMessages");
+    const aiInput = document.getElementById("aiInput");
+    const aiSend = document.getElementById("aiSend");
+    const aiModeBtn = document.getElementById("aiModeBtn");
+
+    function appendAiMessage(text, who = "user") {
+      const el = document.createElement("div");
+      el.className = "ai-msg " + (who === "assistant" ? "assistant" : "user");
+      el.textContent = text;
+      aiMessages.appendChild(el);
+      aiMessages.scrollTop = aiMessages.scrollHeight;
+    }
+
+    function toggleAiSidebar() {
+      const open = aiSidebar.classList.toggle("open");
+      if (open) {
+        closeAllPanels([aiSidebar]);
+        aiSidebar.setAttribute("aria-hidden", "false");
+      } else {
+        aiSidebar.setAttribute("aria-hidden", "true");
+      }
+    }
+    aiModeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleAiSidebar();
+    });
+
+    async function sendAiPrompt(prompt) {
+      appendAiMessage(prompt, "user");
+      appendAiMessage("Thinking...", "assistant");
+      const assistantNode = aiMessages.querySelector(".ai-msg.assistant:last-child");
+      try {
+        // Prefer server proxy at /api/chat. If not present, attempt direct client-side call to OpenAI.
+        const proxyUrl = "/api/chat";
+        try {
+          const resProxy = await fetch(proxyUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt })
+          });
+          if (resProxy.ok) {
+            const json = await resProxy.json();
+            assistantNode.textContent = json.result || json.response || "No response";
+            return;
+          }
+        } catch (e) {
+          // fallthrough to client-side attempt
+        }
+
+        const key = localStorage.getItem("openaiKey");
+        if (!key) {
+          assistantNode.textContent = "No OpenAI key provided. Set it in Settings or provide a server proxy at /api/chat.";
+          return;
+        }
+
+        const payload = {
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.7,
+          max_tokens: 600
+        };
+
+        const r = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + key
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!r.ok) {
+          const errText = await r.text();
+          assistantNode.textContent = "OpenAI error: " + (errText || r.statusText);
+          return;
+        }
+        const jr = await r.json();
+        const text = jr.choices && jr.choices[0] && jr.choices[0].message && jr.choices[0].message.content ? jr.choices[0].message.content : "(no response)";
+        assistantNode.textContent = text;
+      } catch (err) {
+        assistantNode.textContent = "Error: " + (err.message || "unknown");
+      }
+    }
+
+    aiSend.addEventListener("click", () => {
+      const v = aiInput.value.trim();
+      if (!v) return;
+      aiInput.value = "";
+      sendAiPrompt(v);
+    });
+    aiInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        aiSend.click();
+      }
+    });
+
+    /* =========================================
+       Utilities
+       ========================================= */
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+    }
+
+    // Enhance suggestion box: when empty input, show recent queries
+    searchInput.addEventListener("focus", () => {
+      if (!toggleSuggestionsEl.checked) return;
+      const q = searchInput.value.trim();
+      if (!q) populateHistorySuggestions("");
+    });
+
+    // Respect per-link preferences when opening programmatically (shortcuts etc.)
+    function openLinkWithPrefs(url) {
+      const prefs = loadLinkPrefs();
+      const pref = prefs[url];
+      if (pref === "bg") openLink(url, { background: true });
+      else if (pref === "fg") openLink(url, { background: false });
+      else openLink(url);
+    }
+
+    // On page load, attempt to apply saved settings and show recent suggestions button if appropriate
+    document.addEventListener("DOMContentLoaded", () => {
+      applySettings();
+    });
+
+  </script>
+
+</body>
+</html>
