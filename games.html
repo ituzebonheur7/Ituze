@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Lab - Ituze</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --accent: #00d2ff; 
+      --matrix-color: #00d2ff;
+      --glass-bg: rgba(0, 15, 30, 0.5);
+      --glass-border: rgba(0, 210, 255, 0.25);
+      --text-main: #e0f7ff;
+      --bg: #02060d;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      overflow: hidden;
+    }
+
+    #matrix {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    #menu {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start; 
+      padding-top: 10vh;
+      height: 100vh;
+      background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.7) 100%);
+      overflow-y: auto;
+    }
+
+    #greeting {
+      font-size: 2.8rem;
+      font-weight: 300;
+      margin-bottom: 50px;
+      letter-spacing: 1px;
+      color: var(--text-main);
+      text-shadow: 0 0 30px rgba(0, 210, 255, 0.4);
+    }
+
+    .button-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, 300px);
+      gap: 25px;
+      justify-content: center;
+      width: 90%;
+      max-width: 1300px;
+      padding-bottom: 50px;
+    }
+
+    .game-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      width: 300px;
+      padding: 25px 0;
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .game-card:hover {
+      background: rgba(0, 210, 255, 0.15);
+      border-color: var(--accent);
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 0 40px rgba(0, 210, 255, 0.3);
+      color: #fff;
+    }
+
+    #stage {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      z-index: 10;
+      background: #000;
+    }
+
+    #controls {
+      background: rgba(5, 10, 20, 0.95);
+      padding: 12px 30px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    #stage:fullscreen #controls,
+    #stage:-webkit-full-screen #controls {
+      display: none;
+    }
+
+    .btn {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 8px 22px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: 0.3s;
+      text-transform: uppercase;
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      color: #000;
+      box-shadow: 0 0 15px var(--accent);
+    }
+
+    iframe { width: 100%; height: 100%; border: none; }
+  </style>
+</head>
+<body>
+
+  <canvas id="matrix"></canvas>
+
+  <div id="menu">
+    <h1 id="greeting">Welcome, Ituze</h1>
+    
+    <div class="button-container">
+      <div class="game-card" onclick="loadGame('https://ozgames.io/geometry-dash.embed')">Geometry Dash</div>
+      <div class="game-card" onclick="loadGame('https://geometrylitepc.io/slope-2.embed')">Slope 2</div>
+      <div class="game-card" onclick="loadGame('https://smashkarts.io')">Smash Karts</div>
+      <div class="game-card" onclick="loadGame('https://escaperoad.io/escape-road')">Escape Road</div>
+    </div>
+  </div>
+
+  <div id="stage">
+    <div id="controls">
+      <button class="btn" onclick="goBack()">← Hub</button>
+      <button class="btn" onclick="toggleFullscreen()">Fullscreen</button>
+    </div>
+    <iframe id="gameFrame" src="" allow="fullscreen; autoplay"></iframe>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    let matrixInterval = null;
+    let matrixEnabled = true;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const fontSize = 16;
+    let columns;
+    let drops = [];
+
+    function initDrops() {
+      columns = Math.floor(canvas.width / fontSize);
+      drops = Array.from({ length: columns }, () => 1);
+    }
+
+    function drawMatrix() {
+      if (!matrixEnabled) return;
+      ctx.fillStyle = "rgba(2, 6, 13, 0.15)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--matrix-color").trim();
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    function startMatrix() {
+      if (!matrixInterval) matrixInterval = setInterval(drawMatrix, 35);
+    }
+
+    function stopMatrix() {
+      clearInterval(matrixInterval);
+      matrixInterval = null;
+    }
+
+    resizeCanvas();
+    initDrops();
+    startMatrix();
+
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      initDrops();
+    });
+
+    function updateGreeting() {
+      const hour = new Date().getHours();
+      let text = "Welcome, Ituze";
+      if (hour < 12) text = "Good morning, Ituze";
+      else if (hour < 18) text = "Good afternoon, Ituze";
+      else text = "Good evening, Ituze";
+      document.getElementById("greeting").textContent = text;
+    }
+    updateGreeting();
+
+    function loadGame(url) {
+      document.getElementById('gameFrame').src = url;
+      document.getElementById('menu').style.display = 'none';
+      canvas.style.display = 'none';
+      document.getElementById('stage').style.display = 'flex';
+      stopMatrix();
+    }
+
+    function goBack() {
+      document.getElementById('gameFrame').src = '';
+      document.getElementById('menu').style.display = 'flex';
+      canvas.style.display = 'block';
+      document.getElementById('stage').style.display = 'none';
+      startMatrix();
+    }
+
+    function toggleFullscreen() {
+      const stage = document.getElementById('stage');
+      if (!document.fullscreenElement) stage.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  </script>
+</body>
+</html>
