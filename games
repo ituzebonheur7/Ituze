@@ -8,8 +8,8 @@
     :root {
       --accent: #00d2ff; 
       --matrix-color: #00d2ff;
-      --glass-bg: rgba(0, 15, 30, 0.5);
-      --glass-border: rgba(0, 210, 255, 0.25);
+      --glass-bg: rgba(0, 15, 30, 0.7);
+      --glass-border: rgba(0, 210, 255, 0.3);
       --text-main: #e0f7ff;
       --bg: #02060d;
     }
@@ -20,10 +20,12 @@
       height: 100%;
       background: var(--bg);
       color: var(--text-main);
-      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       overflow: hidden;
+      user-select: none; /* Prevents text highlighting */
     }
 
+    /* Matrix Background */
     #matrix {
       position: fixed;
       top: 0;
@@ -31,68 +33,90 @@
       width: 100%;
       height: 100%;
       z-index: 0;
-      opacity: 0.6;
+      opacity: 0.5;
     }
 
+    /* Main Hub UI */
     #menu {
       position: relative;
       z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start; 
       padding-top: 10vh;
       height: 100vh;
-      background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.7) 100%);
+      background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.85) 100%);
       overflow-y: auto;
     }
 
     #greeting {
-      font-size: 2.8rem;
+      font-size: 3rem;
       font-weight: 300;
       margin-bottom: 50px;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
       color: var(--text-main);
-      text-shadow: 0 0 30px rgba(0, 210, 255, 0.4);
+      text-shadow: 0 0 30px rgba(0, 210, 255, 0.5);
     }
 
     .button-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, 300px);
-      gap: 25px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
       justify-content: center;
-      width: 90%;
-      max-width: 1300px;
-      padding-bottom: 50px;
+      max-width: 1200px;
+      padding-bottom: 80px;
     }
 
+    /* Game Card Styling */
     .game-card {
       background: var(--glass-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      width: 300px;
-      padding: 25px 0;
+      width: 300px; /* Requested Width */
+      padding: 30px 0;
       border: 1px solid var(--glass-border);
       border-radius: 16px;
       cursor: pointer;
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      font-size: 1.4rem;
-      font-weight: 600;
+      font-size: 1.4rem; /* Requested Font Size */
+      font-weight: 600; /* Requested Font Weight */
       color: var(--text-main);
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       text-transform: uppercase;
       letter-spacing: 1px;
+      position: relative;
     }
 
     .game-card:hover {
       background: rgba(0, 210, 255, 0.15);
       border-color: var(--accent);
-      transform: translateY(-10px) scale(1.02);
+      transform: translateY(-10px);
       box-shadow: 0 0 40px rgba(0, 210, 255, 0.3);
       color: #fff;
     }
 
+    .add-btn {
+      border-style: dashed;
+      opacity: 0.6;
+    }
+
+    /* Custom Right-Click Menu */
+    #custom-menu {
+      display: none;
+      position: absolute;
+      background: #00d2ff;
+      color: #000;
+      padding: 10px 25px;
+      font-weight: 800;
+      border-radius: 4px;
+      z-index: 1000;
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    /* Game Stage */
     #stage {
       display: none;
       flex-direction: column;
@@ -108,145 +132,168 @@
       padding: 12px 30px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       border-bottom: 1px solid var(--glass-border);
     }
 
-    #stage:fullscreen #controls,
-    #stage:-webkit-full-screen #controls {
-      display: none;
-    }
+    #stage:fullscreen #controls { display: none; }
 
     .btn {
       background: transparent;
       color: var(--accent);
       border: 1px solid var(--accent);
-      padding: 8px 22px;
+      padding: 10px 25px;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 0.9rem;
+      font-weight: 700;
       transition: 0.3s;
       text-transform: uppercase;
     }
 
-    .btn:hover {
-      background: var(--accent);
-      color: #000;
-      box-shadow: 0 0 15px var(--accent);
-    }
+    .btn:hover { background: var(--accent); color: #000; }
 
     iframe { width: 100%; height: 100%; border: none; }
   </style>
 </head>
-<body>
+<body oncontextmenu="return false;"> <canvas id="matrix"></canvas>
 
-  <canvas id="matrix"></canvas>
+  <div id="custom-menu">Open Game</div>
 
   <div id="menu">
     <h1 id="greeting">Welcome, Ituze</h1>
     
-    <div class="button-container">
+    <div class="button-container" id="gameList">
       <div class="game-card" onclick="loadGame('https://ozgames.io/geometry-dash.embed')">Geometry Dash</div>
       <div class="game-card" onclick="loadGame('https://geometrylitepc.io/slope-2.embed')">Slope 2</div>
-      <div class="game-card" onclick="loadGame('https://smashkarts.io')">Smash Karts</div>
+      <div class="game-card" onclick="loadGame('https://smash-karts.game-files.crazygames.com/smash-karts/177/index.html?isNewUser=false&skipPrerollFirstSession=true')">Smash Karts</div>
       <div class="game-card" onclick="loadGame('https://escaperoad.io/escape-road')">Escape Road</div>
+
+      <div class="game-card add-btn" onclick="addCustomGame()">+ Add Game</div>
     </div>
   </div>
 
   <div id="stage">
     <div id="controls">
-      <button class="btn" onclick="goBack()">← Hub</button>
+      <button class="btn" onclick="goBack()">← Exit to Hub</button>
       <button class="btn" onclick="toggleFullscreen()">Fullscreen</button>
     </div>
-    <iframe id="gameFrame" src="" allow="fullscreen; autoplay"></iframe>
+    <iframe id="gameFrame" src="" allow="fullscreen; autoplay; camera; microphone; clipboard-write" sandbox="allow-forms allow-scripts allow-same-origin allow-popups"></iframe>
   </div>
 
   <script>
+    // --- Security: Block Context Menu & Shortcuts ---
+    const customMenu = document.getElementById('custom-menu');
+    let currentTargetUrl = '';
+
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      const card = e.target.closest('.game-card');
+      if (card && !card.classList.contains('add-btn')) {
+        // Extract URL from the onclick attribute
+        const match = card.getAttribute('onclick').match(/'([^']+)'/);
+        if (match) {
+          currentTargetUrl = match[1];
+          customMenu.style.display = 'block';
+          customMenu.style.left = e.pageX + 'px';
+          customMenu.style.top = e.pageY + 'px';
+        }
+      } else {
+        customMenu.style.display = 'none';
+      }
+    });
+
+    customMenu.onclick = () => {
+      loadGame(currentTargetUrl);
+      customMenu.style.display = 'none';
+    };
+
+    document.addEventListener('click', () => customMenu.style.display = 'none');
+
+    // Block Ctrl+T, Ctrl+N, Ctrl+Shift+I
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 't' || e.key === 'n' || e.key === 'p')) e.preventDefault();
+      if (e.ctrlKey && e.shiftKey && e.key === 'I') e.preventDefault();
+    });
+
+    // --- Matrix Rain ---
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
     let matrixInterval = null;
-    let matrixEnabled = true;
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const fontSize = 16;
-    let columns;
     let drops = [];
 
-    function initDrops() {
-      columns = Math.floor(canvas.width / fontSize);
-      drops = Array.from({ length: columns }, () => 1);
+    function initMatrix() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const cols = Math.floor(canvas.width / fontSize);
+      drops = Array(cols).fill(1);
     }
 
     function drawMatrix() {
-      if (!matrixEnabled) return;
       ctx.fillStyle = "rgba(2, 6, 13, 0.15)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--matrix-color").trim();
+      ctx.fillStyle = "#00d2ff";
       ctx.font = fontSize + "px monospace";
-
       for (let i = 0; i < drops.length; i++) {
         const text = chars[Math.floor(Math.random() * chars.length)];
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
       }
     }
 
-    function startMatrix() {
-      if (!matrixInterval) matrixInterval = setInterval(drawMatrix, 35);
-    }
+    initMatrix();
+    matrixInterval = setInterval(drawMatrix, 35);
+    window.onresize = initMatrix;
 
-    function stopMatrix() {
-      clearInterval(matrixInterval);
-      matrixInterval = null;
-    }
-
-    resizeCanvas();
-    initDrops();
-    startMatrix();
-
-    window.addEventListener("resize", () => {
-      resizeCanvas();
-      initDrops();
-    });
-
+    // --- Dynamic Greeting ---
     function updateGreeting() {
-      const hour = new Date().getHours();
-      let text = "Welcome, Ituze";
-      if (hour < 12) text = "Good morning, Ituze";
-      else if (hour < 18) text = "Good afternoon, Ituze";
-      else text = "Good evening, Ituze";
-      document.getElementById("greeting").textContent = text;
+      const h = new Date().getHours();
+      let t = "Welcome, Ituze";
+      if (h < 12) t = "Good morning, Ituze";
+      else if (h < 18) t = "Good afternoon, Ituze";
+      else t = "Good evening, Ituze";
+      document.getElementById("greeting").textContent = t;
     }
     updateGreeting();
 
+    // --- Navigation ---
     function loadGame(url) {
+      if (!url.startsWith('http')) url = 'https://' + url;
       document.getElementById('gameFrame').src = url;
       document.getElementById('menu').style.display = 'none';
-      canvas.style.display = 'none';
       document.getElementById('stage').style.display = 'flex';
-      stopMatrix();
+      clearInterval(matrixInterval);
     }
 
     function goBack() {
-      document.getElementById('gameFrame').src = '';
+      document.getElementById('gameFrame').src = 'about:blank';
       document.getElementById('menu').style.display = 'flex';
-      canvas.style.display = 'block';
       document.getElementById('stage').style.display = 'none';
-      startMatrix();
+      matrixInterval = setInterval(drawMatrix, 35);
     }
 
     function toggleFullscreen() {
       const stage = document.getElementById('stage');
       if (!document.fullscreenElement) stage.requestFullscreen();
       else document.exitFullscreen();
+    }
+
+    // --- Add Game ---
+    function addCustomGame() {
+      const name = prompt("Enter Game Name:");
+      if (!name) return;
+      let url = prompt("Enter URL:");
+      if (!url) return;
+
+      const newCard = document.createElement("div");
+      newCard.className = "game-card";
+      newCard.textContent = name;
+      newCard.onclick = () => loadGame(url);
+
+      const list = document.getElementById("gameList");
+      list.insertBefore(newCard, list.querySelector(".add-btn"));
     }
   </script>
 </body>
