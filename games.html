@@ -6,46 +6,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
-      --accent: #00d2ff; 
-      --matrix-color: #00d2ff;
-      --glass-bg: rgba(0, 15, 30, 0.7);
-      --glass-border: rgba(0, 210, 255, 0.3);
-      --text-main: #e0f7ff;
-      --bg: #02060d;
+      --accent: #00ff9c;
+      --matrix-color: #00ff9c;
+      --glass-bg: rgba(0,0,0,0.25);
+      --glass-border: rgba(255,255,255,0.15);
+      --text-main: #e5e7eb;
     }
 
-    body, html {
+    * { box-sizing: border-box; }
+
+    /* Hide scrollbars */
+    html, body, * {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    *::-webkit-scrollbar { display: none !important; width: 0; height: 0; }
+
+    body {
       margin: 0;
-      padding: 0;
-      height: 100%;
-      background: var(--bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background: #020617;
+      background-image: radial-gradient(circle at top, #0b1120 0%, #020617 55%, #000 100%);
+      background-attachment: fixed;
       color: var(--text-main);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       overflow: hidden;
-      user-select: none; /* Prevents text highlighting */
+      user-select: none;
     }
 
-    /* Matrix Background */
-    #matrix {
+    canvas {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      opacity: 0.5;
+      inset: 0;
+      z-index: -1;
     }
 
-    /* Main Hub UI */
+    /* Shared Button Style (Home, Exit, Fullscreen) */
+    .top-btn, .btn {
+      padding: 10px 26px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--glass-bg);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      border: 1px solid var(--glass-border);
+      border-radius: 25px;
+      text-decoration: none;
+      transition: 0.3s;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .top-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1200;
+    }
+
+    .top-btn:hover, .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.7);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* Main Hub */
     #menu {
       position: relative;
       z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 10vh;
+      padding-top: 12vh;
       height: 100vh;
-      background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.85) 100%);
       overflow-y: auto;
     }
 
@@ -54,8 +89,7 @@
       font-weight: 300;
       margin-bottom: 50px;
       letter-spacing: 2px;
-      color: var(--text-main);
-      text-shadow: 0 0 30px rgba(0, 210, 255, 0.5);
+      text-shadow: 0 0 30px var(--accent);
     }
 
     .button-container {
@@ -67,108 +101,95 @@
       padding-bottom: 80px;
     }
 
-    /* Game Card Styling */
     .game-card {
       background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      width: 300px; /* Requested Width */
-      padding: 30px 0;
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      width: 300px;
+      padding: 35px 0;
       border: 1px solid var(--glass-border);
       border-radius: 16px;
       cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      font-size: 1.4rem; /* Requested Font Size */
-      font-weight: 600; /* Requested Font Weight */
-      color: var(--text-main);
+      transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-size: 1.4rem;
+      font-weight: 700;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       text-transform: uppercase;
       letter-spacing: 1px;
-      position: relative;
     }
 
     .game-card:hover {
-      background: rgba(0, 210, 255, 0.15);
+      background: rgba(0, 255, 156, 0.1);
       border-color: var(--accent);
-      transform: translateY(-10px);
-      box-shadow: 0 0 40px rgba(0, 210, 255, 0.3);
-      color: #fff;
+      transform: translateY(-8px);
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
     }
 
-    .add-btn {
-      border-style: dashed;
-      opacity: 0.6;
-    }
+    .add-btn { border-style: dashed; opacity: 0.5; }
 
     /* Custom Right-Click Menu */
     #custom-menu {
       display: none;
       position: absolute;
-      background: #00d2ff;
+      background: var(--accent);
       color: #000;
       padding: 10px 25px;
       font-weight: 800;
-      border-radius: 4px;
-      z-index: 1000;
+      border-radius: 6px;
+      z-index: 1500;
       cursor: pointer;
-      font-size: 0.9rem;
       text-transform: uppercase;
     }
 
-    /* Game Stage */
+    /* In-Game Stage */
     #stage {
       display: none;
       flex-direction: column;
       height: 100vh;
       width: 100vw;
-      position: relative;
       z-index: 10;
       background: #000;
     }
 
     #controls {
-      background: rgba(5, 10, 20, 0.95);
-      padding: 12px 30px;
+      background: rgba(2, 6, 23, 0.9);
+      padding: 15px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--glass-border);
     }
 
+    /* Hide controls in fullscreen */
     #stage:fullscreen #controls { display: none; }
+    #stage:-webkit-full-screen #controls { display: none; }
 
-    .btn {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-      padding: 10px 25px;
-      border-radius: 8px;
-      cursor: pointer;
+    .brand-text {
       font-weight: 700;
-      transition: 0.3s;
+      letter-spacing: 1px;
+      color: var(--text-main);
       text-transform: uppercase;
+      opacity: 0.8;
     }
-
-    .btn:hover { background: var(--accent); color: #000; }
 
     iframe { width: 100%; height: 100%; border: none; }
   </style>
 </head>
-<body oncontextmenu="return false;"> <canvas id="matrix"></canvas>
+<body oncontextmenu="return false;">
 
+  <a href="https://ituzebonheur.com" class="top-btn">Home</a>
+
+  <canvas id="matrix"></canvas>
   <div id="custom-menu">Open Game</div>
 
   <div id="menu">
     <h1 id="greeting">Welcome, Ituze</h1>
-    
     <div class="button-container" id="gameList">
       <div class="game-card" onclick="loadGame('https://ozgames.io/geometry-dash.embed')">Geometry Dash</div>
       <div class="game-card" onclick="loadGame('https://geometrylitepc.io/slope-2.embed')">Slope 2</div>
       <div class="game-card" onclick="loadGame('https://azgames.io/game/escape-road/')">Escape Road</div>
       <div class="game-card" onclick="loadGame('https://azgames.io/game/traffic-road/')">Traffic Rider</div>
       <div class="game-card" onclick="loadGame('https://azgames.io/smash-karts.embed')">Smash Karts</div>
-
       <div class="game-card add-btn" onclick="addCustomGame()">+ Add Game</div>
     </div>
   </div>
@@ -176,21 +197,114 @@
   <div id="stage">
     <div id="controls">
       <button class="btn" onclick="goBack()">← Exit to Hub</button>
+      <span class="brand-text">Ituze Bonheur</span>
       <button class="btn" onclick="toggleFullscreen()">Fullscreen</button>
     </div>
     <iframe id="gameFrame" src="" allow="fullscreen; autoplay; camera; microphone; clipboard-write" sandbox="allow-forms allow-scripts allow-same-origin allow-popups"></iframe>
   </div>
 
   <script>
-    // --- Security: Block Context Menu & Shortcuts ---
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    let matrixInterval = null;
+    let matrixEnabled = true;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      initDrops();
+    });
+
+    const chars = "ABCDEFGHIJKLMNOPRSTUVWXYZ0123456789";
+    const fontSize = 16;
+    let drops = [];
+
+    function initDrops() {
+      const columns = Math.floor(canvas.width / fontSize);
+      drops = Array.from({ length: columns }, () => 1);
+    }
+    initDrops();
+
+    function drawMatrix() {
+      if (!matrixEnabled) return;
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--matrix-color").trim();
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+
+    function startMatrix() { if (!matrixInterval) matrixInterval = setInterval(drawMatrix, 35); }
+    function stopMatrix() { clearInterval(matrixInterval); matrixInterval = null; }
+
+    startMatrix();
+    document.addEventListener("visibilitychange", () => document.hidden ? stopMatrix() : startMatrix());
+
+    // --- Navigation & Game Loading ---
+    function loadGame(url) {
+      if (!url) return;
+      // Auto-add https if missing
+      if (!url.startsWith('http') && !url.startsWith('//')) url = 'https://' + url;
+
+      document.getElementById('gameFrame').src = url;
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('stage').style.display = 'flex';
+      document.querySelector('.top-btn').style.display = 'none';
+      matrixEnabled = false;
+    }
+
+    function goBack() {
+      document.getElementById('gameFrame').src = 'about:blank';
+      document.getElementById('menu').style.display = 'flex';
+      document.getElementById('stage').style.display = 'none';
+      document.querySelector('.top-btn').style.display = 'flex';
+      matrixEnabled = true;
+    }
+
+    function toggleFullscreen() {
+      const stage = document.getElementById('stage');
+      if (!document.fullscreenElement) stage.requestFullscreen();
+      else document.exitFullscreen();
+    }
+
+    // --- Add Custom Game Logic ---
+    function addCustomGame() {
+      const name = prompt("Enter Game Name:");
+      if (!name) return;
+      
+      const url = prompt("Enter Game URL:");
+      if (!url) return;
+
+      const newCard = document.createElement("div");
+      newCard.className = "game-card";
+      newCard.textContent = name;
+      // Set the attribute explicitly so the Right-Click menu logic can read it later
+      newCard.setAttribute("onclick", "loadGame('" + url + "')");
+
+      const list = document.getElementById("gameList");
+      // Insert before the 'Add' button
+      list.insertBefore(newCard, list.querySelector(".add-btn"));
+    }
+
+    // --- Right-Click Logic ---
     const customMenu = document.getElementById('custom-menu');
     let currentTargetUrl = '';
 
     document.addEventListener('contextmenu', function(e) {
+      if (e.target.closest('.top-btn, .btn')) return;
       e.preventDefault();
       const card = e.target.closest('.game-card');
       if (card && !card.classList.contains('add-btn')) {
-        // Extract URL from the onclick attribute
         const match = card.getAttribute('onclick').match(/'([^']+)'/);
         if (match) {
           currentTargetUrl = match[1];
@@ -203,99 +317,8 @@
       }
     });
 
-    customMenu.onclick = () => {
-      loadGame(currentTargetUrl);
-      customMenu.style.display = 'none';
-    };
-
+    customMenu.onclick = () => { loadGame(currentTargetUrl); customMenu.style.display = 'none'; };
     document.addEventListener('click', () => customMenu.style.display = 'none');
-
-    // Block Ctrl+T, Ctrl+N, Ctrl+Shift+I
-    document.addEventListener('keydown', function(e) {
-      if ((e.ctrlKey || e.metaKey) && (e.key === 't' || e.key === 'n' || e.key === 'p')) e.preventDefault();
-      if (e.ctrlKey && e.shiftKey && e.key === 'I') e.preventDefault();
-    });
-
-    // --- Matrix Rain ---
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    let matrixInterval = null;
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    const fontSize = 16;
-    let drops = [];
-
-    function initMatrix() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const cols = Math.floor(canvas.width / fontSize);
-      drops = Array(cols).fill(1);
-    }
-
-    function drawMatrix() {
-      ctx.fillStyle = "rgba(2, 6, 13, 0.15)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#00d2ff";
-      ctx.font = fontSize + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        const text = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-      }
-    }
-
-    initMatrix();
-    matrixInterval = setInterval(drawMatrix, 35);
-    window.onresize = initMatrix;
-
-    // --- Dynamic Greeting ---
-    function updateGreeting() {
-      const h = new Date().getHours();
-      let t = "Welcome, Ituze";
-      if (h < 12) t = "Good morning, Ituze";
-      else if (h < 18) t = "Good afternoon, Ituze";
-      else t = "Good evening, Ituze";
-      document.getElementById("greeting").textContent = t;
-    }
-    updateGreeting();
-
-    // --- Navigation ---
-    function loadGame(url) {
-      if (!url.startsWith('http')) url = 'https://' + url;
-      document.getElementById('gameFrame').src = url;
-      document.getElementById('menu').style.display = 'none';
-      document.getElementById('stage').style.display = 'flex';
-      clearInterval(matrixInterval);
-    }
-
-    function goBack() {
-      document.getElementById('gameFrame').src = 'about:blank';
-      document.getElementById('menu').style.display = 'flex';
-      document.getElementById('stage').style.display = 'none';
-      matrixInterval = setInterval(drawMatrix, 35);
-    }
-
-    function toggleFullscreen() {
-      const stage = document.getElementById('stage');
-      if (!document.fullscreenElement) stage.requestFullscreen();
-      else document.exitFullscreen();
-    }
-
-    // --- Add Game ---
-    function addCustomGame() {
-      const name = prompt("Enter Game Name:");
-      if (!name) return;
-      let url = prompt("Enter URL:");
-      if (!url) return;
-
-      const newCard = document.createElement("div");
-      newCard.className = "game-card";
-      newCard.textContent = name;
-      newCard.onclick = () => loadGame(url);
-
-      const list = document.getElementById("gameList");
-      list.insertBefore(newCard, list.querySelector(".add-btn"));
-    }
   </script>
 </body>
 </html>
