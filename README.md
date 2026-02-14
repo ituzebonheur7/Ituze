@@ -20,7 +20,6 @@ The **Matrix-Homepage** serves as the digital front door for a modern approach t
 * **Digital Sanctuary:** A calming user interface designed to reduce stress and cognitive load.
 * **Wellness Games:** A curated selection of games (found at `/games`) designed for stress relief, focus, and mindfulness.
 * **The "Matrix" Aesthetic:** A unique tech-inspired visual language representing the "reprogramming" of negative thought patterns.
-* **Multilingual Support:** Content optimized for Kinyarwanda, English, and French speakers.
 * **Booking Integration:** Seamless connection to mental health professionals and wellness sessions.
 
 ---
