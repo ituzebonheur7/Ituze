@@ -748,9 +748,74 @@
     .ai-msg.assistant {
       background: rgba(0,0,0,0.45);
     }
+    /* Shortcut edit button */
+    .shortcut-edit-btn {
+      padding: 8px 16px;
+      margin-top: 12px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: var(--text-main);
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .shortcut-edit-btn:hover {
+      background: rgba(255,255,255,0.15);
+      transform: scale(1.03);
+    }
+
+    /* Shortcut editor modal */
+    .shortcut-modal {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.98);
+      width: min(600px, 96vw);
+      max-height: 80vh;
+      overflow-y: auto;
+      background: rgba(10,12,15,0.95);
+      border: 1px solid var(--glass-border);
+      padding: 18px;
+      border-radius: 12px;
+      display: none;
+      z-index: 4000;
+    }
+    .shortcut-modal.open {
+      display: block;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      justify-content: flex-end;
+    }
+    .shortcut-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .shortcut-item input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.35);
+      color: var(--text-main);
+      outline: none;
+    }
+    .shortcut-item button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, #ef4444, #f43f5e);
+      color: white;
+      cursor: pointer;
+    }
 
     /* shortcut help modal */
-    .help-modal {
+.help-modal {
       position: fixed;
       left: 50%;
       top: 50%;
@@ -863,21 +928,23 @@
 <body>
 
   <canvas id="matrix"></canvas>
-
-  <a id="topLink" href="https://www.google.com/search?udm=50&amp;aep=11&amp;q=Who%27s+Ituze+Bonheur"
+    <a id="topLink" href="https://www.google.com/search?udm=50&amp;aep=11&amp;q=Who%27s+Ituze+Bonheur"
      class="top-btn glass" rel="noopener noreferrer">
-    Ituze Bonheur
+    Ituze
   </a>
-
-  <div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
-
+<div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
   <div id="settingsPanel" class="glass" role="dialog" aria-modal="false" aria-hidden="true">
     <h3>Settings</h3>
 
     <div class="settings-group">
+      <label>Your Name</label>
+      <input id="userNameInput" type="text" placeholder="Ituze" aria-label="Your name">
+    </div>
+
+    <div class="settings-group">
       <label>Default Search Engine</label>
       <select id="engineSelect" aria-label="Default search engine">
-        <option value="google">Google</option>
+<option value="google">Google</option>
         <option value="bing">Bing</option>
         <option value="duckduckgo">DuckDuckGo</option>
         <option value="brave">Brave</option>
@@ -964,19 +1031,13 @@
       <div style="font-size:13px;color:#cbd5e1;">Weather uses a free no-key API (Open-Meteo). You can also set location manually below.</div>
       <input id="manualLocation" type="text" placeholder="City, Country (optional)" aria-label="Manual weather location" style="margin-top:8px;">
     </div>
-
-    <div class="settings-group">
+<div class="settings-group">
       <label>Storage</label>
-      <div style="display:flex;gap:8px;">
-        <button id="exportSettings" class="save-btn" style="flex:1;background:linear-gradient(135deg,#60a5fa,#06b6d4);">Export</button>
-        <button id="importSettings" class="save-btn" style="flex:1;background:linear-gradient(135deg,#f97316,#fb7185);">Import</button>
-      </div>
       <div style="margin-top:8px;">
         <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data & reset</button>
       </div>
     </div>
-
-    <!-- Save & Apply removed — changes are applied automatically -->
+<!-- Save & Apply removed — changes are applied automatically -->
 
   </div>
 
@@ -1372,9 +1433,8 @@
   <div class="container">
     <div class="date" id="date"></div>
     <div class="clock" id="clock"></div>
-    <div class="greeting" id="greeting"></div>
-
-    <div class="chrome-search-wrapper">
+    <div class="greeting" id="greeting">Welcome, Ituze</div>
+<div class="chrome-search-wrapper">
       <div class="chrome-search glass" id="searchSurface">
         <input id="searchInput" placeholder="Search or type a URL (try :calc 2+2 or wiki:javascript)" autocomplete="off" aria-label="Search or type a URL" />
         <div class="chrome-icons">
@@ -1384,33 +1444,24 @@
       </div>
       <div id="suggestions" class="suggestions glass" role="listbox" aria-expanded="false" aria-label="Search suggestions"></div>
     </div>
-
     <div class="shortcuts">
-      <div class="shortcuts-row" id="shortcutsRow1">
-        <a class="shortcut glass" href="https://aspen.cps.edu/">Aspen</a>
-        <a class="shortcut glass" href="https://google.com">Google</a>
-        <a class="shortcut glass" href="https://mail.google.com">Gmail</a>
-        <a class="shortcut glass" href="https://youtube.com">YouTube</a>
-        <a class="shortcut glass" href="https://github.com">GitHub</a>
-      </div>
+      <div class="shortcuts-row" id="shortcutsRow1"></div>
+      <div class="shortcuts-row" id="shortcutsRow2"></div>
+      <div class="shortcuts-row" id="shortcutsRow3"></div>
+      <button id="editShortcutsBtn" class="shortcut-edit-btn glass">Edit Shortcuts</button>
+    </div>
 
-      <div class="shortcuts-row" id="shortcutsRow2">
-        <a class="shortcut glass" href="https://chat.openai.com">ChatGPT</a>
-        <a class="shortcut glass" href="https://copilot.microsoft.com/">Copilot</a>
-        <a class="shortcut glass" href="https://x.com">Twitter</a>
-        <a class="shortcut glass" href="https://www.instagram.com">Instagram</a>
-        <a class="shortcut glass" href="https://www.facebook.com">Facebook</a>
-      </div>
-
-      <div class="shortcuts-row" id="shortcutsRow3">
-        <a class="shortcut glass" href="https://www.tiktok.com">TikTok</a>
-        <a class="shortcut glass" href="https://gemini.google.com">Gemini</a>
-        <a class="shortcut glass" href="https://web.whatsapp.com">WhatsApp</a>
-        <a class="shortcut glass" href="https://smashkarts.io">Smash Karks</a>
-        <a class="shortcut glass" href="https://smash-karts.org">SmashKartsUnblocked</a>
+    <!-- Shortcut Editor Modal -->
+    <div class="shortcut-modal glass" id="shortcutModal" role="dialog" aria-modal="true" aria-hidden="true">
+      <h3>Edit Shortcuts</h3>
+      <div id="shortcutEditor"></div>
+      <div class="modal-actions">
+        <button id="addShortcutBtn" class="save-btn">Add Shortcut</button>
+        <button id="saveShortcutsBtn" class="save-btn">Save</button>
+        <button id="cancelShortcutsBtn" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Cancel</button>
       </div>
     </div>
-  </div>
+</div>
 
   <!-- AI sidebar -->
   <div class="ai-sidebar glass" id="aiSidebar" role="region" aria-label="AI assistant">
@@ -1487,7 +1538,7 @@
       initDrops();
     });
 
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const chars = "ABCDEFGHIJKLMNOPRSTUVWXYZ0123456789";
     const fontSize = 16;
     let columns = canvas.width / fontSize;
     let drops = [];
@@ -1546,16 +1597,16 @@
     }
     setInterval(updateClock, 1000);
     updateClock();
-
-    function updateGreeting() {
+function updateGreeting() {
       const hour = new Date().getHours();
-      let text = "Welcome, Ituze";
-      if (hour < 12) text = "Good morning, Ituze";
-      else if (hour < 18) text = "Good afternoon, Ituze";
-      else text = "Good evening, Ituze";
+      const userName = localStorage.getItem("userName") || "Ituze";
+      let text = `Welcome, ${userName}`;
+      if (hour < 12) text = `Good morning, ${userName}`;
+      else if (hour < 18) text = `Good afternoon, ${userName}`;
+      else text = `Good evening, ${userName}`;
       document.getElementById("greeting").textContent = text;
     }
-    updateGreeting();
+updateGreeting();
 
     /* =========================================
        Search / suggestions + history + omnibox commands
@@ -1628,14 +1679,13 @@
         window.location.href = url;
       }
     }
-
     function performSearch(query) {
       if (!query || !query.trim()) return;
       const trimmed = query.trim();
 
       // handle omnibox commands
       if (trimmed.startsWith(":")) {
-        // :calc or :math
+// :calc or :math
         const cmd = trimmed.slice(1).trim();
         const m = cmd.match(/^calc\s+(.+)$/i);
         if (m) {
@@ -2230,8 +2280,12 @@
     // Save settings (keeps behavior but no longer closes panel). This is used by auto-save listeners.
     function saveSettings() {
       try {
+        const userName = document.getElementById("userNameInput").value.trim();
+        if (userName) {
+          localStorage.setItem("userName", userName);
+        }
         localStorage.setItem("searchEngine", engineSelect.value);
-        localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0");
+localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0");
         localStorage.setItem("voiceAuto", toggleVoiceAutoEl.checked ? "1" : "0");
         localStorage.setItem("matrixEnabled", toggleMatrixEl.checked ? "0" : "1");
         localStorage.setItem("keyboardShortcuts", toggleKeyboardEl.checked ? "1" : "0");
@@ -2253,14 +2307,14 @@
       } catch (e) {}
 
       applySettings();
-      showToast("Saved", 900);
     }
 
     const autoSave = debounce(saveSettings, 280);
-
     function applySettings() {
       const engineKey = localStorage.getItem("searchEngine") || "google";
-      engineSelect.value = engineKey;
+      const userName = localStorage.getItem("userName") || "Ituze";
+      document.getElementById("userNameInput").value = userName;
+engineSelect.value = engineKey;
 
       const showSuggestions = localStorage.getItem("showSuggestions") === "1";
       toggleSuggestionsEl.checked = showSuggestions;
@@ -2323,11 +2377,6 @@
       // local-only suggestions
       const localOnly = localStorage.getItem("localOnlySuggestions") === "1";
       toggleLocalOnlyEl.checked = localOnly;
-
-      // OpenAI key populate input (masked)
-      const savedKey = localStorage.getItem("openaiKey") || "";
-      openaiKeyInput.value = savedKey;
-      manualLocationInput.value = localStorage.getItem("manualWeatherLocation") || "";
     }
 
     window.saveSettings = saveSettings;
@@ -2401,8 +2450,8 @@
         searchInput.select();
       }
 
-      // Ctrl + Alt + / show help modal (user requested)
-      if (e.ctrlKey && e.altKey && e.key === "/") {
+      //  Alt + / show help modal (user requested)
+      if (e.altKey && e.key === "/") {
         e.preventDefault();
         toggleHelp(true);
       }
@@ -2417,10 +2466,10 @@
     });
 
     /* =========================================
-       Clear data / import / export
+       Clear data
        ========================================= */
     document.getElementById("resetStorage").addEventListener("click", () => {
-      if (!confirm("Clear all saved settings, history, and customizations? This cannot be undone.")) return;
+      if (!confirm("Clear all saved settings, history, and customizations? This will reset date for this site.")) return;
       try {
         localStorage.clear();
         showToast("Local data cleared");
@@ -2429,67 +2478,7 @@
         showToast("Failed to clear data");
       }
     });
-
-    document.getElementById("exportSettings").addEventListener("click", () => {
-      try {
-        const exportObj = {
-          settings: {
-            searchEngine: localStorage.getItem("searchEngine"),
-            themeColor: localStorage.getItem("themeColor"),
-            customAccent: localStorage.getItem("customAccent"),
-            openInNewTab: localStorage.getItem("openInNewTab"),
-            launcherOpacity: localStorage.getItem("launcherOpacity"),
-            launcherCompact: localStorage.getItem("launcherCompact"),
-            localOnlySuggestions: localStorage.getItem("localOnlySuggestions"),
-            manualWeatherLocation: localStorage.getItem("manualWeatherLocation") || ""
-          },
-          history: JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]")
-        };
-        const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "ituze-settings.json";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        showToast("Exported settings");
-      } catch (e) { showToast("Export failed"); }
-    });
-
-    document.getElementById("importSettings").addEventListener("click", () => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "application/json";
-      input.addEventListener("change", () => {
-        const f = input.files && input.files[0];
-        if (!f) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          try {
-            const obj = JSON.parse(reader.result);
-            if (obj.settings) {
-              Object.entries(obj.settings).forEach(([k, v]) => {
-                if (v === null || v === undefined) return;
-                localStorage.setItem(k, v);
-              });
-            }
-            if (obj.history) {
-              localStorage.setItem(HISTORY_KEY, JSON.stringify(obj.history));
-            }
-            applySettings();
-            showToast("Imported settings");
-          } catch (e) {
-            showToast("Invalid file");
-          }
-        };
-        reader.readAsText(f);
-      });
-      input.click();
-    });
-
-    /* =========================================
+/* =========================================
        Weather widget (Open-Meteo, no API key)
        ========================================= */
     const batteryText = document.getElementById("battery-text");
@@ -2926,106 +2915,6 @@
     closeHelp.addEventListener("click", () => toggleHelp(false));
 
     /* =========================================
-       AI Assistant (client-side usage of OpenAI or via proxy)
-       ========================================= */
-    const aiSidebar = document.getElementById("aiSidebar");
-    const aiMessages = document.getElementById("aiMessages");
-    const aiInput = document.getElementById("aiInput");
-    const aiSend = document.getElementById("aiSend");
-    const aiModeBtn = document.getElementById("aiModeBtn");
-
-    function appendAiMessage(text, who = "user") {
-      const el = document.createElement("div");
-      el.className = "ai-msg " + (who === "assistant" ? "assistant" : "user");
-      el.textContent = text;
-      aiMessages.appendChild(el);
-      aiMessages.scrollTop = aiMessages.scrollHeight;
-    }
-
-    function toggleAiSidebar() {
-      const open = aiSidebar.classList.toggle("open");
-      if (open) {
-        closeAllPanels([aiSidebar]);
-        aiSidebar.setAttribute("aria-hidden", "false");
-      } else {
-        aiSidebar.setAttribute("aria-hidden", "true");
-      }
-    }
-    aiModeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleAiSidebar();
-    });
-
-    async function sendAiPrompt(prompt) {
-      appendAiMessage(prompt, "user");
-      appendAiMessage("Thinking...", "assistant");
-      const assistantNode = aiMessages.querySelector(".ai-msg.assistant:last-child");
-      try {
-        // Prefer server proxy at /api/chat. If not present, attempt direct client-side call to OpenAI.
-        const proxyUrl = "/api/chat";
-        try {
-          const resProxy = await fetch(proxyUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt })
-          });
-          if (resProxy.ok) {
-            const json = await resProxy.json();
-            assistantNode.textContent = json.result || json.response || "No response";
-            return;
-          }
-        } catch (e) {
-          // fallthrough to client-side attempt
-        }
-
-        const key = localStorage.getItem("openaiKey");
-        if (!key) {
-          assistantNode.textContent = "No OpenAI key provided. Set it in Settings or provide a server proxy at /api/chat.";
-          return;
-        }
-
-        const payload = {
-          model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.7,
-          max_tokens: 600
-        };
-
-        const r = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + key
-          },
-          body: JSON.stringify(payload)
-        });
-        if (!r.ok) {
-          const errText = await r.text();
-          assistantNode.textContent = "OpenAI error: " + (errText || r.statusText);
-          return;
-        }
-        const jr = await r.json();
-        const text = jr.choices && jr.choices[0] && jr.choices[0].message && jr.choices[0].message.content ? jr.choices[0].message.content : "(no response)";
-        assistantNode.textContent = text;
-      } catch (err) {
-        assistantNode.textContent = "Error: " + (err.message || "unknown");
-      }
-    }
-
-    aiSend.addEventListener("click", () => {
-      const v = aiInput.value.trim();
-      if (!v) return;
-      aiInput.value = "";
-      sendAiPrompt(v);
-    });
-    aiInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        aiSend.click();
-      }
-    });
-
-    /* =========================================
        Utilities
        ========================================= */
     function escapeHtml(s) {
@@ -3047,15 +2936,156 @@
       else if (pref === "fg") openLink(url, { background: false });
       else openLink(url);
     }
-  
+
+    // On page load, attempt to apply saved settings and show recent suggestions button if appropriate
     document.addEventListener("DOMContentLoaded", () => {
       applySettings();
     });
-
   </script>
+  <script>
+    /* =========================================
+       Editable Shortcuts
+       ========================================= */
+    const SHORTCUTS_KEY = "userShortcuts";
+    const DEFAULT_SHORTCUTS = [
+      { name: "GitHub", url: "https://github.com" },
+      { name: "Google", url: "https://google.com" },
+      { name: "Gmail", url: "https://mail.google.com" },
+      { name: "YouTube", url: "https://youtube.com" },
+      { name: "Amazon", url: "https://amazon.com" },
+      { name: "ChatGPT", url: "https://chat.openai.com" },
+      { name: "Copilot", url: "https://copilot.microsoft.com/" },
+      { name: "Twitter", url: "https://x.com" },
+      { name: "Instagram", url: "https://www.instagram.com" },
+      { name: "Facebook", url: "https://www.facebook.com" },
+      { name: "TikTok", url: "https://www.tiktok.com" },
+      { name: "Gemini", url: "https://gemini.google.com" },
+      { name: "WhatsApp", url: "https://web.whatsapp.com" },
+      { name: "Yahoo", url: "https://yahoo.com" },
+      { name: "GitHub Copilot", url: "https://github.com/copilot" }
+    ];
 
+    function loadShortcuts() {
+      try {
+        const saved = localStorage.getItem(SHORTCUTS_KEY);
+        return saved ? JSON.parse(saved) : [...DEFAULT_SHORTCUTS];
+      } catch {
+        return [...DEFAULT_SHORTCUTS];
+      }
+    }
+
+    function saveShortcuts(shortcuts) {
+      try {
+        localStorage.setItem(SHORTCUTS_KEY, JSON.stringify(shortcuts));
+      } catch {}
+    }
+
+    function renderShortcuts() {
+      const shortcuts = loadShortcuts();
+      const rows = [
+        document.getElementById("shortcutsRow1"),
+        document.getElementById("shortcutsRow2"),
+        document.getElementById("shortcutsRow3")
+      ];
+
+      // Clear all rows
+      rows.forEach(row => row.innerHTML = '');
+
+      // Distribute shortcuts across rows
+      shortcuts.forEach((shortcut, index) => {
+        const rowIndex = Math.floor(index / 5);
+        if (rowIndex < rows.length) {
+          const a = document.createElement('a');
+          a.className = 'shortcut glass';
+          a.href = shortcut.url;
+          a.textContent = shortcut.name;
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+            openLinkWithPrefs(shortcut.url);
+          });
+          rows[rowIndex].appendChild(a);
+        }
+      });
+    }
+
+    function openShortcutEditor() {
+      const shortcuts = loadShortcuts();
+      const editor = document.getElementById('shortcutEditor');
+      editor.innerHTML = '';
+
+      shortcuts.forEach((shortcut, index) => {
+        const div = document.createElement('div');
+        div.className = 'shortcut-item';
+        div.innerHTML = `
+          <input type="text" placeholder="Name" value="${escapeHtml(shortcut.name)}" data-index="${index}" data-field="name">
+          <input type="text" placeholder="URL" value="${escapeHtml(shortcut.url)}" data-index="${index}" data-field="url">
+          <button class="remove-shortcut" data-index="${index}">×</button>
+        `;
+        editor.appendChild(div);
+      });
+
+      document.getElementById('shortcutModal').classList.add('open');
+    }
+
+    function closeShortcutEditor() {
+      document.getElementById('shortcutModal').classList.remove('open');
+    }
+
+    function saveEditedShortcuts() {
+      const inputs = document.querySelectorAll('#shortcutEditor input');
+      const shortcuts = [];
+      
+      // Group inputs by index
+      const grouped = {};
+      inputs.forEach(input => {
+        const index = input.dataset.index;
+        if (!grouped[index]) grouped[index] = {};
+        grouped[index][input.dataset.field] = input.value.trim();
+      });
+
+      // Convert to array
+      for (const index in grouped) {
+        const item = grouped[index];
+        if (item.name && item.url) {
+          shortcuts.push({
+            name: item.name,
+            url: item.url.startsWith('http') ? item.url : `https://${item.url}`
+          });
+        }
+      }
+
+      saveShortcuts(shortcuts);
+      renderShortcuts();
+      closeShortcutEditor();
+      showToast('Shortcuts saved');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderShortcuts();
+
+      document.getElementById('editShortcutsBtn').addEventListener('click', openShortcutEditor);
+      document.getElementById('saveShortcutsBtn').addEventListener('click', saveEditedShortcuts);
+      document.getElementById('cancelShortcutsBtn').addEventListener('click', closeShortcutEditor);
+
+      document.getElementById('addShortcutBtn').addEventListener('click', () => {
+        const editor = document.getElementById('shortcutEditor');
+        const div = document.createElement('div');
+        div.className = 'shortcut-item';
+        const newIndex = editor.children.length;
+        div.innerHTML = `
+          <input type="text" placeholder="Name" data-index="${newIndex}" data-field="name">
+          <input type="text" placeholder="URL" data-index="${newIndex}" data-field="url">
+          <button class="remove-shortcut" data-index="${newIndex}">×</button>
+        `;
+        editor.appendChild(div);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-shortcut')) {
+          e.target.parentNode.remove();
+        }
+      });
+    });
+  </script>
 </body>
-
 </html>
-
-
