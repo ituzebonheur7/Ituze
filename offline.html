@@ -1,12 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Offline - Ituze</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #00FF41;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container { border: 1px solid #00FF41; padding: 2rem; border-radius: 8px; }
+        h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+        p { color: #888; margin-bottom: 2rem; }
+        .btn {
+            background: transparent;
+            border: 1px solid #00FF41;
+            color: #00FF41;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+            font-family: inherit;
+            text-transform: uppercase;
+        }
+        .btn:hover { background: #00FF41; color: #000; }
+    </style>
 </head>
 <body>
-  <h1>You are offline</h1>
-  <p>Please check your internet connection and try again.</p>
+    <div class="container">
+        <h1>You are offline!</h1>
+        <p>Some features might not work. Please check your internet connection and try again.</p>
+        <button class="btn" onclick="window.location.reload()">Try again or Reload</button>
+        <button class="btn" onclick="window.history.back()">Continue</button>
+    </div>
 </body>
 </html>
