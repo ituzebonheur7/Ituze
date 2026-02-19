@@ -1,25 +1,31 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.4.1/workbox-sw.js');
 
-workbox.routing.registerRoute(
-    ({request}) => request.destination === 'style' || request.destination === 'script',
-    new workbox.strategies.StaleWhileRevalidate()
-);
+const CACHE_NAME = 'matrix-offline-v1';
+const OFFLINE_URL = '/offline.html';
 
-workbox.routing.registerRoute(
-    ({request}) => request.destination === 'document',
-    new workbox.strategies.NetworkFirst()
-);
-
-const {warmStrategyCache} = workbox.recipes;
-const {CacheFirst} = workbox.strategies;
-const {CacheableResponsePlugin} = workbox.cacheable_response;
-
-const pages = ['.'];
-const strategy = new CacheFirst();
-
-warmStrategyCache({
-  urls: pages,
-  strategy,
+// Pre-cache the offline page
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.add(OFFLINE_URL))
+  );
 });
 
-workbox.routing.registerRoute(({url}) => pages.includes(url.pathname), strategy);
+// Cache CSS and JS (Stale-While-Revalidate)
+workbox.routing.registerRoute(
+  ({request}) => request.destination === 'style' || request.destination === 'script',
+  new workbox.strategies.StaleWhileRevalidate()
+);
+
+// Cache HTML (Network-First)
+workbox.routing.registerRoute(
+  ({request}) => request.destination === 'document',
+  new workbox.strategies.NetworkFirst()
+);
+
+// Fallback logic: If network fails and page isn't in cache, show offline.html
+workbox.routing.setCatchHandler(async ({event}) => {
+  if (event.request.destination === 'document') {
+    return caches.match(OFFLINE_URL);
+  }
+  return Response.error();
+});
