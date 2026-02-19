@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js');
+        });
+    }
+</script>
+
   
   <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -3100,4 +3109,5 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
+
 
