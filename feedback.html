@@ -15,7 +15,7 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: #020617;
             background-image: radial-gradient(circle at top, #0b1120 0%, #020617 55%, #000 100%);
             color: white;
@@ -26,61 +26,86 @@
         }
 
         .feedback-container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
             padding: 40px;
-            border-radius: 20px;
+            border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            max-width: 480px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        h1 { margin-top: 0; font-size: 24px; text-align: center; }
+        h1 { margin: 0 0 10px 0; font-size: 28px; text-align: center; letter-spacing: -0.5px; }
+        p.subtitle { text-align: center; color: #94a3b8; margin-bottom: 30px; font-size: 15px; }
         
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 14px; color: #94a3b8; }
+        .form-group { margin-bottom: 22px; position: relative; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
         
         input, textarea {
             width: 100%;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid #334155;
-            border-radius: 8px;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             color: white;
             box-sizing: border-box;
             font-size: 16px;
+            transition: all 0.2s ease;
         }
 
-        .stars { font-size: 30px; color: #334155; cursor: pointer; text-align: center; margin-bottom: 20px; }
-        .star.active { color: #fbbf24; }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #38bdf8;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
+        }
+
+        .stars { font-size: 36px; color: #1e293b; cursor: pointer; text-align: center; margin-bottom: 25px; transition: transform 0.2s ease; }
+        .star { transition: color 0.2s ease, transform 0.2s ease; display: inline-block; }
+        .star:hover { transform: scale(1.2); }
+        .star.active { color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
 
         .submit-btn {
             width: 100%;
-            padding: 14px;
-            background: #f8fafc;
+            padding: 16px;
+            background: #fff;
             color: #020617;
             border: none;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
         }
 
-        .submit-btn:hover { transform: scale(1.02); }
-        .submit-btn:disabled { opacity: 0.5; }
+        .submit-btn:hover { background: #f1f5f9; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(255,255,255,0.1); }
+        .submit-btn:active { transform: translateY(0); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        #success { display: none; text-align: center; }
-        .back-home { display: block; margin-top: 20px; color: #94a3b8; text-decoration: none; font-size: 14px; }
+        /* Anti-Spam Field */
+        .hidden-field { display: none !important; visibility: hidden; }
+
+        #success { display: none; text-align: center; animation: fadeIn 0.5s ease-out; }
+        .back-home { display: inline-block; margin-top: 25px; color: #38bdf8; text-decoration: none; font-size: 14px; font-weight: 600; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
 <div class="feedback-container">
     <div id="form-wrapper">
-        <h1>Share your thoughts</h1>
+        <h1>Feedback</h1>
+        <p class="subtitle">Your thoughts help us shape a better experience.</p>
+        
         <form id="feedbackForm">
-            <div class="stars">
+            <input type="text" name="_honey" class="hidden-field">
+
+            <div class="stars" id="starContainer">
                 <span class="star active" data-v="1">&#9733;</span>
                 <span class="star active" data-v="2">&#9733;</span>
                 <span class="star active" data-v="3">&#9733;</span>
@@ -90,23 +115,24 @@
             <input type="hidden" name="rating" id="ratingValue" value="5">
 
             <div class="form-group">
-                <label>Name</label>
-                <input type="text" name="name" placeholder="Optional">
+                <label>Your Name</label>
+                <input type="text" name="name" placeholder="Anonymous">
             </div>
 
             <div class="form-group">
-                <label>Feedback</label>
-                <textarea name="message" required rows="5" placeholder="What's on your mind?"></textarea>
+                <label>Message</label>
+                <textarea name="message" required rows="5" placeholder="Tell us what's on your mind..."></textarea>
             </div>
 
-            <button type="submit" class="submit-btn" id="subBtn">Submit Feedback</button>
+            <button type="submit" class="submit-btn" id="subBtn">Send Feedback</button>
         </form>
     </div>
 
     <div id="success">
-        <h2>Sent successfully!</h2>
-        <p>Thank you for helping Ituze Bonheur grow.</p>
-        <a href="/" class="back-home">← Back to Home</a>
+        <div style="font-size: 50px; margin-bottom: 10px;">✨</div>
+        <h2>Received!</h2>
+        <p style="color: #94a3b8;">Thank you for your valuable input. We've added this to our roadmap.</p>
+        <a href="/" class="back-home">Return to Home Page</a>
     </div>
 </div>
 
@@ -124,24 +150,42 @@
 
     // Form Logic
     const form = document.getElementById('feedbackForm');
-    form.onsubmit = (e) => {
+    form.onsubmit = async (e) => {
         e.preventDefault();
+        
+        // Spam Check
+        if (form._honey.value) return; 
+
         const btn = document.getElementById('subBtn');
         btn.disabled = true;
-        btn.innerText = "Sending...";
+        btn.innerText = "Processing...";
 
-        const data = new FormData(form);
-        data.append('userAgent', navigator.userAgent);
+        try {
+            const formData = new FormData(form);
+            formData.append('userAgent', navigator.userAgent);
+            
+            // Convert to URLSearchParams for better Google Script parsing
+            const params = new URLSearchParams();
+            for (const pair of formData) {
+                params.append(pair[0], pair[1]);
+            }
 
-        fetch(SCRIPT_URL, { method: 'POST', body: data })
-        .then(() => {
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: params,
+                mode: 'no-cors' 
+            });
+
+            // Transition to success
             document.getElementById('form-wrapper').style.display = 'none';
             document.getElementById('success').style.display = 'block';
-        })
-        .catch(() => {
-            alert("Error sending. Please try again.");
+            
+        } catch (error) {
+            console.error(error);
+            alert("Something went wrong. Check your connection and try again.");
             btn.disabled = false;
-        });
+            btn.innerText = "Submit Feedback";
+        }
     };
 </script>
 
