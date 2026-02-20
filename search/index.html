@@ -8,17 +8,14 @@
     </style>
     <script>
         (function() {
-            // 1. Grab the 'q' parameter from the URL (e.g., ?q=something)
             const urlParams = new URLSearchParams(window.location.search);
             const query = urlParams.get('q');
 
-            // 2. Define where to go
             if (query) {
-                // Redirect to Google with the search term
                 window.location.replace("https://www.google.com/search?q=" + encodeURIComponent(query));
             } else {
-                // If they visit /search with no query, just go to Google homepage
-                window.location.replace("https://www.google.com");
+                
+                window.location.replace("https://www.ituzebonheur.com");
             }
         })();
     </script>
