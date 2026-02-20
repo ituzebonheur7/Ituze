@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting to Search...</title>
+    <style>
+        body { background-color: #121212; color: #ffffff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    </style>
+    <script>
+        (function() {
+            // 1. Grab the 'q' parameter from the URL (e.g., ?q=something)
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q');
+
+            // 2. Define where to go
+            if (query) {
+                // Redirect to Google with the search term
+                window.location.replace("https://www.google.com/search?q=" + encodeURIComponent(query));
+            } else {
+                // If they visit /search with no query, just go to Google homepage
+                window.location.replace("https://www.google.com");
+            }
+        })();
+    </script>
+</head>
+<body>
+    <p>Searching...</p>
+</body>
+</html>
