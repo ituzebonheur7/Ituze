@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Ituze Bonheur</title>
+    <style>
+        /* Hidden Scrollbar Logic */
+        html, body, * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        *::-webkit-scrollbar { display: none !important; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #020617;
+            background-image: radial-gradient(circle at top, #0b1120 0%, #020617 55%, #000 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .feedback-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        h1 { margin-top: 0; font-size: 24px; text-align: center; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #94a3b8; }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: white;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .stars { font-size: 30px; color: #334155; cursor: pointer; text-align: center; margin-bottom: 20px; }
+        .star.active { color: #fbbf24; }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #f8fafc;
+            color: #020617;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover { transform: scale(1.02); }
+        .submit-btn:disabled { opacity: 0.5; }
+
+        #success { display: none; text-align: center; }
+        .back-home { display: block; margin-top: 20px; color: #94a3b8; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="feedback-container">
+    <div id="form-wrapper">
+        <h1>Share your thoughts</h1>
+        <form id="feedbackForm">
+            <div class="stars">
+                <span class="star active" data-v="1">&#9733;</span>
+                <span class="star active" data-v="2">&#9733;</span>
+                <span class="star active" data-v="3">&#9733;</span>
+                <span class="star active" data-v="4">&#9733;</span>
+                <span class="star active" data-v="5">&#9733;</span>
+            </div>
+            <input type="hidden" name="rating" id="ratingValue" value="5">
+
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" placeholder="Optional">
+            </div>
+
+            <div class="form-group">
+                <label>Feedback</label>
+                <textarea name="message" required rows="5" placeholder="What's on your mind?"></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="subBtn">Submit Feedback</button>
+        </form>
+    </div>
+
+    <div id="success">
+        <h2>Sent successfully!</h2>
+        <p>Thank you for helping Ituze Bonheur grow.</p>
+        <a href="/" class="back-home">← Back to Home</a>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0x9hO0teM2nQq3b_2uxnlh1mV6oohUXpTs46oZ7_LU0a_e_5PbHlajZj9EFUSjis/exec';
+    
+    // Star Logic
+    const stars = document.querySelectorAll('.star');
+    stars.forEach((s, i) => {
+        s.onclick = () => {
+            document.getElementById('ratingValue').value = i + 1;
+            stars.forEach((ss, ii) => ss.classList.toggle('active', ii <= i));
+        };
+    });
+
+    // Form Logic
+    const form = document.getElementById('feedbackForm');
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('subBtn');
+        btn.disabled = true;
+        btn.innerText = "Sending...";
+
+        const data = new FormData(form);
+        data.append('userAgent', navigator.userAgent);
+
+        fetch(SCRIPT_URL, { method: 'POST', body: data })
+        .then(() => {
+            document.getElementById('form-wrapper').style.display = 'none';
+            document.getElementById('success').style.display = 'block';
+        })
+        .catch(() => {
+            alert("Error sending. Please try again.");
+            btn.disabled = false;
+        });
+    };
+</script>
+
+</body>
+</html>
