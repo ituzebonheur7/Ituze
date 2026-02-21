@@ -137,56 +137,43 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaV-RwGeznQy8ZGiRPjp9Xo_ouHg-FtqBNl_hmEifVEvuiZs-SZtQJfqJvZch2wPyA/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaV-RwGeznQy8ZGiRPjp9Xo_ouHg-FtqBNl_hmEifVEvuiZs-SZtQJfqJvZch2wPyA/exec';
+const VALIDATION_KEY = 'K9v$T2qP8!LmX4zR7@cB'; // Must match Apps Script
+
+const form = document.getElementById('feedbackForm');
+form.onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('subBtn');
+    btn.disabled = true;
+    btn.innerText = "Sending...";
+
+    const formData = new FormData(form);
     
-    // Star Logic
-    const stars = document.querySelectorAll('.star');
-    stars.forEach((s, i) => {
-        s.onclick = () => {
-            document.getElementById('ratingValue').value = i + 1;
-            stars.forEach((ss, ii) => ss.classList.toggle('active', ii <= i));
-        };
-    });
+    // Create the parameters to send
+    const params = new URLSearchParams();
+    params.append('key', VALIDATION_KEY); // Add the secret key
+    params.append('name', formData.get('name') || 'Anonymous');
+    params.append('email', formData.get('email') || '');
+    params.append('rating', document.getElementById('ratingValue').value);
+    params.append('message', formData.get('message'));
+    params.append('userAgent', navigator.userAgent);
 
-    // Form Logic
-    const form = document.getElementById('feedbackForm');
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-        
-        // Spam Check
-        if (form._honey.value) return; 
+    try {
+        await fetch(SCRIPT_URL, { 
+            method: 'POST', 
+            body: params,
+            mode: 'no-cors' // Required for cross-domain requests to Google
+        });
 
-        const btn = document.getElementById('subBtn');
-        btn.disabled = true;
-        btn.innerText = "Processing...";
-
-        try {
-            const formData = new FormData(form);
-            formData.append('userAgent', navigator.userAgent);
-            
-            // Convert to URLSearchParams for better Google Script parsing
-            const params = new URLSearchParams();
-            for (const pair of formData) {
-                params.append(pair[0], pair[1]);
-            }
-
-            await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                body: params,
-                mode: 'no-cors' 
-            });
-
-            // Transition to success
-            document.getElementById('form-wrapper').style.display = 'none';
-            document.getElementById('success').style.display = 'block';
-            
-        } catch (error) {
-            console.error(error);
-            alert("Something went wrong. Check your connection and try again.");
-            btn.disabled = false;
-            btn.innerText = "Submit Feedback";
-        }
-    };
+        // Show Success UI
+        document.getElementById('form-wrapper').style.display = 'none';
+        document.getElementById('success').style.display = 'block';
+    } catch (error) {
+        alert("Submission failed. Check your connection.");
+        btn.disabled = false;
+        btn.innerText = "Submit Feedback";
+    }
+};
 </script>
 
 </body>
