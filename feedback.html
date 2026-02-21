@@ -4,20 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback - Ituze Bonheur</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Hidden Scrollbar Logic */
-        html, body, * {
+        :root {
+            --bg-deep: #020617;
+            --accent-blue: #38bdf8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-secondary: #94a3b8;
+            --star-active: #fbbf24;
+        }
+
+        /* Standard Hide Scrollbars */
+        html, body {
             -ms-overflow-style: none;
             scrollbar-width: none;
+            height: 100%;
         }
         *::-webkit-scrollbar { display: none !important; }
 
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: #020617;
-            background-image: radial-gradient(circle at top, #0b1120 0%, #020617 55%, #000 100%);
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-deep);
+            /* Rich radial gradient to match ituzebonheur.com */
+            background-image: radial-gradient(circle at top, #0b1120 0%, #020617 60%, #000 100%);
             color: white;
             display: flex;
             justify-content: center;
@@ -26,71 +37,137 @@
         }
 
         .feedback-container {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 40px;
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
             width: 90%;
-            max-width: 480px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            text-align: center;
         }
 
-        h1 { margin: 0 0 10px 0; font-size: 28px; text-align: center; letter-spacing: -0.5px; }
-        p.subtitle { text-align: center; color: #94a3b8; margin-bottom: 30px; font-size: 15px; }
+        h1 { 
+            margin: 0 0 10px 0; 
+            font-size: 32px; 
+            font-weight: 700; 
+            letter-spacing: -1px;
+            background: linear-gradient(to bottom right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle { 
+            color: var(--text-secondary); 
+            margin-bottom: 30px; 
+            font-size: 15px;
+            line-height: 1.5;
+        }
         
-        .form-group { margin-bottom: 22px; position: relative; }
-        label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+        form { text-align: left; }
+
+        .form-group { margin-bottom: 24px; }
+        
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--text-secondary); 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
         
         input, textarea {
             width: 100%;
             padding: 14px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
             border-radius: 12px;
             color: white;
             box-sizing: border-box;
             font-size: 16px;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         input:focus, textarea:focus {
             outline: none;
-            border-color: #38bdf8;
-            background: rgba(0, 0, 0, 0.4);
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
+            border-color: var(--accent-blue);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
         }
 
-        .stars { font-size: 36px; color: #1e293b; cursor: pointer; text-align: center; margin-bottom: 25px; transition: transform 0.2s ease; }
-        .star { transition: color 0.2s ease, transform 0.2s ease; display: inline-block; }
+        /* Star Rating Design */
+        .stars { 
+            font-size: 40px; 
+            color: #1e293b; 
+            cursor: pointer; 
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 25px; 
+        }
+        
+        .star { 
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        
         .star:hover { transform: scale(1.2); }
-        .star.active { color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
+        .star.active { 
+            color: var(--star-active); 
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
+        }
 
         .submit-btn {
             width: 100%;
             padding: 16px;
-            background: #fff;
-            color: #020617;
+            background: white;
+            color: var(--bg-deep);
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-weight: 700;
             font-size: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
         }
 
-        .submit-btn:hover { background: #f1f5f9; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(255,255,255,0.1); }
-        .submit-btn:active { transform: translateY(0); }
-        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .submit-btn:hover { 
+            background: #f1f5f9; 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2); 
+        }
 
-        /* Anti-Spam Field */
-        .hidden-field { display: none !important; visibility: hidden; }
+        .submit-btn:disabled { 
+            opacity: 0.5; 
+            cursor: wait; 
+            transform: none !important; 
+        }
 
-        #success { display: none; text-align: center; animation: fadeIn 0.5s ease-out; }
-        .back-home { display: inline-block; margin-top: 25px; color: #38bdf8; text-decoration: none; font-size: 14px; font-weight: 600; }
+        .hidden-field { display: none !important; }
+
+        #success { 
+            display: none; 
+            padding: 20px 0;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
+
+        .back-home { 
+            display: inline-block; 
+            margin-top: 30px; 
+            color: var(--accent-blue); 
+            text-decoration: none; 
+            font-size: 14px; 
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .back-home:hover { opacity: 0.8; }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -99,8 +176,8 @@
 
 <div class="feedback-container">
     <div id="form-wrapper">
-        <h1>Feedback</h1>
-        <p class="subtitle">Your thoughts help us shape a better experience.</p>
+        <h1>Share Thoughts</h1>
+        <p class="subtitle">Your insights help us refine the Ituze experience.</p>
         
         <form id="feedbackForm">
             <input type="text" name="_honey" class="hidden-field">
@@ -116,12 +193,12 @@
 
             <div class="form-group">
                 <label>Your Name</label>
-                <input type="text" name="name" placeholder="Anonymous">
+                <input type="text" name="name" placeholder="Leave blank for anonymous">
             </div>
 
             <div class="form-group">
-                <label>Message</label>
-                <textarea name="message" required rows="5" placeholder="Tell us what's on your mind..."></textarea>
+                <label>Feedback Message</label>
+                <textarea name="message" required rows="5" placeholder="What can we do better?"></textarea>
             </div>
 
             <button type="submit" class="submit-btn" id="subBtn">Send Feedback</button>
@@ -129,51 +206,68 @@
     </div>
 
     <div id="success">
-        <div style="font-size: 50px; margin-bottom: 10px;">✨</div>
-        <h2>Received!</h2>
-        <p style="color: #94a3b8;">Thank you for your valuable input. We've added this to our roadmap.</p>
+        <div style="font-size: 60px; margin-bottom: 15px;">✨</div>
+        <h2 style="margin: 0 0 10px 0;">Message Received</h2>
+        <p style="color: var(--text-secondary);">Your feedback has been sent directly to our team. Thank you for your support!</p>
         <a href="/" class="back-home">Return to Home Page</a>
     </div>
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaV-RwGeznQy8ZGiRPjp9Xo_ouHg-FtqBNl_hmEifVEvuiZs-SZtQJfqJvZch2wPyA/exec';
-const VALIDATION_KEY = 'K9v$T2qP8!LmX4zR7@cB'; // Must match Apps Script
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaV-RwGeznQy8ZGiRPjp9Xo_ouHg-FtqBNl_hmEifVEvuiZs-SZtQJfqJvZch2wPyA/exec';
+    const VALIDATION_KEY = 'K9v$T2qP8!LmX4zR7@cB';
 
-const form = document.getElementById('feedbackForm');
-form.onsubmit = async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('subBtn');
-    btn.disabled = true;
-    btn.innerText = "Sending...";
+    // Star Logic: Updated to handle click correctly
+    const stars = document.querySelectorAll('.star');
+    stars.forEach((s, i) => {
+        s.onclick = () => {
+            document.getElementById('ratingValue').value = i + 1;
+            stars.forEach((ss, ii) => {
+                if(ii <= i) ss.classList.add('active');
+                else ss.classList.remove('active');
+            });
+        };
+    });
 
-    const formData = new FormData(form);
-    
-    // Create the parameters to send
-    const params = new URLSearchParams();
-    params.append('key', VALIDATION_KEY); // Add the secret key
-    params.append('name', formData.get('name') || 'Anonymous');
-    params.append('email', formData.get('email') || '');
-    params.append('rating', document.getElementById('ratingValue').value);
-    params.append('message', formData.get('message'));
-    params.append('userAgent', navigator.userAgent);
+    const form = document.getElementById('feedbackForm');
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        
+        // Anti-bot check
+        if (form._honey.value) return; 
 
-    try {
-        await fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            body: params,
-            mode: 'no-cors' // Required for cross-domain requests to Google
-        });
+        const btn = document.getElementById('subBtn');
+        btn.disabled = true;
+        btn.innerText = "Transmitting...";
 
-        // Show Success UI
-        document.getElementById('form-wrapper').style.display = 'none';
-        document.getElementById('success').style.display = 'block';
-    } catch (error) {
-        alert("Submission failed. Check your connection.");
-        btn.disabled = false;
-        btn.innerText = "Submit Feedback";
-    }
-};
+        const formData = new FormData(form);
+        const params = new URLSearchParams();
+        
+        params.append('key', VALIDATION_KEY);
+        params.append('name', formData.get('name') || 'Anonymous');
+        params.append('email', ''); // Optional email field can be added to HTML if needed
+        params.append('rating', document.getElementById('ratingValue').value);
+        params.append('message', formData.get('message'));
+        params.append('userAgent', navigator.userAgent);
+
+        try {
+            // Using fetch with no-cors to interact with Apps Script
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: params,
+                mode: 'no-cors' 
+            });
+
+            document.getElementById('form-wrapper').style.display = 'none';
+            document.getElementById('success').style.display = 'block';
+            
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("Oops! Something went wrong. Please check your connection.");
+            btn.disabled = false;
+            btn.innerText = "Send Feedback";
+        }
+    };
 </script>
 
 </body>
