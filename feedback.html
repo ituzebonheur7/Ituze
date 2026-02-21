@@ -6,183 +6,68 @@
     <title>Feedback - Ituze Bonheur</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-deep: #020617;
-            --accent-blue: #38bdf8;
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-secondary: #94a3b8;
-            --star-active: #fbbf24;
-        }
-
-        /* Standard Hide Scrollbars */
-        html, body {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-            height: 100%;
-        }
+        :root { --accent: #38bdf8; --glass: rgba(255, 255, 255, 0.03); }
+        
+        /* Ituze Global Style */
+        html, body { scrollbar-width: none; background: #020617; color: white; font-family: 'Inter', sans-serif; margin: 0; }
         *::-webkit-scrollbar { display: none !important; }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-deep);
-            /* Rich radial gradient to match ituzebonheur.com */
             background-image: radial-gradient(circle at top, #0b1120 0%, #020617 60%, #000 100%);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
 
         .feedback-container {
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--glass);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            padding: 40px;
-            border-radius: 28px;
-            border: 1px solid var(--glass-border);
-            width: 90%;
-            max-width: 450px;
+            padding: 40px; border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%; max-width: 450px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
             text-align: center;
         }
 
-        h1 { 
-            margin: 0 0 10px 0; 
-            font-size: 32px; 
-            font-weight: 700; 
-            letter-spacing: -1px;
-            background: linear-gradient(to bottom right, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .subtitle { 
-            color: var(--text-secondary); 
-            margin-bottom: 30px; 
-            font-size: 15px;
-            line-height: 1.5;
-        }
+        h1 { font-size: 32px; letter-spacing: -1px; margin-bottom: 8px; }
+        .subtitle { color: #94a3b8; margin-bottom: 30px; font-size: 14px; }
         
-        form { text-align: left; }
-
-        .form-group { margin-bottom: 24px; }
-        
-        label { 
-            display: block; 
-            margin-bottom: 8px; 
-            font-size: 12px; 
-            font-weight: 700; 
-            color: var(--text-secondary); 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-        }
+        .form-group { text-align: left; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
         
         input, textarea {
-            width: 100%;
-            padding: 14px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: white;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%; padding: 14px; background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+            color: white; font-size: 16px; box-sizing: border-box;
         }
 
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-            background: rgba(0, 0, 0, 0.5);
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
-        }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
 
-        /* Star Rating Design */
-        .stars { 
-            font-size: 40px; 
-            color: #1e293b; 
-            cursor: pointer; 
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 25px; 
-        }
-        
-        .star { 
-            transition: transform 0.2s ease, color 0.2s ease;
-        }
-        
-        .star:hover { transform: scale(1.2); }
-        .star.active { 
-            color: var(--star-active); 
-            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
-        }
+        .stars { font-size: 38px; color: #1e293b; cursor: pointer; display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .star.active { color: #fbbf24; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.3)); }
 
         .submit-btn {
-            width: 100%;
-            padding: 16px;
-            background: white;
-            color: var(--bg-deep);
-            border: none;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+            width: 100%; padding: 16px; background: white; color: #020617;
+            border: none; border-radius: 14px; font-weight: 700; cursor: pointer;
+            transition: 0.3s ease;
         }
 
-        .submit-btn:hover { 
-            background: #f1f5f9; 
-            transform: translateY(-2px); 
-            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2); 
-        }
-
-        .submit-btn:disabled { 
-            opacity: 0.5; 
-            cursor: wait; 
-            transform: none !important; 
-        }
-
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(56, 189, 248, 0.2); }
         .hidden-field { display: none !important; }
 
-        #success { 
-            display: none; 
-            padding: 20px 0;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
-        }
-
-        .back-home { 
-            display: inline-block; 
-            margin-top: 30px; 
-            color: var(--accent-blue); 
-            text-decoration: none; 
-            font-size: 14px; 
-            font-weight: 600;
-            transition: opacity 0.2s;
-        }
-
-        .back-home:hover { opacity: 0.8; }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        #success { display: none; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="feedback-container">
     <div id="form-wrapper">
-        <h1>Share Thoughts</h1>
-        <p class="subtitle">Your insights help us refine the Ituze experience.</p>
+        <h1>Feedback</h1>
+        <p class="subtitle">How can we make Ituze even better for you?</p>
         
         <form id="feedbackForm">
             <input type="text" name="_honey" class="hidden-field">
-
-            <div class="stars" id="starContainer">
+            <div class="stars">
                 <span class="star active" data-v="1">&#9733;</span>
                 <span class="star active" data-v="2">&#9733;</span>
                 <span class="star active" data-v="3">&#9733;</span>
@@ -192,13 +77,13 @@
             <input type="hidden" name="rating" id="ratingValue" value="5">
 
             <div class="form-group">
-                <label>Your Name</label>
-                <input type="text" name="name" placeholder="Leave blank for anonymous">
+                <label>Name</label>
+                <input type="text" name="name" placeholder="Optional">
             </div>
 
             <div class="form-group">
-                <label>Feedback Message</label>
-                <textarea name="message" required rows="5" placeholder="What can we do better?"></textarea>
+                <label>Message</label>
+                <textarea name="message" required rows="4" placeholder="Your thoughts..."></textarea>
             </div>
 
             <button type="submit" class="submit-btn" id="subBtn">Send Feedback</button>
@@ -206,69 +91,56 @@
     </div>
 
     <div id="success">
-        <div style="font-size: 60px; margin-bottom: 15px;">✨</div>
-        <h2 style="margin: 0 0 10px 0;">Message Received</h2>
-        <p style="color: var(--text-secondary);">Your feedback has been sent directly to our team. Thank you for your support!</p>
-        <a href="/" class="back-home">Return to Home Page</a>
+        <div style="font-size: 50px;">✨</div>
+        <h2>Sent Successfully</h2>
+        <p style="color: #94a3b8;">Your feedback is now on its way to the team.</p>
+        <a href="/" style="color: var(--accent); text-decoration: none; font-size: 14px;">← Back Home</a>
     </div>
 </div>
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaV-RwGeznQy8ZGiRPjp9Xo_ouHg-FtqBNl_hmEifVEvuiZs-SZtQJfqJvZch2wPyA/exec';
-    const VALIDATION_KEY = 'K9v$T2qP8!LmX4zR7@cB';
+    const KEY = 'K9v$T2qP8!LmX4zR7@cB';
 
-    // Star Logic: Updated to handle click correctly
+    // Star Handling
     const stars = document.querySelectorAll('.star');
     stars.forEach((s, i) => {
         s.onclick = () => {
             document.getElementById('ratingValue').value = i + 1;
-            stars.forEach((ss, ii) => {
-                if(ii <= i) ss.classList.add('active');
-                else ss.classList.remove('active');
-            });
+            stars.forEach((ss, ii) => ss.classList.toggle('active', ii <= i));
         };
     });
 
+    // Fix 1: Real Feedback Confirmation
     const form = document.getElementById('feedbackForm');
     form.onsubmit = async (e) => {
         e.preventDefault();
-        
-        // Anti-bot check
-        if (form._honey.value) return; 
+        if (form._honey.value) return;
 
         const btn = document.getElementById('subBtn');
         btn.disabled = true;
         btn.innerText = "Transmitting...";
 
-        const formData = new FormData(form);
-        const params = new URLSearchParams();
-        
-        params.append('key', VALIDATION_KEY);
-        params.append('name', formData.get('name') || 'Anonymous');
-        params.append('email', ''); // Optional email field can be added to HTML if needed
+        const params = new URLSearchParams(new FormData(form));
+        params.append('key', KEY);
         params.append('rating', document.getElementById('ratingValue').value);
-        params.append('message', formData.get('message'));
         params.append('userAgent', navigator.userAgent);
 
         try {
-            // Using fetch with no-cors to interact with Apps Script
-            await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                body: params,
-                mode: 'no-cors' 
-            });
+            const res = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+            const text = await res.text();
+
+            // Verification check
+            if (!text.includes("success")) throw new Error("Processing Error");
 
             document.getElementById('form-wrapper').style.display = 'none';
             document.getElementById('success').style.display = 'block';
-            
-        } catch (error) {
-            console.error("Submission error:", error);
-            alert("Oops! Something went wrong. Please check your connection.");
+        } catch (err) {
+            alert("Feedback failed to save. Please try again.");
             btn.disabled = false;
             btn.innerText = "Send Feedback";
         }
     };
 </script>
-
 </body>
 </html>
