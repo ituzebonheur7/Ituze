@@ -1,27 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-    <script src="/analytics.js"></script>
+      <script src="/analytics.js"></script>
 <head>
     <meta charset="UTF-8">
-    <title>Redirecting to Search...</title>
+    <title>Redirecting...</title>
     <style>
-        body { background-color: #121212; color: #ffffff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        body { 
+            background-color: #121212; 
+            color: #ffffff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden;
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .loader-container {
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .loader-bar {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #00d4ff, #ffffff, #00d4ff, transparent);
+            animation: scan 1.5s infinite linear;
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 0.4; text-shadow: 0 0 0px #fff; }
+            50% { opacity: 1; text-shadow: 0 0 10px #00d4ff; }
+        }
+
+        @keyframes scan {
+            from { left: -100%; }
+            to { left: 100%; }
+        }
     </style>
     <script>
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const query = urlParams.get('q');
 
-            if (query) {
-                window.location.replace("https://www.google.com/search?q=" + encodeURIComponent(query));
-            } else {
-                
-                window.location.replace("https://www.ituzebonheur.com");
-            }
+            setTimeout(() => {
+                if (query) {
+                    window.location.replace("https://www.google.com/search?q=" + encodeURIComponent(query));
+                } else {
+                    window.location.replace("https://ituzebonheur.com");
+                }
+            }, 1200); 
         })();
     </script>
 </head>
 <body>
-    <p>Searching...</p>
+
+    <div class="loading-text">Redirecting...</div>
+    <div class="loader-container">
+        <div class="loader-bar"></div>
+    </div>
+
 </body>
 </html>
