@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Privacy Transparency Demo | Ituze</title>
+<style>
+body {
+    background: black;
+    color: #00ff00;
+    font-family: monospace;
+    padding: 40px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+td {
+    padding: 8px;
+    border-bottom: 1px solid #003300;
+}
+.label {
+    font-weight: bold;
+    width: 220px;
+}
+</style>
+</head>
+<body>
+
+<h1>🔎 What This Website Can See</h1>
+<p>This is an educational demo. No data is stored.</p>
+
+<table id="infoTable"></table>
+
+<script>
+async function getIPData() {
+    try {
+        const res = await fetch("https://ipwho.is/");
+        const data = await res.json();
+
+        return {
+            ip: data.ip || "Unavailable",
+            country: data.country || "Unavailable",
+            city: data.city || "",
+            isp: data.connection?.isp || "Unavailable"
+        };
+    } catch {
+        return {
+            ip: "Unavailable",
+            country: "Unavailable",
+            city: "",
+            isp: "Unavailable"
+        };
+    }
+}
+
+function getGPU() {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl");
+    if (!gl) return "Unavailable";
+    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+    return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Unavailable";
+}
+
+function getOS() {
+    const ua = navigator.userAgent;
+    if (ua.includes("Windows")) return "Windows";
+    if (ua.includes("Mac OS")) return "MacOS";
+    if (ua.includes("Android")) return "Android";
+    if (ua.includes("Linux")) return "Linux";
+    if (ua.includes("like Mac")) return "iOS";
+    return "Unknown";
+}
+
+(async function() {
+
+    const ipData = await getIPData();
+
+    const data = {
+        "Date / Time": new Date().toString(),
+        "IP Address": ipData.ip,
+        "Country / Location": ipData.country + " " + ipData.city,
+        "ISP": ipData.isp,
+        "Referring URL": document.referrer || "Direct Visit",
+        "Orientation": screen.orientation?.type || "Unknown",
+        "Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
+        "User Time": new Date().toLocaleTimeString(),
+        "Language": navigator.language,
+        "Ad Blocker": "Basic Detection Only",
+        "Screen Size": `${screen.width} x ${screen.height}`,
+        "Colour Scheme": window.matchMedia('(prefers-color-scheme: dark)').matches ? "Dark" : "Light",
+        "HDR Screen": window.matchMedia('(dynamic-range: high)').matches ? "Yes" : "No",
+        "GPU": getGPU(),
+        "Browser": navigator.userAgent,
+        "Operating System": getOS(),
+        "Touch Screen": navigator.maxTouchPoints > 0 ? "Yes" : "No",
+        "User Agent": navigator.userAgent,
+        "Platform": navigator.platform
+    };
+
+    const table = document.getElementById("infoTable");
+
+    for (let key in data) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td class="label">${key}</td><td>${data[key]}</td>`;
+        table.appendChild(row);
+    }
+
+})();
+</script>
+
+</body>
+</html>
