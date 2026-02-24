@@ -1,24 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js');
-        });
-    }
-</script>
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-4RPPG857F8');
-</script>
-  
+      <script src="/analytics.js"></script>
   <meta charset="utf-8" />
   <title>New Tab - Ituze</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -3109,6 +3092,7 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
+
 
 
 
