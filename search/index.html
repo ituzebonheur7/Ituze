@@ -1,79 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
-      <script src="/analytics.js"></script>
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/ituze.png" type="image/png">
-    <title>Redirecting...</title>
-    <style>
-        body { 
-            background-color: #121212; 
-            color: #ffffff; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-            overflow: hidden;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redirecting…</title>
+<script src="/analytics.js"></script>
+<link rel="icon" href="/ituze.png" type="image/png">
 
-        .loading-text {
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 20px;
-            animation: glow 2s ease-in-out infinite;
-        }
+<style>
+:root {
+    --accent: #00d4ff;
+    --bg: #0f0f0f;
+    --panel: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+}
 
-        .loader-container {
-            width: 200px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-            border-radius: 2px;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        .loader-bar {
-            position: absolute;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, #00d4ff, #ffffff, #00d4ff, transparent);
-            animation: scan 0.7s infinite linear;
-        }
+body {
+    margin: 0;
+    background: radial-gradient(circle at top, #151515, #0a0a0a);
+    color: #fff;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+}
 
-        @keyframes glow {
-            0%, 100% { opacity: 0.4; text-shadow: 0 0 0px #fff; }
-            50% { opacity: 1; text-shadow: 0 0 10px #00d4ff; }
-        }
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 40px 35px;
+    width: 320px;
+    text-align: center;
+    animation: fadeIn 0.6s ease forwards;
+}
 
-        @keyframes scan {
-            from { left: -100%; }
-            to { left: 100%; }
-        }
-    </style>
-    <script>
-        (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const query = urlParams.get('q');
+.loading-text {
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 25px;
+}
 
-            setTimeout(() => {
-                if (query) {
-                    window.location.replace("https://www.google.com/search?q=" + encodeURIComponent(query));
-                } else {
-                    window.location.replace("https://ituzebonheur.com");
-                }
-            }, 500); 
-        })();
-    </script>
+.loader {
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.loader::before {
+    content: "";
+    position: absolute;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--accent), #fff, var(--accent), transparent);
+    animation: slide 1s infinite linear;
+}
+
+#setup-ui {
+    display: none;
+}
+
+select {
+    margin-top: 15px;
+    padding: 12px;
+    width: 100%;
+    background: #121212;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+button {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    background: #fff;
+}
+
+small {
+    display: block;
+    margin-top: 10px;
+    opacity: 0.5;
+    font-size: 0.75rem;
+}
+
+@keyframes slide {
+    from { left: -40%; }
+    to { left: 100%; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
 </head>
 <body>
 
-    <div class="loading-text">Redirecting...</div>
-    <div class="loader-container">
-        <div class="loader-bar"></div>
-    </div>
+<div class="panel" id="redirect-ui">
+    <div class="loading-text">Redirecting</div>
+    <div class="loader"></div>
+</div>
+
+<div class="panel" id="setup-ui">
+    <div class="loading-text">Select Search Engine</div>
+    <small>Choose your default engine for Ituze searches.</small>
+    <select id="engine-selector">
+        <option value="google">Google</option>
+        <option value="bing">Bing</option>
+        <option value="duckduckgo">DuckDuckGo</option>
+        <option value="brave">Brave</option>
+        <option value="startpage">Startpage</option>
+        <option value="you">You.com</option>
+        <option value="ecosia">Ecosia</option>
+        <option value="yahoo">Yahoo</option>
+        <option value="baidu">Baidu</option>
+        <option value="yandex">Yandex</option>
+        <option value="qwant">Qwant</option>
+        <option value="swisscows">Swisscows</option>
+        <option value="searx">Searx</option>
+        <option value="mojeek">Mojeek</option>
+        <option value="perplexity">Perplexity</option>
+        <option value="wolframalpha">WolframAlpha</option>
+    </select>
+    <button onclick="saveAndRedirect()">Save & Search</button>
+</div>
+
+<script>
+const searchEngines = {
+    google: "https://www.google.com/search?q=",
+    bing: "https://www.bing.com/search?q=",
+    duckduckgo: "https://duckduckgo.com/?q=",
+    brave: "https://search.brave.com/search?q=",
+    startpage: "https://www.startpage.com/do/search?query=",
+    you: "https://you.com/search?q=",
+    ecosia: "https://www.ecosia.org/search?q=",
+    yahoo: "https://search.yahoo.com/search?p=",
+    baidu: "https://www.baidu.com/s?wd=",
+    yandex: "https://yandex.com/search/?text=",
+    qwant: "https://www.qwant.com/?q=",
+    swisscows: "https://swisscows.com/web?query=",
+    searx: "https://searx.be/search?q=", 
+    mojeek: "https://www.mojeek.com/search?q=",
+    perplexity: "https://www.perplexity.ai/search?q=",
+    wolframalpha: "https://www.wolframalpha.com/input?i="
+};
+
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("q");
+    const savedEngine = localStorage.getItem("defaultSearchEngine");
+
+    if (!query || !query.trim()) {
+        window.location.replace("https://ituzebonheur.com");
+        return;
+    }
+
+    if (savedEngine && searchEngines[savedEngine]) {
+        const destination = searchEngines[savedEngine] + encodeURIComponent(query);
+        setTimeout(() => {
+            window.location.replace(destination);
+        }, 1000);
+    } else {
+        document.getElementById("redirect-ui").style.display = "none";
+        document.getElementById("setup-ui").style.display = "block";
+    }
+
+    if (savedEngine) {
+        const selector = document.getElementById("engine-selector");
+        if (selector) selector.value = savedEngine;
+    }
+})();
+
+function saveAndRedirect() {
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("q");
+    const selection = document.getElementById("engine-selector").value;
+
+    if (!selection || !query) return;
+
+    localStorage.setItem("defaultSearchEngine", selection);
+    const destination = searchEngines[selection] + encodeURIComponent(query);
+    window.location.replace(destination);
+}
+</script>
+
 </body>
 </html>
