@@ -1,6 +1,5 @@
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.4.1/workbox-sw.js');
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.4.0/workbox-sw.js');
 
-const CACHE_NAME = 'matrix-offline-v1';
 const OFFLINE_URL = '/offline.html';
 
 workbox.precaching.precacheAndRoute([
@@ -8,22 +7,25 @@ workbox.precaching.precacheAndRoute([
 ]);
 
 workbox.routing.registerRoute(
-  ({request}) =>
+  ({ request }) =>
     request.destination === 'style' ||
     request.destination === 'script',
   new workbox.strategies.StaleWhileRevalidate()
 );
 
 workbox.routing.registerRoute(
-  ({request}) => request.destination === 'document',
-  new workbox.strategies.NetworkFirst({
-    cacheName: 'html-cache'
-  })
-);
+  ({ request }) => request.destination === 'document',
+  async ({ event }) => {
 
-workbox.routing.setCatchHandler(async ({event}) => {
-  if (event.request.destination === 'document') {
-    return caches.match(OFFLINE_URL);
+    if (!self.navigator.onLine) {
+      return caches.match(OFFLINE_URL);
+    }
+
+    // Otherwise try network
+    try {
+      return await fetch(event.request);
+    } catch (error) {
+      return caches.match(OFFLINE_URL);
+    }
   }
-  return Response.error();
-});
+);
