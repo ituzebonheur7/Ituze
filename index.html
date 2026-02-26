@@ -14,7 +14,6 @@
       --glass-border: rgba(255,255,255,0.22);
       --text-main: #e5e7eb;
 
-      /* Launcher transparency control */
       --launcher-opacity: 0.32;
       --launcher-border-color: rgba(255,255,255,0.18);
       --launcher-section-bg: rgba(15,23,42,0.55);
@@ -23,12 +22,10 @@
 
     * { box-sizing: border-box; }
 
-    /* Hide visible scrollbars globally while keeping elements scrollable */
     html, body, * {
-      -ms-overflow-style: none;  /* IE/Edge */
-      scrollbar-width: none;     /* Firefox */
+      -ms-overflow-style: none; 
+      scrollbar-width: none; 
     }
-    /* Webkit-based browsers */
     *::-webkit-scrollbar { display: none !important; width: 0; height: 0; }
     
     body {
@@ -99,7 +96,6 @@
       box-shadow: 0 0 18px var(--accent);
     }
 
-    /* Settings panel: now scrollable and constrained to viewport */
     #settingsPanel {
       position: fixed;
       top: 70px;
@@ -113,7 +109,6 @@
       transition: 0.3s ease;
       z-index: 2000;
 
-      /* Make the panel scrollable if content exceeds viewport */
       max-height: calc(100vh - 100px);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -376,7 +371,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Battery placed behind panels (lower z-index) */
     #battery {
       position: fixed;
       bottom: 20px;
@@ -387,7 +381,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      z-index: 50; /* lowered so it sits behind panels/launchers/settings */
+      z-index: 50;
     }
 
     #battery-icon {
@@ -3093,6 +3087,7 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
+
 
 
 
