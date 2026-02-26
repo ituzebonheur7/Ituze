@@ -195,7 +195,9 @@ function saveAndRedirect() {
     if (!selection || !query) return;
 
     localStorage.setItem("defaultSearchEngine", selection);
-    const destination = searchEngines[selection] + encodeURIComponent(query);
+    const source = "ituzebonheur.com";
+    const destination = searchEngines[selection] + encodeURIComponent(query) + "&utm_source=" + encodeURIComponent(source);
+
     window.location.replace(destination);
 }
 </script>
