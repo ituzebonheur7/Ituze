@@ -137,7 +137,6 @@ small {
         <option value="brave">Brave</option>
         <option value="startpage">Startpage</option>
         <option value="you">You.com</option>
-        <option value="ecosia">Ecosia</option>
         <option value="yahoo">Yahoo</option>
         <option value="yandex">Yandex</option>
         <option value="perplexity">Perplexity</option>
@@ -156,11 +155,12 @@ const searchEngines = {
     you: "https://you.com/search?q=",
     ecosia: "https://www.ecosia.org/search?q=",
     yahoo: "https://search.yahoo.com/search?p=",
-    baidu: "https://www.baidu.com/s?wd=",
     yandex: "https://yandex.com/search/?text=",
     perplexity: "https://www.perplexity.ai/search?q=",
 };
 
+const utmSource = "ituzebonheur.com";
+    
 (function() {
     const params = new URLSearchParams(window.location.search);
     const query = params.get("q");
@@ -172,7 +172,8 @@ const searchEngines = {
     }
 
     if (savedEngine && searchEngines[savedEngine]) {
-        const destination = searchEngines[savedEngine] + encodeURIComponent(query);
+        const destination = searchEngines[savedEngine] + encodeURIComponent(query) + "&utm_source=" + encodeURIComponent(utmSource);
+        
         setTimeout(() => {
             window.location.replace(destination);
         }, 1000);
@@ -193,14 +194,8 @@ function saveAndRedirect() {
     const selection = document.getElementById("engine-selector").value;
 
     if (!selection || !query) return;
-
     localStorage.setItem("defaultSearchEngine", selection);
-    const source = "ituzebonheur.com";
-    const destination = searchEngines[selection] + encodeURIComponent(query) + "&utm_source=" + encodeURIComponent(source);
-
+    const destination = searchEngines[selection] + encodeURIComponent(query) + "&utm_source=" + encodeURIComponent(utmSource);
     window.location.replace(destination);
 }
 </script>
-
-</body>
-</html>
