@@ -855,35 +855,10 @@
     }
     .link-menu button:hover { background: rgba(255,255,255,0.03); }
 
-    /* drag-drop overlay */
-    .drop-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 6000;
-      pointer-events: none;
-    }
-    .drop-overlay.active {
-      display: flex;
-      pointer-events: all;
-    }
-    .drop-hint {
-      padding: 18px 22px;
-      border-radius: 12px;
-      background: rgba(0,0,0,0.6);
-      border: 1px dashed rgba(255,255,255,0.12);
-      color: var(--text-main);
-      font-size: 16px;
-      backdrop-filter: blur(6px);
-    }
-
-    /* Weather wedge (bottom-left, next to apps) */
     #weatherWedge {
       position: fixed;
       bottom: 20px;
-      left: 80px; /* next to waffle at left:20px */
+      left: 80px; 
       padding: 10px 12px;
       border-radius: 12px;
       background: rgba(10,12,15,0.6);
@@ -922,13 +897,6 @@
   </style>
 </head>
 <body>
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N6BLFN3W"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-
-  <canvas id="matrix"></canvas>
-    <a id="topLink" href="https://www.google.com/search?udm=50&amp;aep=11&amp;q=Who%27s+Ituze+Bonheur"
-     class="top-btn glass" rel="noopener noreferrer">
-    Ituze
   </a>
 <div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
   <div id="settingsPanel" class="glass" role="dialog" aria-modal="false" aria-hidden="true">
@@ -961,7 +929,6 @@
         <option value="custom">Custom</option>
       </select>
 
-      <!-- Custom color UI (shown when Custom is selected). Label remains "Theme Color" -->
       <div id="customColorPicker" class="custom-color-row" style="display:none;">
         <input id="customColorInput" type="color" aria-label="Custom accent color picker" value="#00ff9c">
         <input id="customColorHex" type="text" aria-label="Custom accent hex value" placeholder="#00ff9c">
@@ -1001,30 +968,6 @@
     </div>
 
     <div class="settings-group">
-      <label>Google Apps Launcher</label>
-      <div class="settings-row">
-        <span>Transparency</span>
-        <select id="launcherOpacitySelect" aria-label="Launcher transparency">
-          <option value="0.24">Subtle</option>
-          <option value="0.32">Balanced</option>
-          <option value="0.42">Solid</option>
-        </select>
-      </div>
-      <div class="settings-row">
-        <span>Compact list density</span>
-        <input type="checkbox" id="launcherCompact" aria-label="Compact launcher list">
-      </div>
-    </div>
-
-    <div class="settings-group">
-      <label>OpenAI (AI Assistant)</label>
-      <input id="openaiKeyInput" type="password" placeholder="Paste OpenAI API key (optional)" aria-label="OpenAI API Key">
-      <div style="font-size:12px;opacity:0.85;margin-top:8px;">
-        Client-side API usage stores your key in localStorage — not recommended for public devices. Prefer a server-side proxy.
-      </div>
-    </div>
-
-    <div class="settings-group">
       <label>Weather</label>
       <div style="font-size:13px;color:#cbd5e1;">Weather uses a free no-key API (Open-Meteo). You can also set location manually below.</div>
       <input id="manualLocation" type="text" placeholder="City, Country (optional)" aria-label="Manual weather location" style="margin-top:8px;">
@@ -1035,7 +978,6 @@
         <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data & reset</button>
       </div>
     </div>
-<!-- Save & Apply removed — changes are applied automatically -->
 
   </div>
 
@@ -1048,10 +990,8 @@
     <span id="battery-text">Battery: --%</span>
   </div>
 
-  <!-- Google Apps waffle button -->
-  <button id="openWaffle" class="waffle-btn glass" aria-label="Open apps launcher"></button>
+  <button id="openWaffle" class="waffle-btn" aria-label="Open apps launcher"></button>
 
-  <!-- Weather wedge -->
   <div id="weatherWedge" class="glass" aria-hidden="true" title="Current weather (click to refresh)">
     <div id="weatherIcon">☀️</div>
     <div id="weatherText">Weather: --</div>
@@ -1437,7 +1377,7 @@
         <input id="searchInput" placeholder="Search or type a URL (try :calc 2+2 or wiki:javascript)" autocomplete="off" aria-label="Search or type a URL" />
         <div class="chrome-icons">
           <button id="voiceBtn" class="icon-btn" aria-pressed="false" aria-label="Toggle voice search">🎤</button>
-          <button id="aiModeBtn" class="ai-mode-btn glass" aria-label="AI Mode">AI</button>
+          <button id="aiModeBtn" class="ai-mode-btn glass" aria-label="AI Mode">AI Mode</button>
         </div>
       </div>
       <div id="suggestions" class="suggestions glass" role="listbox" aria-expanded="false" aria-label="Search suggestions"></div>
@@ -1485,8 +1425,6 @@
       <li><strong>Esc</strong> — Clear search / close settings</li>
       <li><strong>Ctrl + Alt + /</strong> — Show this help</li>
       <li><strong>Right-click (on launcher links)</strong> — Set per-link open behavior (background/foreground)</li>
-      <li><strong>Drag & Drop image</strong> — Reverse image search (Google Lens / Images)</li>
-      <li><strong>AI Mode</strong> — Toggle AI sidebar</li>
     </ul>
     <div style="margin-top:12px;text-align:right;">
       <button id="closeHelp" class="save-btn" style="width:160px;">Close</button>
@@ -2161,7 +2099,6 @@ updateGreeting();
     const customColorPicker = document.getElementById("customColorPicker");
     const customColorInput = document.getElementById("customColorInput");
     const customColorHex = document.getElementById("customColorHex");
-    const openaiKeyInput = document.getElementById("openaiKeyInput");
     const manualLocationInput = document.getElementById("manualLocation");
     const weatherWedge = document.getElementById("weatherWedge");
     const weatherText = document.getElementById("weatherText");
@@ -2209,7 +2146,6 @@ updateGreeting();
 
     function openSettings() {
       closeAllPanels([settingsPanel]);
-      // allow panel open after closing others
       settingsPanel.classList.add("open");
       settingsPanel.setAttribute("aria-hidden", "false");
     }
@@ -3087,13 +3023,3 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
