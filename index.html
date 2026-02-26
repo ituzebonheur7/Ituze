@@ -855,10 +855,35 @@
     }
     .link-menu button:hover { background: rgba(255,255,255,0.03); }
 
+    /* drag-drop overlay */
+    .drop-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 6000;
+      pointer-events: none;
+    }
+    .drop-overlay.active {
+      display: flex;
+      pointer-events: all;
+    }
+    .drop-hint {
+      padding: 18px 22px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.6);
+      border: 1px dashed rgba(255,255,255,0.12);
+      color: var(--text-main);
+      font-size: 16px;
+      backdrop-filter: blur(6px);
+    }
+
+    /* Weather wedge (bottom-left, next to apps) */
     #weatherWedge {
       position: fixed;
       bottom: 20px;
-      left: 80px; 
+      left: 80px; /* next to waffle at left:20px */
       padding: 10px 12px;
       border-radius: 12px;
       background: rgba(10,12,15,0.6);
@@ -897,6 +922,11 @@
   </style>
 </head>
 <body>
+
+  <canvas id="matrix"></canvas>
+    <a id="topLink" href="https://www.google.com/search?udm=50&amp;aep=11&amp;q=Who%27s+Ituze+Bonheur"
+     class="top-btn glass" rel="noopener noreferrer">
+    Ituze
   </a>
 <div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
   <div id="settingsPanel" class="glass" role="dialog" aria-modal="false" aria-hidden="true">
@@ -929,6 +959,7 @@
         <option value="custom">Custom</option>
       </select>
 
+      <!-- Custom color UI (shown when Custom is selected). Label remains "Theme Color" -->
       <div id="customColorPicker" class="custom-color-row" style="display:none;">
         <input id="customColorInput" type="color" aria-label="Custom accent color picker" value="#00ff9c">
         <input id="customColorHex" type="text" aria-label="Custom accent hex value" placeholder="#00ff9c">
@@ -950,7 +981,7 @@
         <input type="checkbox" id="toggleKeyboard" aria-label="Keyboard shortcuts">
       </div>
       <div class="settings-row">
-        <span>Open links in new tab (default)</span>
+        <span>Open links in new tab</span>
         <input type="checkbox" id="toggleNewTab" aria-label="Open links in new tab">
       </div>
       <div class="settings-row">
@@ -978,6 +1009,7 @@
         <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data & reset</button>
       </div>
     </div>
+<!-- Save & Apply removed — changes are applied automatically -->
 
   </div>
 
@@ -990,8 +1022,10 @@
     <span id="battery-text">Battery: --%</span>
   </div>
 
-  <button id="openWaffle" class="waffle-btn" aria-label="Open apps launcher"></button>
+  <!-- Google Apps waffle button -->
+  <button id="openWaffle" class="waffle-btn glass" aria-label="Open apps launcher"></button>
 
+  <!-- Weather wedge -->
   <div id="weatherWedge" class="glass" aria-hidden="true" title="Current weather (click to refresh)">
     <div id="weatherIcon">☀️</div>
     <div id="weatherText">Weather: --</div>
@@ -1371,7 +1405,7 @@
   <div class="container">
     <div class="date" id="date"></div>
     <div class="clock" id="clock"></div>
-    <div class="greeting" id="greeting">Welcome, Ituze</div>
+    <div class="greeting" id="greeting">Welcome, </div>
 <div class="chrome-search-wrapper">
       <div class="chrome-search glass" id="searchSurface">
         <input id="searchInput" placeholder="Search or type a URL (try :calc 2+2 or wiki:javascript)" autocomplete="off" aria-label="Search or type a URL" />
@@ -1425,6 +1459,8 @@
       <li><strong>Esc</strong> — Clear search / close settings</li>
       <li><strong>Ctrl + Alt + /</strong> — Show this help</li>
       <li><strong>Right-click (on launcher links)</strong> — Set per-link open behavior (background/foreground)</li>
+      <li><strong>Drag & Drop image</strong> — Reverse image search (Google Lens / Images)</li>
+      <li><strong>AI Mode</strong> — Toggle AI sidebar</li>
     </ul>
     <div style="margin-top:12px;text-align:right;">
       <button id="closeHelp" class="save-btn" style="width:160px;">Close</button>
@@ -1438,11 +1474,6 @@
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 0;">
     <button id="linkRememberBg">Remember as background</button>
     <button id="linkRememberFg">Remember as foreground</button>
-  </div>
-
-  <!-- Drag & drop overlay -->
-  <div id="dropOverlay" class="drop-overlay">
-    <div class="drop-hint">Drop an image here to search (Google Lens)</div>
   </div>
 
   <script>
@@ -2099,6 +2130,7 @@ updateGreeting();
     const customColorPicker = document.getElementById("customColorPicker");
     const customColorInput = document.getElementById("customColorInput");
     const customColorHex = document.getElementById("customColorHex");
+    const openaiKeyInput = document.getElementById("openaiKeyInput");
     const manualLocationInput = document.getElementById("manualLocation");
     const weatherWedge = document.getElementById("weatherWedge");
     const weatherText = document.getElementById("weatherText");
@@ -2146,6 +2178,7 @@ updateGreeting();
 
     function openSettings() {
       closeAllPanels([settingsPanel]);
+      // allow panel open after closing others
       settingsPanel.classList.add("open");
       settingsPanel.setAttribute("aria-hidden", "false");
     }
@@ -3023,3 +3056,4 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
+
