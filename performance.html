@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Dashboard - Ituze</title>
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --surface: #141417;
+            --surface-hover: #1c1c21;
+            --border: #2d2d35;
+            --text: #f0f0f2;
+            --text-muted: #8e8e9a;
+            
+            /* Metric Colors */
+            --clr-cpu: #ff4d4d;
+            --clr-gpu: #00f2ff;
+            --clr-ram: #bf5af2;
+            --clr-fps: #32d74b;
+            --clr-ft: #ff9f0a;
+            --clr-workers: #ffd60a;
+            --clr-dom: #5e5ce6;
+            
+            --accent: #007aff;
+            --danger: #ff3b30;
+            --success: #34c759;
+            --warning: #ffcc00;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .tagline { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+        .sys-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .sys-item {
+            font-size: 12px;
+            background: var(--surface);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .sys-item strong { color: var(--text-muted); text-transform: uppercase; margin-right: 5px; }
+
+        /* Controls */
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+            background: var(--surface);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        select, button {
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        button:hover:not(:disabled) { background: #2c2c35; border-color: var(--text-muted); }
+        #btn-start { background: var(--success); color: #000; border: none; }
+        #btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
+        #btn-stop { background: var(--danger); color: #fff; border: none; }
+        #btn-stop:disabled { opacity: 0.5; cursor: not-allowed; }
+        #btn-export { background: var(--accent); color: #fff; border: none; margin-left: auto; }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--card-color, var(--text-muted));
+        }
+
+        .card-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .card-main {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .card-value { font-size: 26px; font-weight: 800; color: #fff; }
+        .card-unit { font-size: 14px; color: var(--text-muted); }
+
+        .card-stats {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .stat-item { display: flex; flex-direction: column; }
+        .stat-label { color: var(--text-muted); margin-bottom: 2px; }
+        .stat-val { font-weight: 600; color: var(--text); }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--card-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Analytics Section */
+        .analytics-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 1200px;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .graph-wrapper {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            position: relative;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .graph-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.03);
+            transition: 0.2s;
+        }
+
+        .legend-item:hover { background: rgba(255,255,255,0.1); }
+        .legend-item.hidden { opacity: 0.3; text-decoration: line-through; }
+
+        .legend-box { width: 10px; height: 10px; border-radius: 2px; }
+
+        canvas#graph-canvas {
+            flex-grow: 1;
+            width: 100%;
+            background: #000;
+            border-radius: 8px;
+        }
+
+        /* Visual Stress Area */
+        .visual-stress {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        canvas#gpu-canvas {
+            flex: 1;
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        #dom-container {
+            height: 120px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 4px;
+            gap: 1px;
+        }
+
+        .node { width: 3px; height: 3px; background: var(--clr-dom); opacity: 0.6; }
+
+        #results-overlay {
+            display: none;
+            padding: 20px;
+            background: rgba(50, 215, 75, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 40px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <div>
+                <h1>PERFORMANCE DASHBOARD</h1>
+                <div class="tagline">Advanced Browsers Stress Analytics</div>
+            </div>
+            <div id="status-badge" style="background: var(--surface); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; color: var(--text-muted); border: 1px solid var(--border);">SYSTEM IDLE</div>
+        </div>
+        
+        <div class="sys-grid" id="sys-specs"></div>
+    </header>
+
+    <div class="toolbar">
+        <select id="mode-select">
+            <option value="all">Full System Stress</option>
+            <option value="cpu">CPU Intensive (Workers)</option>
+            <option value="gpu">GPU Intensive (DrawCalls)</option>
+            <option value="mem">Memory Saturation</option>
+            <option value="dom">DOM Layout Stress</option>
+        </select>
+        <button id="btn-start">START TEST</button>
+        <button id="btn-stop" disabled>EMERGENCY STOP</button>
+        <button id="btn-export" style="display: none;">DOWNLOAD TELEMETRY (.JSON)</button>
+    </div>
+
+    <div class="dashboard">
+        <div class="card" style="--card-color: var(--clr-cpu)">
+            <div class="card-label">CPU Usage (Est.)</div>
+            <div class="card-main">
+                <div class="card-value" id="cpu-val">0.0</div>
+                <div class="card-unit">%</div>
+            </div>
+            <div class="card-stats">
+                <div class="stat-item"><span class="stat-label">AVG</span><span class="stat-val" id="cpu-avg">0%</span></div>
+                <div class="stat-item"><span class="stat-label">PEAK</span><span class="stat-val" id="cpu-peak">0%</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="cpu-bar"></div></div>
+        </div>
+
+        <div class="card" style="--card-color: var(--clr-gpu)">
+            <div class="card-label">GPU Load (Proxy)</div>
+            <div class="card-main">
+                <div class="card-value" id="gpu-val">0.0</div>
+                <div class="card-unit">%</div>
+            </div>
+            <div class="card-stats">
+                <div class="stat-item"><span class="stat-label">AVG</span><span class="stat-val" id="gpu-avg">0%</span></div>
+                <div class="stat-item"><span class="stat-label">PEAK</span><span class="stat-val" id="gpu-peak">0%</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="gpu-bar"></div></div>
+        </div>
+
+        <div class="card" style="--card-color: var(--clr-ram)">
+            <div class="card-label">JS Heap Usage</div>
+            <div class="card-main">
+                <div class="card-value" id="ram-val">0</div>
+                <div class="card-unit">MB</div>
+            </div>
+            <div class="card-stats">
+                <div class="stat-item"><span class="stat-label">AVG</span><span class="stat-val" id="ram-avg">0MB</span></div>
+                <div class="stat-item"><span class="stat-label">LIMIT</span><span class="stat-val" id="ram-peak">0MB</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="ram-bar"></div></div>
+        </div>
+
+        <div class="card" style="--card-color: var(--clr-fps)">
+            <div class="card-label">Frame Rate</div>
+            <div class="card-main">
+                <div class="card-value" id="fps-val">0</div>
+                <div class="card-unit">FPS</div>
+            </div>
+            <div class="card-stats">
+                <div class="stat-item"><span class="stat-label">1% LOW</span><span class="stat-val" id="fps-low">0</span></div>
+                <div class="stat-item"><span class="stat-label">STABLE</span><span class="stat-val" id="fps-avg">0</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="fps-bar"></div></div>
+        </div>
+
+        <div class="card" style="--card-color: var(--clr-ft)">
+            <div class="card-label">Frame Time / Pacing</div>
+            <div class="card-main">
+                <div class="card-value" id="ft-val">0.0</div>
+                <div class="card-unit">ms</div>
+            </div>
+            <div class="card-stats">
+                <div class="stat-item"><span class="stat-label">AVG</span><span class="stat-val" id="ft-avg">0ms</span></div>
+                <div class="stat-item"><span class="stat-label">PEAK</span><span class="stat-val" id="ft-peak">0ms</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="ft-bar"></div></div>
+        </div>
+
+        <div class="card" style="--card-color: var(--clr-workers)">
+            <div class="card-label">Thread Saturation</div>
+            <div class="card-main">
+                <div class="card-value" id="work-val">0</div>
+                <div class="card-unit">%</div>
+            </div>
+            <div class="card-stats">
+                <div class="stat-item"><span class="stat-label">THREADS</span><span class="stat-val" id="work-count">0</span></div>
+                <div class="stat-item"><span class="stat-label">BUSY</span><span class="stat-val" id="work-busy">0%</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="work-bar"></div></div>
+        </div>
+
+        <div class="card" style="--card-color: var(--clr-dom)">
+            <div class="card-label">DOM Tree Complexity</div>
+            <div class="card-main">
+                <div class="card-value" id="dom-val">0</div>
+                <div class="card-unit">NODES</div>
+            </div>
+            <div class="card-stats">
+                <div class="stat-item"><span class="stat-label">PEAK</span><span class="stat-val" id="dom-peak">0</span></div>
+                <div class="stat-item"><span class="stat-label">STORAGE</span><span class="stat-val" id="rom-val">~ 0%</span></div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="dom-bar"></div></div>
+        </div>
+
+        <div class="card" style="--card-color: #fff">
+            <div class="card-label">Active GPU Particles</div>
+            <div class="card-main">
+                <div class="card-value" id="part-val">0</div>
+            </div>
+            <div class="card-stats">
+                <div class="stat-item"><span class="stat-label">DRAWCALLS</span><span class="stat-val">INSTANCED</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="analytics-row">
+        <div class="graph-wrapper">
+            <div class="graph-header">
+                <div style="font-size: 12px; font-weight: bold;">REAL-TIME TELEMETRY</div>
+                <div class="legend" id="graph-legend"></div>
+            </div>
+            <canvas id="graph-canvas"></canvas>
+        </div>
+        <div class="visual-stress">
+            <canvas id="gpu-canvas"></canvas>
+            <div id="dom-container"></div>
+        </div>
+    </div>
+
+    <div id="results-overlay">
+        <h2 style="margin-top: 0;">Test Report Generated</h2>
+        <div id="results-text" style="white-space: pre-wrap; font-family: monospace; font-size: 13px;"></div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            colors: { cpu: '#ff4d4d', gpu: '#00f2ff', ram: '#bf5af2', fps: '#32d74b', ft: '#ff9f0a', work: '#ffd60a', dom: '#5e5ce6' },
+            historyLimit: 300,
+            frameBudget: 16.666,
+            refreshRate: 1000
+        };
+
+        let state = {
+            isRunning: false,
+            mode: 'all',
+            startTime: 0,
+            frameTimes: [],
+            fpsHistory: [],
+            metrics: {
+                cpu: { cur: 0, avg: 0, peak: 0, history: [] },
+                gpu: { cur: 0, avg: 0, peak: 0, history: [] },
+                ram: { cur: 0, avg: 0, peak: 0, history: [] },
+                fps: { cur: 0, avg: 0, peak: 0, history: [] },
+                ft: { cur: 0, avg: 0, peak: 0, history: [] },
+                work: { cur: 0, avg: 0, peak: 0, history: [] },
+                dom: { cur: 0, avg: 0, peak: 0, history: [] },
+                particles: { cur: 0 }
+            },
+            visibility: { cpu: true, gpu: true, ram: true, fps: true, ft: true, work: false, dom: false },
+            sys: {
+                cores: navigator.hardwareConcurrency || 4,
+                memLimit: performance.memory ? Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024) : 4096,
+                storage: { usage: 0, quota: 0 }
+            }
+        };
+
+        const canvasGraph = document.getElementById('graph-canvas');
+        const ctxGraph = canvasGraph.getContext('2d', { alpha: false });
+        const canvasGPU = document.getElementById('gpu-canvas');
+        const ctxGPU = canvasGPU.getContext('2d');
+        const domContainer = document.getElementById('dom-container');
+
+        let workers = [];
+        let memoryStressBuffer = []; // Separated from metric history
+        let particles = [];
+        const workerBlob = new Blob([`
+            let busy = false;
+            self.onmessage = function(e) {
+                if(e.data === 'stress') {
+                    busy = true;
+                    while(busy) {
+                        for(let i=0; i<5e5; i++) { Math.sqrt(Math.random()); }
+                        break; 
+                    }
+                    self.postMessage('done');
+                }
+                if(e.data === 'stop') busy = false;
+            };
+        `], { type: 'application/javascript' });
+        const workerUrl = URL.createObjectURL(workerBlob);
+
+        async function init() {
+            const specs = document.getElementById('sys-specs');
+            try {
+                if(navigator.storage && navigator.storage.estimate) {
+                    const est = await navigator.storage.estimate();
+                    state.sys.storage.usage = est.usage;
+                    state.sys.storage.quota = est.quota;
+                }
+            } catch(e) {}
+
+            specs.innerHTML = `
+                <div class="sys-item"><strong>OS/AGENT</strong>${navigator.platform}</div>
+                <div class="sys-item"><strong>CORES</strong>${state.sys.cores} Threads</div>
+                <div class="sys-item"><strong>HEAP</strong>${state.sys.memLimit} MB</div>
+                <div class="sys-item"><strong>STORAGE</strong>${(state.sys.storage.quota / 1e9 || 0).toFixed(1)} GB Available</div>
+            `;
+
+            createLegend();
+            resize();
+            window.addEventListener('resize', resize);
+            document.getElementById('btn-start').addEventListener('click', startTest);
+            document.getElementById('btn-stop').addEventListener('click', stopTest);
+            document.getElementById('mode-select').onchange = (e) => state.mode = e.target.value;
+        }
+
+        function createLegend() {
+            const legend = document.getElementById('graph-legend');
+            Object.keys(CONFIG.colors).forEach(key => {
+                const item = document.createElement('div');
+                item.className = `legend-item ${state.visibility[key] ? '' : 'hidden'}`;
+                item.innerHTML = `<div class="legend-box" style="background: ${CONFIG.colors[key]}"></div><span>${key.toUpperCase()}</span>`;
+                item.onclick = () => {
+                    state.visibility[key] = !state.visibility[key];
+                    item.classList.toggle('hidden');
+                };
+                legend.appendChild(item);
+            });
+        }
+
+        function resize() {
+            canvasGraph.width = canvasGraph.offsetWidth * window.devicePixelRatio;
+            canvasGraph.height = canvasGraph.offsetHeight * window.devicePixelRatio;
+            canvasGPU.width = canvasGPU.offsetWidth;
+            canvasGPU.height = canvasGPU.offsetHeight;
+        }
+
+        let lastFrameTime = 0;
+        let lastSecond = 0;
+        let frameCount = 0;
+
+        function startTest() {
+            if(state.isRunning) return;
+            state.isRunning = true;
+            state.startTime = performance.now();
+            lastFrameTime = performance.now();
+            lastSecond = performance.now();
+            frameCount = 0;
+            
+            state.frameTimes = [];
+            state.fpsHistory = [];
+            memoryStressBuffer = [];
+            particles = [];
+            domContainer.innerHTML = '';
+            
+            Object.keys(state.metrics).forEach(k => {
+                state.metrics[k].avg = 0;
+                state.metrics[k].peak = 0;
+                state.metrics[k].history = [];
+                state.metrics[k].cur = 0;
+            });
+
+            document.getElementById('btn-start').disabled = true;
+            document.getElementById('btn-stop').disabled = false;
+            document.getElementById('mode-select').disabled = true;
+            document.getElementById('status-badge').innerText = "STRESS TEST RUNNING";
+            document.getElementById('status-badge').style.borderColor = "var(--danger)";
+            document.getElementById('status-badge').style.color = "var(--danger)";
+            
+            requestAnimationFrame(loop);
+        }
+
+        function stopTest() {
+            state.isRunning = false;
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-stop').disabled = true;
+            document.getElementById('mode-select').disabled = false;
+            document.getElementById('status-badge').innerText = "SYSTEM IDLE";
+            document.getElementById('status-badge').style.borderColor = "var(--border)";
+            document.getElementById('status-badge').style.color = "var(--text-muted)";
+            workers.forEach(w => w.terminate());
+            workers = [];
+            showReport();
+        }
+
+        function loop(now) {
+            if(!state.isRunning) return;
+
+            const dt = now - lastFrameTime;
+            lastFrameTime = now;
+            
+            state.frameTimes.push(dt);
+            if(state.frameTimes.length > 200) state.frameTimes.shift();
+            frameCount++;
+
+            generateStress();
+
+            if(now - lastSecond >= CONFIG.refreshRate) {
+                updateTelemetry(now);
+                lastSecond = now;
+                frameCount = 0;
+            }
+
+            renderGPU();
+            renderGraph();
+            requestAnimationFrame(loop);
+        }
+
+        function generateStress() {
+            const m = state.mode;
+            if((m === 'all' || m === 'cpu') && workers.length < state.sys.cores * 2) {
+                const w = new Worker(workerUrl);
+                w.onmessage = () => { if(state.isRunning) w.postMessage('stress'); };
+                w.postMessage('stress');
+                workers.push(w);
+            }
+            if(m === 'all' || m === 'mem') {
+                if(memoryStressBuffer.length < 500) {
+                    memoryStressBuffer.push(new Uint32Array(250000)); 
+                }
+            }
+            if(m === 'all' || m === 'dom') {
+                const fragment = document.createDocumentFragment();
+                for(let i=0; i<100; i++) {
+                    const d = document.createElement('div');
+                    d.className = 'node';
+                    fragment.appendChild(d);
+                    state.metrics.dom.cur++;
+                }
+                domContainer.appendChild(fragment);
+            }
+            if(m === 'all' || m === 'gpu') {
+                for(let i=0; i<200; i++) {
+                    particles.push({
+                        x: Math.random() * canvasGPU.width, y: Math.random() * canvasGPU.height,
+                        vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
+                        c: `hsl(${Math.random() * 360}, 70%, 60%)`
+                    });
+                }
+            }
+        }
+
+        function updateTelemetry(now) {
+            const fps = frameCount;
+            state.metrics.fps.cur = fps;
+            
+            const sortedFT = [...state.frameTimes].sort((a,b) => b-a);
+            const low1Percent = sortedFT[Math.floor(sortedFT.length * 0.01)] || 16;
+            const fpsLow = Math.round(1000 / low1Percent);
+
+            const avgFT = state.frameTimes.reduce((a,b)=>a+b,0)/state.frameTimes.length;
+            state.metrics.cpu.cur = Math.min(100, Math.round((avgFT / CONFIG.frameBudget) * 100));
+            if(performance.memory) state.metrics.ram.cur = Math.round(performance.memory.usedJSHeapSize / 1e6);
+            state.metrics.gpu.cur = Math.min(100, (particles.length / 40000) * 100);
+            state.metrics.work.cur = Math.round((workers.length / (state.sys.cores * 2)) * 100);
+            state.metrics.ft.cur = avgFT.toFixed(1);
+
+            Object.keys(state.metrics).forEach(k => {
+                const m = state.metrics[k];
+                const val = parseFloat(m.cur);
+                if(val > m.peak) m.peak = val;
+                m.history.push(val);
+                if(m.history.length > CONFIG.historyLimit) m.history.shift();
+                m.avg = (m.history.reduce((a,b)=>a+b,0) / m.history.length).toFixed(k === 'ft' ? 1 : 0);
+            });
+
+            // UI Update
+            document.getElementById('cpu-val').innerText = state.metrics.cpu.cur;
+            document.getElementById('cpu-avg').innerText = state.metrics.cpu.avg + '%';
+            document.getElementById('cpu-peak').innerText = state.metrics.cpu.peak + '%';
+            document.getElementById('cpu-bar').style.width = state.metrics.cpu.cur + '%';
+            document.getElementById('gpu-val').innerText = state.metrics.gpu.cur.toFixed(1);
+            document.getElementById('gpu-avg').innerText = state.metrics.gpu.avg + '%';
+            document.getElementById('gpu-peak').innerText = state.metrics.gpu.peak + '%';
+            document.getElementById('gpu-bar').style.width = state.metrics.gpu.cur + '%';
+            document.getElementById('ram-val').innerText = state.metrics.ram.cur;
+            document.getElementById('ram-avg').innerText = state.metrics.ram.avg + 'MB';
+            document.getElementById('ram-peak').innerText = state.sys.memLimit + 'MB';
+            document.getElementById('ram-bar').style.width = (state.metrics.ram.cur / state.sys.memLimit * 100) + '%';
+            document.getElementById('fps-val').innerText = fps;
+            document.getElementById('fps-low').innerText = fpsLow || 0;
+            document.getElementById('fps-avg').innerText = state.metrics.fps.avg;
+            document.getElementById('fps-bar').style.width = Math.min(100, (fps / 144) * 100) + '%';
+            document.getElementById('ft-val').innerText = state.metrics.ft.cur;
+            document.getElementById('ft-avg').innerText = state.metrics.ft.avg + 'ms';
+            document.getElementById('ft-peak').innerText = state.metrics.ft.peak + 'ms';
+            document.getElementById('ft-bar').style.width = Math.min(100, (state.metrics.ft.cur / 50) * 100) + '%';
+            document.getElementById('work-val').innerText = state.metrics.work.cur;
+            document.getElementById('work-count').innerText = workers.length;
+            document.getElementById('work-busy').innerText = state.metrics.work.cur + '%';
+            document.getElementById('work-bar').style.width = state.metrics.work.cur + '%';
+            document.getElementById('dom-val').innerText = state.metrics.dom.cur.toLocaleString();
+            document.getElementById('dom-peak').innerText = state.metrics.dom.peak.toLocaleString();
+            document.getElementById('dom-bar').style.width = Math.min(100, (state.metrics.dom.cur / 10000) * 100) + '%';
+            document.getElementById('part-val').innerText = particles.length.toLocaleString();
+            if(state.sys.storage.quota > 0) document.getElementById('rom-val').innerText = `~ ${(state.sys.storage.usage / state.sys.storage.quota * 100).toFixed(2)}% Used`;
+        }
+
+        function renderGPU() {
+            ctxGPU.fillStyle = 'rgba(0,0,0,0.2)';
+            ctxGPU.fillRect(0, 0, canvasGPU.width, canvasGPU.height);
+            for(let i=0; i<particles.length; i++) {
+                const p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                if(p.x < 0 || p.x > canvasGPU.width) p.vx *= -1;
+                if(p.y < 0 || p.y > canvasGPU.height) p.vy *= -1;
+                ctxGPU.fillStyle = p.c;
+                ctxGPU.fillRect(p.x, p.y, 1.5, 1.5);
+            }
+        }
+
+        function renderGraph() {
+            const w = canvasGraph.width; const h = canvasGraph.height;
+            ctxGraph.fillStyle = '#000'; ctxGraph.fillRect(0, 0, w, h);
+            ctxGraph.strokeStyle = '#1a1a1a';
+            for(let i=0; i<10; i++) {
+                const y = (h / 10) * i;
+                ctxGraph.beginPath(); ctxGraph.moveTo(0, y); ctxGraph.lineTo(w, y); ctxGraph.stroke();
+            }
+            Object.keys(CONFIG.colors).forEach(key => {
+                if(!state.visibility[key]) return;
+                const data = state.metrics[key].history;
+                if(data.length < 2) return;
+                ctxGraph.strokeStyle = CONFIG.colors[key]; ctxGraph.lineWidth = 2 * window.devicePixelRatio;
+                ctxGraph.beginPath();
+                const step = w / CONFIG.historyLimit;
+                data.forEach((val, i) => {
+                    const x = i * step;
+                    let norm = 0;
+                    if(key === 'fps') norm = val / 144;
+                    else if(key === 'ram') norm = val / state.sys.memLimit;
+                    else if(key === 'ft') norm = val / 100;
+                    else if(key === 'dom') norm = val / 20000;
+                    else norm = val / 100;
+                    const y = h - (norm * h);
+                    if(i === 0) ctxGraph.moveTo(x, y); else ctxGraph.lineTo(x, y);
+                });
+                ctxGraph.stroke();
+            });
+        }
+
+        function showReport() {
+            const overlay = document.getElementById('results-overlay');
+            const text = document.getElementById('results-text');
+            const btnExport = document.getElementById('btn-export');
+            overlay.style.display = 'block';
+            btnExport.style.display = 'block';
+            const report = { timestamp: new Date().toISOString(), summary: { duration: ((performance.now() - state.startTime)/1000).toFixed(1) + 's', avg_fps: state.metrics.fps.avg, peak_cpu: state.metrics.cpu.peak + '%', peak_ram: state.metrics.ram.peak + 'MB' }, system: state.sys };
+            text.innerText = JSON.stringify(report, null, 4);
+            btnExport.onclick = () => {
+                const blob = new Blob([JSON.stringify({ ...report, history: state.metrics }, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = `ituze_report_${Date.now()}.json`; a.click();
+            };
+        }
+
+        init();
+    </script>
+</body>
+</html>
