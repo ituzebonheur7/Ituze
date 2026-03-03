@@ -1,10 +1,9 @@
+
 <!doctype html>
 <html lang="en">
 <head>
       <script src="/analytics.js"></script>
       <script src="/screen.js"></script>
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9271533798664162"
-     crossorigin="anonymous"></script>
   <meta charset="utf-8" />
   <title>Home Tab - Ituze</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -90,6 +89,7 @@
       box-shadow: 0 0 18px var(--accent);
     }
 
+    /* Settings panel: now scrollable and constrained to viewport */
     #settingsPanel {
       position: fixed;
       top: 70px;
@@ -103,6 +103,7 @@
       transition: 0.3s ease;
       z-index: 2000;
 
+      /* Make the panel scrollable if content exceeds viewport */
       max-height: calc(100vh - 100px);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -365,6 +366,7 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* Battery placed behind panels (lower z-index) */
     #battery {
       position: fixed;
       bottom: 20px;
@@ -375,7 +377,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      z-index: 50;
+      z-index: 50; /* lowered so it sits behind panels/launchers/settings */
     }
 
     #battery-icon {
@@ -911,7 +913,7 @@
         right: 10px;
         width: auto;
       }
-      #weatherWedge { display: none; }
+      #weatherWedge { display: none; } /* hide wedge on very small screens to avoid overlap */
     }
   </style>
 </head>
@@ -975,7 +977,7 @@
         <input type="checkbox" id="toggleKeyboard" aria-label="Keyboard shortcuts">
       </div>
       <div class="settings-row">
-        <span>Open links in new tab</span>
+        <span>Open links in new tab (default)</span>
         <input type="checkbox" id="toggleNewTab" aria-label="Open links in new tab">
       </div>
       <div class="settings-row">
@@ -989,6 +991,30 @@
       <div class="settings-row">
         <span>Disable Matrix</span>
         <input type="checkbox" id="toggleMatrix" aria-label="Disable matrix">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>Google Apps Launcher</label>
+      <div class="settings-row">
+        <span>Transparency</span>
+        <select id="launcherOpacitySelect" aria-label="Launcher transparency">
+          <option value="0.24">Subtle</option>
+          <option value="0.32">Balanced</option>
+          <option value="0.42">Solid</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span>Compact list density</span>
+        <input type="checkbox" id="launcherCompact" aria-label="Compact launcher list">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>OpenAI (AI Assistant)</label>
+      <input id="openaiKeyInput" type="password" placeholder="Paste OpenAI API key (optional)" aria-label="OpenAI API Key">
+      <div style="font-size:12px;opacity:0.85;margin-top:8px;">
+        Client-side API usage stores your key in localStorage — not recommended for public devices. Prefer a server-side proxy.
       </div>
     </div>
 
@@ -1399,13 +1425,13 @@
   <div class="container">
     <div class="date" id="date"></div>
     <div class="clock" id="clock"></div>
-    <div class="greeting" id="greeting">Welcome, </div>
+    <div class="greeting" id="greeting">Welcome, Ituze</div>
 <div class="chrome-search-wrapper">
       <div class="chrome-search glass" id="searchSurface">
         <input id="searchInput" placeholder="Search or type a URL (try :calc 2+2 or wiki:javascript)" autocomplete="off" aria-label="Search or type a URL" />
         <div class="chrome-icons">
           <button id="voiceBtn" class="icon-btn" aria-pressed="false" aria-label="Toggle voice search">🎤</button>
-          <button id="aiModeBtn" class="ai-mode-btn glass" aria-label="AI Mode">AI Mode</button>
+          <button id="aiModeBtn" class="ai-mode-btn glass" aria-label="AI Mode">AI</button>
         </div>
       </div>
       <div id="suggestions" class="suggestions glass" role="listbox" aria-expanded="false" aria-label="Search suggestions"></div>
@@ -1468,6 +1494,11 @@
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 0;">
     <button id="linkRememberBg">Remember as background</button>
     <button id="linkRememberFg">Remember as foreground</button>
+  </div>
+
+  <!-- Drag & drop overlay -->
+  <div id="dropOverlay" class="drop-overlay">
+    <div class="drop-hint">Drop an image here to search (Google Lens)</div>
   </div>
 
   <script>
@@ -3050,7 +3081,3 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
-
-
-
-
