@@ -2308,10 +2308,10 @@ localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0")
       document.getElementById("userNameInput").value = userName;
 engineSelect.value = engineKey;
 
-      const showSuggestions = localStorage.getItem("showSuggestions") === "1";
+      const showSuggestions = localStorage.getItem("showSuggestions") === "0";
       toggleSuggestionsEl.checked = showSuggestions;
 
-      const voiceAuto = localStorage.getItem("voiceAuto") === "1";
+      const voiceAuto = localStorage.getItem("voiceAuto") === "0";
       toggleVoiceAutoEl.checked = voiceAuto;
 
       const matrixStored = localStorage.getItem("matrixEnabled");
@@ -2324,7 +2324,7 @@ engineSelect.value = engineKey;
         startMatrix();
       }
 
-      const keyboardShortcuts = localStorage.getItem("keyboardShortcuts") === "1";
+      const keyboardShortcuts = localStorage.getItem("keyboardShortcuts") === "0";
       toggleKeyboardEl.checked = keyboardShortcuts;
 
       const savedTheme = localStorage.getItem("themeColor") || "green";
@@ -2342,7 +2342,7 @@ engineSelect.value = engineKey;
         applyThemeKeyed(savedTheme);
       }
 
-      openInNewTabSetting = localStorage.getItem("openInNewTab") !== "0";
+      openInNewTabSetting = localStorage.getItem("openInNewTab") !== "1";
       toggleNewTabEl.checked = openInNewTabSetting;
 
       const launcherOpacity = localStorage.getItem("launcherOpacity") || "0.32";
@@ -3081,4 +3081,5 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
+
 
