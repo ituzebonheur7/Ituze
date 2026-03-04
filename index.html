@@ -2311,7 +2311,7 @@ engineSelect.value = engineKey;
       const showSuggestions = localStorage.getItem("showSuggestions") === "0";
       toggleSuggestionsEl.checked = showSuggestions;
 
-      const voiceAuto = localStorage.getItem("voiceAuto") === "0";
+      const voiceAuto = localStorage.getItem("voiceAuto") === "1";
       toggleVoiceAutoEl.checked = voiceAuto;
 
       const matrixStored = localStorage.getItem("matrixEnabled");
@@ -2324,7 +2324,7 @@ engineSelect.value = engineKey;
         startMatrix();
       }
       
-      const keyboardShortcuts = localStorage.getItem("keyboardShortcuts") === "0";
+      const keyboardShortcuts = localStorage.getItem("keyboardShortcuts") === "1";
       toggleKeyboardEl.checked = keyboardShortcuts;
 
       const savedTheme = localStorage.getItem("themeColor") || "green";
@@ -3081,6 +3081,7 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
+
 
 
 
