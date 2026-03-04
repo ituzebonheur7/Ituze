@@ -2277,10 +2277,10 @@ updateGreeting();
           localStorage.setItem("userName", userName);
         }
         localStorage.setItem("searchEngine", engineSelect.value);
-localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0");
-        localStorage.setItem("voiceAuto", toggleVoiceAutoEl.checked ? "1" : "0");
+localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "0" : "1");
+        localStorage.setItem("voiceAuto", toggleVoiceAutoEl.checked ? "0" : "1");
         localStorage.setItem("matrixEnabled", toggleMatrixEl.checked ? "0" : "1");
-        localStorage.setItem("keyboardShortcuts", toggleKeyboardEl.checked ? "1" : "0");
+        localStorage.setItem("keyboardShortcuts", toggleKeyboardEl.checked ? "0" : "1");
         localStorage.setItem("themeColor", themeSelect.value);
         localStorage.setItem("openInNewTab", toggleNewTabEl.checked ? "1" : "0");
         localStorage.setItem("launcherOpacity", launcherOpacitySelect.value);
@@ -2323,7 +2323,7 @@ engineSelect.value = engineKey;
       } else {
         startMatrix();
       }
-
+      
       const keyboardShortcuts = localStorage.getItem("keyboardShortcuts") === "0";
       toggleKeyboardEl.checked = keyboardShortcuts;
 
@@ -3081,5 +3081,6 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
+
 
 
