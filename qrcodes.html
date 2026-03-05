@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Codes Generator - Ituze</title>
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    
+    <style>
+        :root {
+            --ituze-blue: #005bb7;
+            --ituze-soft-blue: #f0f7ff;
+            --ituze-dark: #1a202c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--ituze-soft-blue);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .main-card {
+            background: #80808;
+            padding: 40px;
+            border-radius: 32px;
+            box-shadow: 0 20px 50px rgba(0, 91, 183, 0.1);
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+        }
+
+        .brand-header img {
+            width: 70px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: var(--ituze-blue);
+            font-size: 26px;
+            margin: 0 0 10px 0;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-wrapper {
+            margin-bottom: 25px;
+        }
+
+        input {
+            background: #D3D3D3;
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #edf2f7;
+            border-radius: 16px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.4s ease;
+            box-sizing: border-box;
+            color: var(--ituze-dark);
+        }
+
+        input:focus {
+            border-color: var(--ituze-blue);
+            box-shadow: 0 0 0 4px rgba(0, 91, 183, 0.08);
+        }
+
+        #qrcode-display {
+            background: #fff;
+            padding: 15px;
+            border-radius: 24px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .btn-download {
+            background-color: var(--ituze-blue);
+            color: white;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-download:hover {
+            background-color: #004ba3;
+            transform: translateY(-2px);
+        }
+
+        .btn-download:active {
+            transform: translateY(0);
+        }
+
+        .footer-tag {
+            margin-top: 25px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #a0aec0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-card">
+    <div class="brand-header">
+        <img src="https://ituzebonheur.com/ituze.png" alt="Ituze Logo">
+    </div>
+    <h1>QR codes - Ituze</h1>
+    <p class="subtitle"> • Live Preview</p>
+
+    <div class="input-wrapper">
+        <input type="text" id="qr-input" placeholder="Type your link or text here..." value="https://ituzebonheur.com">
+    </div>
+
+    <div id="qrcode-display"></div>
+
+    <button class="btn-download" onclick="downloadQR()">Save OR code Image</button>
+
+    <div class="footer-tag">Ituze Bonheur Tool</div>
+</div>
+
+<script>
+    const qrCode = new QRCodeStyling({
+        width: 300,
+        height: 300,
+        type: "svg",
+        data: "https://ituzebonheur.com",
+        image: "https://ituzebonheur.com/ituze.png",
+        dotsOptions: {
+            color: "#005bb7",
+            type: "rounded"
+        },
+        backgroundOptions: {
+            color: "#ffffff",
+        },
+        imageOptions: {
+            crossOrigin: "anonymous",
+            margin: 1,
+            imageSize: 0.25,
+            hideBackgroundDots: true 
+        },
+        cornersSquareOptions: {
+            color: "#005bb7",
+            type: "extra-rounded" 
+        },
+        cornersDotOptions: {
+            color: "#005bb7",
+            type: "dot"
+        }
+    });
+
+    qrCode.append(document.getElementById("qrcode-display"));
+    const input = document.getElementById("qr-input");
+    input.addEventListener("input", () => {
+        qrCode.update({
+            data: input.value
+        });
+    });
+
+    function downloadQR() {
+        qrCode.download({ 
+            name: "ituze-branded-qr", 
+            extension: "png" 
+        });
+    }
+</script>
+</body>
+</html>
