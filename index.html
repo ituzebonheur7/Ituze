@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <meta name="description" content="A Cyber-inspired dashboard featuring a dynamic Matrix-rain backdrop and real-time utility tracking. @ituzebonheur7">
   <title>Home Tab - Ituze</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
       <script src="/analytics.js"></script>
@@ -2277,10 +2278,10 @@ updateGreeting();
           localStorage.setItem("userName", userName);
         }
         localStorage.setItem("searchEngine", engineSelect.value);
-localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "0" : "1");
-        localStorage.setItem("voiceAuto", toggleVoiceAutoEl.checked ? "0" : "1");
+localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0");
+        localStorage.setItem("voiceAuto", toggleVoiceAutoEl.checked ? "1" : "0");
         localStorage.setItem("matrixEnabled", toggleMatrixEl.checked ? "0" : "1");
-        localStorage.setItem("keyboardShortcuts", toggleKeyboardEl.checked ? "0" : "1");
+        localStorage.setItem("keyboardShortcuts", toggleKeyboardEl.checked ? "1" : "0");
         localStorage.setItem("themeColor", themeSelect.value);
         localStorage.setItem("openInNewTab", toggleNewTabEl.checked ? "1" : "0");
         localStorage.setItem("launcherOpacity", launcherOpacitySelect.value);
@@ -2308,7 +2309,7 @@ localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "0" : "1")
       document.getElementById("userNameInput").value = userName;
 engineSelect.value = engineKey;
 
-      const showSuggestions = localStorage.getItem("showSuggestions") === "0";
+      const showSuggestions = localStorage.getItem("showSuggestions") === "1";
       toggleSuggestionsEl.checked = showSuggestions;
 
       const voiceAuto = localStorage.getItem("voiceAuto") === "1";
@@ -2323,7 +2324,7 @@ engineSelect.value = engineKey;
       } else {
         startMatrix();
       }
-      
+
       const keyboardShortcuts = localStorage.getItem("keyboardShortcuts") === "1";
       toggleKeyboardEl.checked = keyboardShortcuts;
 
@@ -2342,7 +2343,7 @@ engineSelect.value = engineKey;
         applyThemeKeyed(savedTheme);
       }
 
-      openInNewTabSetting = localStorage.getItem("openInNewTab") !== "1";
+      openInNewTabSetting = localStorage.getItem("openInNewTab") !== "0";
       toggleNewTabEl.checked = openInNewTabSetting;
 
       const launcherOpacity = localStorage.getItem("launcherOpacity") || "0.32";
@@ -3081,7 +3082,3 @@ engineSelect.value = engineKey;
   </script>
 </body>
 </html>
-
-
-
-
