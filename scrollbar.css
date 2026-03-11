@@ -1,0 +1,26 @@
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: content-box transparent;
+    border: 3px solid transparent;
+    border-radius: 10px;
+    min-height: 40px;
+}
+*:hover::-webkit-scrollbar-thumb {
+    background: content-box var(--border);
+}
+::-webkit-scrollbar-thumb:hover, 
+::-webkit-scrollbar-thumb:active {
+    background: content-box #8b949e !important;
+}
+/* Firefox Support */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+*:hover {
+    scrollbar-color: var(--border) transparent;
+}
