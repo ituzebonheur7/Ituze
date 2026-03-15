@@ -1,26 +1,40 @@
 ::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-    background: content-box transparent;
-    border: 3px solid transparent;
-    border-radius: 10px;
-    min-height: 40px;
+    background: rgba(47, 129, 247, 0.4);
 }
-*:hover::-webkit-scrollbar-thumb {
-    background: content-box var(--border);
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(88, 166, 255, 0.7);
 }
-::-webkit-scrollbar-thumb:hover, 
+
 ::-webkit-scrollbar-thumb:active {
-    background: content-box #8b949e !important;
+    background: rgba(31, 111, 235, 0.8);
 }
-/* Firefox Support */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
+
+::-webkit-scrollbar-corner {
+    background: transparent;
 }
-*:hover {
-    scrollbar-color: var(--border) transparent;
+
+.CodeMirror-vscrollbar, 
+.CodeMirror-hscrollbar, 
+.CodeMirror-scrollbar-filler, 
+.CodeMirror-gutter-filler {
+    background: transparent !important;
+    border: none !important;
+}
+
+.file-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+    background: rgba(47, 129, 247, 0.2);
 }
