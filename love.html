@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Still wondering why I 'Ituze' named this path as /love while you will find out if you click it">
+    <title>A Message for Ituze</title>
+      <script src="/analytics.js"></script>
+      <script src="/scrollbar.js"></script>
+      <script src="/screen.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;600&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            width: 85%;
+            max-width: 400px;
+            background: rgba(15, 15, 15, 0.95);
+            padding: 40px 25px;
+            border-radius: 30px;
+            border: 1px solid #ff4c4c;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #ff4c4c;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        input {
+            width: 90%;
+            padding: 14px;
+            margin: 15px 0;
+            border: 1.5px solid #333;
+            border-radius: 12px;
+            background: #000;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #ff4c4c;
+        }
+
+        button {
+            padding: 14px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-next {
+            background: linear-gradient(45deg, #ff4c4c, #9b0000);
+            color: white;
+            width: 85%;
+        }
+
+        #noBtn {
+            background: #222;
+            color: #666;
+            min-width: 90px;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #8a0000 0%, #2b0000 100%);
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .names-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Pacifico', cursive;
+            font-size: 2rem;
+            gap: 12px;
+            z-index: 15;
+        }
+
+        @media (min-width: 600px) {
+            .names-wrap { font-size: 3.5rem; gap: 25px; }
+        }
+
+        .name-tag { opacity: 0; }
+        .name-tag.show { animation: textPop 0.8s forwards; }
+
+        @keyframes textPop {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .heart-main {
+            color: #ff4c4c;
+            display: inline-block;
+            opacity: 0;
+            font-size: 1.3em;
+        }
+
+        .heart-main.animate {
+            animation: heartFlyIn 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes heartFlyIn {
+            0% { opacity: 0; transform: scale(0) rotate(0deg) translateY(-400px); }
+            30% { opacity: 1; transform: scale(2) rotate(360deg) translateY(0); }
+            50% { transform: scale(1.2) rotate(720deg) translateY(-80px); }
+            70% { transform: scale(1.6) rotate(1080deg) translateY(0); }
+            100% { opacity: 1; transform: scale(1) rotate(1440deg) translateY(0); }
+        }
+
+        .heart-pulse {
+            animation: pulse 1s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulse {
+            to { transform: scale(1.2); text-shadow: 0 0 30px #ff4c4c; }
+        }
+
+        .flower {
+            position: fixed;
+            top: -10%;
+            pointer-events: none;
+            z-index: 12;
+            animation: fallAndSway linear forwards; 
+        }
+
+        @keyframes fallAndSway {
+            0% { transform: translateX(0) rotate(0deg); top: -10%; }
+            /* Animates to just above the bottom of the screen */
+            100% { transform: translateX(50px) rotate(360deg); top: 92vh; } 
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="formContainer">
+    <h1>Answer!</h1>
+    
+    <div id="step1" class="step active">
+        <p>What's your name?</p>
+        <input type="text" id="friendName" placeholder="Enter your name" 
+               onkeydown="if(event.key === 'Enter') nextStep(1, 2)">
+        <br>
+        <button class="btn-next" onclick="nextStep(1, 2)">Next</button>
+    </div>
+
+    <div id="step2" class="step">
+        <p>Who is Ituze to you?</p>
+        <input type="text" id="ituzeRelation" placeholder="Secret thought..." 
+               onkeydown="if(event.key === 'Enter') nextStep(2, 3)">
+        <br>
+        <button class="btn-next" onclick="nextStep(2, 3)">Next</button>
+    </div>
+
+    <div id="step3" class="step">
+        <p style="margin-bottom: 25px;">Do you love Ituze?</p>
+        <button class="btn-next" onclick="showSlide()">Yes ❤️</button>
+        <br>
+        <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()" ontouchstart="moveNo()">No</button>
+    </div>
+</div>
+
+<div class="slide" id="slide">
+    <div class="names-wrap">
+        <span class="name-tag" id="tagItuze">Ituze</span>
+        <span class="heart-main" id="theHeart">❤️</span>
+        <span class="name-tag" id="tagFriend"></span>
+    </div>
+</div>
+
+<script>
+    function nextStep(current, next) {
+        const input = document.querySelector(`#step${current} input`);
+        if(input && input.value.trim() === "") {
+            input.style.borderColor = "#ff4c4c";
+            return;
+        }
+        document.getElementById(`step${current}`).classList.remove('active');
+        document.getElementById(`step${next}`).classList.add('active');
+    }
+
+    function moveNo() {
+        const btn = document.getElementById('noBtn');
+        const x = Math.random() * (window.innerWidth - 100);
+        const y = Math.random() * (window.innerHeight - 50);
+        btn.style.position = 'fixed';
+        btn.style.left = x + 'px';
+        btn.style.top = y + 'px';
+    }
+
+    function showSlide() {
+        const nameVal = document.getElementById('friendName').value;
+        const relationVal = document.getElementById('ituzeRelation').value;
+        
+        fetch("https://formspree.io/f/xgonrgea", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                Name: nameVal, 
+                Who_is_Ituze: relationVal 
+            })
+        }).catch(err => console.log("Silent send complete"));
+
+        document.getElementById('tagFriend').textContent = nameVal;
+        document.getElementById('formContainer').style.display = 'none';
+        
+        const slide = document.getElementById('slide');
+        slide.style.display = 'flex';
+        setTimeout(() => slide.style.opacity = "1", 50);
+
+        setTimeout(() => {
+            document.getElementById('tagItuze').classList.add('show');
+            document.getElementById('tagFriend').classList.add('show');
+            
+            setTimeout(() => {
+                const heart = document.getElementById('theHeart');
+                heart.classList.add('animate');
+                startFlowerRain();
+
+                setTimeout(() => {
+                    heart.classList.remove('animate');
+                    heart.classList.add('heart-pulse');
+                    heart.style.opacity = "1";
+                }, 2100);
+            }, 600);
+        }, 400);
+    }
+
+    function startFlowerRain() {
+        const petals = ['🌹', '🌸', '🌺', '🍃', '❤️', '💕', '💖', '🎈', '💗', '🥀'];
+        setInterval(() => {
+            const p = document.createElement('div');
+            p.className = 'flower';
+            p.textContent = petals[Math.floor(Math.random() * petals.length)];
+            
+            const leftPos = Math.random() * 100;
+            const duration = Math.random() * 3 + 3;
+            const size = Math.random() * 15 + 15;
+            
+            p.style.left = leftPos + 'vw';
+            p.style.animationDuration = duration + 's';
+            p.style.fontSize = size + 'px';
+            p.style.opacity = Math.random() * 0.5 + 0.5;
+            p.style.paddingTop = (Math.random() * 5) + 'vh'; 
+
+            document.body.appendChild(p);
+            
+            setTimeout(() => {
+                p.style.transition = "opacity 2s";
+                p.style.opacity = "0";
+                setTimeout(() => p.remove(), 3000);
+            }, 30000);
+        }, 250);
+    }
+</script>
+</body>
+</html>
