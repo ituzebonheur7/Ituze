@@ -62,10 +62,6 @@
       font-size: 1.3rem;
     }
 
-    #suggestions {
-      margin-top: 40px;
-    }
-
     .btn-home {
       display: inline-block;
       padding: 12px 24px;
@@ -97,19 +93,16 @@
     </a>
     <h1>404</h1>
     <p class="error-bold">404. <span style="font-weight: normal; opacity: 0.6;">That’s an error.</span></p>
+    
     <p>
       The requested URL <code id="error-path">/loading...</code> was not found on this server.
       <br>
       <span style="font-size: 0.9rem; opacity: 0.5;">That’s all we know.</span>
     </p>
-    
-    <div id="suggestions">
-      <a href="/" class="btn-home">Return to Homepage</a>
-    </div>
-  </div>
 
   <script>
     document.getElementById('error-path').textContent = window.location.pathname;
   </script>
+
 </body>
 </html>
