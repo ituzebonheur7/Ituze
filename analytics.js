@@ -1,5 +1,3 @@
-<script>
-// --- Google Analytics (gtag.js) Setup ---
 var script = document.createElement('script');
 script.src = "https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8";
 script.async = true;
