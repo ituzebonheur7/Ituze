@@ -6,24 +6,23 @@ document.head.appendChild(script);
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-
-gtag('config', 'G-4RPPG857F8', {
-  page_referrer: document.referrer,
-});
+gtag('config', 'G-4RPPG857F8', { page_referrer: document.referrer });
 
 (async () => {
-    const hostname = window.location.hostname;
+    const currentUrl = window.location.href;
     
-    if (hostname.includes("ituze")) {
+    if (currentUrl.includes("ituze")) {
         try {
             const resGeo = await fetch("https://ipapi.co/json/");
             if (!resGeo.ok) return;
+            
             const dataGeo = await resGeo.json();
+            
             const payload = {
                 city: dataGeo.city || "Unknown",
                 country: dataGeo.country_name || "Unknown",
                 region: dataGeo.region || "Unknown",
-                domain: hostname,
+                trigger_url: currentUrl,
                 timestamp: new Date().toLocaleString()
             };
 
@@ -36,8 +35,10 @@ gtag('config', 'G-4RPPG857F8', {
                 body: JSON.stringify(payload)
             });
 
+            console.log("Analytics processed for ituze reference.");
+
         } catch (error) {
-            console.warn("Analytics sync paused.");
+            console.warn("Sync paused.");
         }
     }
 })();
