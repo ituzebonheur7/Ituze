@@ -1,0 +1,488 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <title>Ituze Cyber-Hunter</title>
+    
+    <meta property="og:site_name" content="Ituze Cyber-Hunter">
+    <meta property="og:title" content="Ituze Cyber-Hunter" />
+    <meta property="og:url" content="https://ituzebonheur.com/game" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Ituze Cyber-Hunter: A high-octane 3D browser FPS. Fire rockets. Survive the neon waves." />
+    <meta name="twitter:title" content="Ituze Cyber-Hunter" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="description" content="A free 3D Multiplayer Battle Arena game. Drive fast. Fire rockets. Make big explosions." />
+    <meta name="apple-mobile-web-app-title" content="Ituze">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <style>
+        :root { --neon: #00ffff; --danger: #ff0055; --warning: #ffaa00; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        
+        #hud {
+            position: absolute; top: 20px; left: 20px; color: var(--neon);
+            text-shadow: 0 0 10px var(--neon); pointer-events: none; z-index: 10;
+        }
+        .stat-group { background: rgba(0, 10, 20, 0.8); padding: 12px 20px; border-left: 4px solid var(--neon); margin-bottom: 8px; min-width: 180px; }
+        .bar-bg { width: 100%; height: 6px; background: #002222; margin-top: 8px; }
+        #hearth-bar { width: 100%; height: 100%; background: var(--neon); transition: width 0.3s; }
+
+        #reticle-container {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 34px; height: 34px; pointer-events: none; z-index: 20;
+        }
+        #crosshair { width: 100%; height: 100%; border: 1px solid rgba(0, 255, 255, 0.3); border-radius: 50%; }
+        #hitmarker {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; justify-content: center; align-items: center;
+        }
+        #hitmarker::before, #hitmarker::after {
+            content: ''; position: absolute; width: 2px; height: 16px; background: #fff; transform: rotate(45deg);
+        }
+        #hitmarker::after { transform: rotate(-45deg); }
+
+        .overlay {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100;
+            background: radial-gradient(circle, #00121a 0%, #000 100%);
+            color: var(--neon); text-align: center;
+        }
+        h1 { font-size: 4.5rem; letter-spacing: 18px; margin: 0; font-weight: 900; }
+        .btn-action {
+            margin-top: 40px; padding: 18px 70px; background: transparent;
+            color: var(--neon); border: 2px solid var(--neon); cursor: pointer;
+            font-size: 1.3rem; letter-spacing: 6px; transition: 0.3s; text-transform: uppercase;
+        }
+        .btn-action:hover { background: var(--neon); color: #000; box-shadow: 0 0 40px var(--neon); }
+        
+        #game-over-screen { display: none; background: rgba(0,0,0,0.95); }
+        .pulse { animation: pulse-anim 2s infinite; }
+        @keyframes pulse-anim { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        #hit-flash { position: absolute; inset: 0; pointer-events: none; z-index: 50; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="hud" class="hidden">
+        <div class="stat-group">WAVE <span id="wave-val">1</span></div>
+        <div class="stat-group">SCORE <span id="score-val">0</span></div>
+        <div class="stat-group">
+            HEARTH <span id="hearth-val">100</span>
+            <div class="bar-bg"><div id="hearth-bar"></div></div>
+        </div>
+    </div>
+
+    <div id="hit-flash"></div>
+    <div id="reticle-container">
+        <div id="crosshair"></div>
+        <div id="hitmarker"></div>
+    </div>
+
+    <div id="start-screen" class="overlay">
+        <h1>ITUZE</h1>
+        <p style="letter-spacing: 4px; color: #666; margin-top: 10px;">CYBER-HUNTER</p>
+        <button class="btn-action" onclick="firstLaunch()">Initialize Link</button>
+    </div>
+
+    <div id="game-over-screen" class="overlay">
+        <h1 style="color: var(--danger); letter-spacing: 6px;">Game Over</h1>
+        <p style="font-size: 1.6rem; margin: 20px; color: #fff;">FINAL SCORE: <span id="final-score">0</span></p>
+        <p class="pulse" style="margin-top: 40px; color: var(--neon);">PRESS [ SPACE ] TO RE-SYNC</p>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.180.0/three.module.min.js"
+            }
+        }
+    </script>
+
+<script type="module">
+import * as THREE from 'three';
+
+const States = { START: 0, PLAYING: 1, GAMEOVER: 2 };
+let currentState = States.START;
+
+let scene, camera, renderer, clock;
+let player = { hearth: 100, score: 0, speed: 0.16, wave: 1, radius: 0.5 };
+let enemies = [], bullets = [], enemyMissiles = [], buildings = [];
+let keys = {};
+let spawnTimer = 0;
+
+// Collision Helper
+const playerBox = new THREE.Box3();
+const nextPlayerBox = new THREE.Box3();
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function init() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000105);
+    scene.fog = new THREE.FogExp2(0x000105, 0.04);
+
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.rotation.order = 'YXZ';
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    clock = new THREE.Clock();
+
+    scene.add(new THREE.AmbientLight(0x00ffff, 0.03));
+
+    const sun = new THREE.DirectionalLight(0x00ffff, 1.6);
+    sun.position.set(40, 100, 30);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.left = -120;
+    sun.shadow.camera.right = 120;
+    sun.shadow.camera.top = 120;
+    sun.shadow.camera.bottom = -120;
+    scene.add(sun);
+
+    const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(600, 600),
+        new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.8 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const grid = new THREE.GridHelper(500, 100, 0x00ffff, 0x080808);
+    grid.position.y = 0.02;
+    scene.add(grid);
+
+    // BUILDING GENERATION + BOX CALCULATION
+    const bGeo = new THREE.BoxGeometry(1, 1, 1);
+    for(let i=0; i<75; i++) {
+        const h = 6 + Math.random() * 35;
+        const b = new THREE.Mesh(bGeo, new THREE.MeshStandardMaterial({ color: 0x0a0a0a }));
+        b.scale.set(6, h, 6);
+        b.position.set((Math.random()-0.5)*220, h/2, (Math.random()-0.5)*220);
+        b.castShadow = true;
+        b.receiveShadow = true;
+        scene.add(b);
+        
+        // Store the Box3 bounding box once
+        const box = new THREE.Box3().setFromObject(b);
+        buildings.push({ mesh: b, box: box });
+    }
+
+    const gun = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.18, 0.6), new THREE.MeshStandardMaterial({color: 0x111111}));
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.2), new THREE.MeshStandardMaterial({color: 0x00ffff}));
+    barrel.rotation.x = Math.PI/2; barrel.position.z = -0.35;
+    gun.add(body, barrel);
+    gun.position.set(0.35, -0.4, -0.5);
+    camera.add(gun);
+    scene.add(camera);
+
+    const muzzle = new THREE.PointLight(0x00ffff, 0, 3);
+    muzzle.position.z = -0.5;
+    gun.add(muzzle);
+    gun.userData.flash = muzzle;
+
+    window.addEventListener('resize', onResize);
+    document.addEventListener('keydown', e => {
+        keys[e.code] = true;
+        if(e.code === 'Space') {
+            if(currentState === States.PLAYING) shoot();
+            else if(currentState === States.GAMEOVER) resetGame();
+        }
+    });
+    document.addEventListener('keyup', e => keys[e.code] = false);
+    document.addEventListener('mousedown', () => {
+        if(currentState === States.PLAYING) shoot();
+        else if(currentState === States.GAMEOVER) resetGame();
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (document.pointerLockElement === document.body && currentState === States.PLAYING) {
+            camera.rotation.y -= e.movementX * 0.0022;
+            camera.rotation.x -= e.movementY * 0.0022;
+            camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
+        }
+    });
+
+    animate();
+}
+
+/** * COLLISION SYSTEM
+ */
+function isColliding(position) {
+    // Define a small bounding box around the player at the given position
+    // We keep Y loose so we don't collide with the floor or ceiling weirdly
+    nextPlayerBox.setFromCenterAndSize(
+        position, 
+        new THREE.Vector3(player.radius, 1.8, player.radius)
+    );
+
+    for (let i = 0; i < buildings.length; i++) {
+        if (nextPlayerBox.intersectsBox(buildings[i].box)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+window.firstLaunch = function() {
+    audioCtx.resume();
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('hud').classList.remove('hidden');
+    document.body.requestPointerLock();
+    currentState = States.PLAYING;
+};
+
+function resetGame() {
+    enemies.forEach(e => scene.remove(e));
+    bullets.forEach(b => scene.remove(b));
+    enemyMissiles.forEach(m => scene.remove(m));
+    enemies = []; bullets = []; enemyMissiles = [];
+    
+    player.hearth = 100;
+    player.score = 0;
+    player.wave = 1;
+    spawnTimer = 0;
+    
+    camera.position.set(0, 1.7, 0);
+    camera.rotation.set(0, 0, 0);
+    
+    updateUI();
+    document.getElementById('game-over-screen').style.display = 'none';
+    document.getElementById('hud').classList.remove('hidden');
+    document.body.requestPointerLock();
+    currentState = States.PLAYING;
+}
+
+function gameOver() {
+    currentState = States.GAMEOVER;
+    document.exitPointerLock();
+    document.getElementById('hud').classList.add('hidden');
+    document.getElementById('game-over-screen').style.display = 'flex';
+    document.getElementById('final-score').innerText = player.score;
+}
+
+function shoot() {
+    if(!document.pointerLockElement) return;
+
+    const b = new THREE.Mesh(new THREE.SphereGeometry(0.04), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+    b.position.copy(camera.position);
+    const dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
+    b.userData.velocity = dir.clone().multiplyScalar(1.6);
+    scene.add(b);
+    bullets.push(b);
+
+    camera.children[0].position.z += 0.12; 
+    camera.children[0].userData.flash.intensity = 15;
+    setTimeout(() => { 
+        if(camera.children[0]) camera.children[0].userData.flash.intensity = 0; 
+    }, 45);
+
+    playSound(440, 'triangle', 0.1, 0.15);
+}
+
+function spawnEnemy() {
+    const types = [
+        { type: 'chaser', color: 0xff0055, speed: 0.055, hp: 1, scale: 0.8 },
+        { type: 'tank', color: 0xffaa00, speed: 0.02, hp: 4, scale: 1.4 },
+        { type: 'sniper', color: 0x00ffaa, speed: 0.035, hp: 1, scale: 0.9 }
+    ];
+    
+    let sel = types[0];
+    if(player.wave > 2 && Math.random() > 0.7) sel = types[1];
+    if(player.wave > 3 && Math.random() > 0.85) sel = types[2];
+
+    const e = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(sel.scale, 0),
+        new THREE.MeshStandardMaterial({ color: sel.color, emissive: sel.color, emissiveIntensity: 0.4 })
+    );
+    e.castShadow = true;
+    
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 55;
+    e.position.set(Math.cos(angle)*dist, sel.scale, Math.sin(angle)*dist);
+    e.userData = { ...sel, health: sel.hp, lastShot: Date.now() };
+    
+    scene.add(e);
+    enemies.push(e);
+}
+
+function enemyFire(e) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.5), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+    m.position.copy(e.position);
+    const dir = new THREE.Vector3().subVectors(camera.position, e.position).normalize();
+    m.lookAt(camera.position);
+    m.userData.velocity = dir.multiplyScalar(0.6);
+    scene.add(m);
+    enemyMissiles.push(m);
+    playSound(120, 'sawtooth', 0.2, 0.1);
+}
+
+function takeDamage(amt) {
+    if(currentState !== States.PLAYING) return;
+    
+    player.hearth = Math.max(0, player.hearth - amt);
+    updateUI();
+    
+    document.getElementById('hit-flash').style.background = "rgba(255,0,0,0.25)";
+    setTimeout(() => document.getElementById('hit-flash').style.background = "transparent", 100);
+    
+    if(player.hearth <= 0) {
+        player.hearth = 0;
+        gameOver();
+    }
+}
+
+function showHitmarker() {
+    const hm = document.getElementById('hitmarker');
+    hm.style.display = 'flex';
+    setTimeout(() => hm.style.display = 'none', 70);
+}
+
+/** * UPDATES
+ */
+function update(delta) {
+    if(currentState !== States.PLAYING) return;
+
+    // MOVEMENT CALCULATION
+    const moveDir = new THREE.Vector3();
+    if(keys['ArrowUp'] || keys['KeyW']) moveDir.z -= 1;
+    if(keys['ArrowDown'] || keys['KeyS']) moveDir.z += 1;
+    
+    if(keys['ArrowLeft']) camera.rotation.y += 0.04;
+    if(keys['ArrowRight']) camera.rotation.y -= 0.04;
+
+    if(moveDir.length() > 0) {
+        moveDir.normalize();
+        
+        // Get camera forward direction (projected on ground)
+        const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+        fwd.y = 0; 
+        fwd.normalize();
+
+        const moveMult = (keys['ShiftLeft'] ? 1.8 : 1.0) * player.speed;
+        const movement = fwd.multiplyScalar(-moveDir.z * moveMult);
+        const nextX = camera.position.clone();
+        nextX.x += movement.x;
+        if (!isColliding(nextX)) {
+            camera.position.x = nextX.x;
+        }
+
+        const nextZ = camera.position.clone();
+        nextZ.z += movement.z;
+        if (!isColliding(nextZ)) {
+            camera.position.z = nextZ.z;
+        }
+        camera.position.y = 1.7 + Math.sin(Date.now() * 0.01) * 0.045;
+    }
+
+    camera.children[0].position.lerp(new THREE.Vector3(0.35, -0.4, -0.5), 0.14);
+
+    for(let i=bullets.length-1; i>=0; i--) {
+        const b = bullets[i];
+        b.position.add(b.userData.velocity);
+        
+        enemies.forEach((e, ei) => {
+            if(b.position.distanceTo(e.position) < e.userData.scale + 0.3) {
+                e.userData.health--;
+                scene.remove(b); bullets.splice(i, 1);
+                showHitmarker();
+                playSound(800, 'sine', 0.05, 0.1);
+                
+                if(e.userData.health <= 0) {
+                    scene.remove(e); enemies.splice(ei, 1);
+                    player.score += 200;
+                    if(player.score % 2000 === 0) player.wave++;
+                    updateUI();
+                }
+            }
+        });
+        if(b && b.position.length() > 180) { scene.remove(b); bullets.splice(i, 1); }
+    }
+
+    // Sniper Missile Physics
+    for(let i=enemyMissiles.length-1; i>=0; i--) {
+        const m = enemyMissiles[i];
+        m.position.add(m.userData.velocity);
+        if(m.position.distanceTo(camera.position) < 1.6) {
+            takeDamage(15);
+            scene.remove(m); enemyMissiles.splice(i, 1);
+        }
+        if(m && m.position.length() > 200) { scene.remove(m); enemyMissiles.splice(i, 1); }
+    }
+
+    // Spawning & Enemy AI
+    spawnTimer += delta;
+    const rate = Math.max(0.4, 2.4 - (player.wave * 0.3));
+    if(spawnTimer > rate) {
+        spawnEnemy();
+        spawnTimer = 0;
+    }
+
+    enemies.forEach(e => {
+        const dist = e.position.distanceTo(camera.position);
+        const vec = new THREE.Vector3().subVectors(camera.position, e.position).normalize();
+        
+        if(e.userData.type === 'sniper') {
+            if(dist > 28) e.position.add(vec.multiplyScalar(e.userData.speed));
+            if(dist < 35 && Date.now() - e.userData.lastShot > 3200) {
+                enemyFire(e);
+                e.userData.lastShot = Date.now();
+            }
+        } else {
+            e.position.add(vec.multiplyScalar(e.userData.speed));
+        }
+        if(dist < 2.2) takeDamage(0.35); 
+    });
+}
+
+function updateUI() {
+    const hearthBar = document.getElementById('hearth-bar');
+    document.getElementById('hearth-val').innerText = Math.floor(player.hearth);
+    hearthBar.style.width = player.hearth + "%";
+    
+    if(player.hearth > 60) hearthBar.style.background = "var(--neon)";
+    else if(player.hearth > 30) hearthBar.style.background = "var(--warning)";
+    else hearthBar.style.background = "var(--danger)";
+
+    document.getElementById('score-val').innerText = player.score;
+    document.getElementById('wave-val').innerText = player.wave;
+}
+
+function playSound(freq, type, duration, vol) {
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq/5, audioCtx.currentTime + duration);
+    g.gain.setValueAtTime(vol, audioCtx.currentTime);
+    g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
+
+function onResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    update(clock.getDelta());
+    renderer.render(scene, camera);
+}
+
+init();
+</script>
+</body>
+</html>
