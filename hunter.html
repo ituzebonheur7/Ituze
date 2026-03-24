@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>Ituze Cyber-Hunter</title>
+    <link rel="icon" href="https://cdn-icons-png.freepik.com/512/530/530777.png" type="image/png">
     <link rel="preconnect" href="/games">
     <meta property="og:site_name" content="Ituze Cyber-Hunter">
     <meta property="og:title" content="Ituze Cyber-Hunter" />
@@ -160,7 +161,6 @@ function init() {
     grid.position.y = 0.02;
     scene.add(grid);
 
-    // BUILDING GENERATION + BOX CALCULATION
     const bGeo = new THREE.BoxGeometry(1, 1, 1);
     for(let i=0; i<75; i++) {
         const h = 6 + Math.random() * 35;
@@ -215,11 +215,7 @@ function init() {
     animate();
 }
 
-/** * COLLISION SYSTEM
- */
 function isColliding(position) {
-    // Define a small bounding box around the player at the given position
-    // We keep Y loose so we don't collide with the floor or ceiling weirdly
     nextPlayerBox.setFromCenterAndSize(
         position, 
         new THREE.Vector3(player.radius, 1.8, player.radius)
