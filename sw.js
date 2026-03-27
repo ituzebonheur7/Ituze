@@ -1,7 +1,10 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.4.0/workbox-sw.js');
 
 const OFFLINE_HTML = '/offline.html';
-const FALLBACK_IMAGE = '/images/ituze.png'; 
+const FALLBACK_IMAGE = '/images/ituze.png';
+
+workbox.core.skipWaiting();
+workbox.core.clientsClaim();
 
 workbox.precaching.precacheAndRoute([
   { url: OFFLINE_HTML, revision: '1.0.1' },
@@ -33,7 +36,7 @@ workbox.routing.registerRoute(
 
 workbox.routing.registerRoute(
   ({ request }) => request.destination === 'document',
-  async ({ request }) => {
+  async ({ event, request }) => {
     const url = new URL(request.url);
 
     try {
@@ -44,14 +47,13 @@ workbox.routing.registerRoute(
       
       return networkResponse;
     } catch (error) {
-      
       if (url.searchParams.get('offline_accepted') === 'true') {
-         const cache = await caches.open('html-cache');
-         const cachedResponse = await cache.match(request, { ignoreSearch: true });
-         
-         if (cachedResponse) {
-           return cachedResponse;
-         }
+        const cache = await caches.open('html-cache');
+        const cachedResponse = await cache.match(request, { ignoreSearch: true });
+        
+        if (cachedResponse) {
+          return cachedResponse;
+        }
       }
       
       return caches.match(OFFLINE_HTML);
