@@ -1,7 +1,6 @@
-const OFFLINE_HTML = '/offline.html';
-
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.4.0/workbox-sw.js');
 
+const OFFLINE_HTML = '/offline.html';
 const FALLBACK_IMAGE = '/images/ituze.png'; 
 
 workbox.precaching.precacheAndRoute([
@@ -32,16 +31,29 @@ workbox.routing.registerRoute(
   })
 );
 
-const htmlHandler = new workbox.strategies.NetworkFirst({
-  cacheName: 'html-cache',
-});
-
 workbox.routing.registerRoute(
   ({ request }) => request.destination === 'document',
-  async (args) => {
+  async ({ request }) => {
+    const url = new URL(request.url);
+
     try {
-      return await htmlHandler.handle(args);
+      const networkResponse = await fetch(request);
+      
+      const cache = await caches.open('html-cache');
+      cache.put(request, networkResponse.clone());
+      
+      return networkResponse;
     } catch (error) {
+      
+      if (url.searchParams.get('offline_accepted') === 'true') {
+         const cache = await caches.open('html-cache');
+         const cachedResponse = await cache.match(request, { ignoreSearch: true });
+         
+         if (cachedResponse) {
+           return cachedResponse;
+         }
+      }
+      
       return caches.match(OFFLINE_HTML);
     }
   }
