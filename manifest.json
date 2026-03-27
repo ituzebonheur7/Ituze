@@ -7,19 +7,17 @@
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0a0a0a",
-  "theme_color": "#00FF41",
+  "theme_color": "#0a0a0a",
   "icons": [
     {
       "src": "images/ituze.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "images/ituze.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "type": "image/png"
     }
   ]
 }
