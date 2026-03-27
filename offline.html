@@ -1,46 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-    <script src="/analytics.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Offline - Ituze</title>
-      <link rel="icon" href="images/ituze.png" type="image/png">
+    <link rel="icon" href="images/ituze.png" type="image/png">
     <style>
+        :root {
+            --glow-color: #00FF41;
+            --bg-color: #0a0a0a;
+        }
         body {
-            background-color: #000;
-            color: #00FF41;
+            background-color: var(--bg-color);
+            color: var(--glow-color);
             font-family: 'Courier New', Courier, monospace;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            text-align: center;
+            overflow: hidden;
         }
-        .container { border: 1px solid #00FF41; padding: 2rem; border-radius: 8px; }
-        h1 { font-size: 1.5rem; margin-bottom: 1rem; }
-        p { color: #888; margin-bottom: 2rem; }
+        .container {
+            border: 1px solid var(--glow-color);
+            padding: 3rem;
+            border-radius: 4px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+            max-width: 400px;
+        }
+        h1 { font-size: 1.8rem; margin-top: 0; text-transform: uppercase; letter-spacing: 2px; }
+        p { color: #888; line-height: 1.6; margin-bottom: 2rem; }
+        .status-tag {
+            font-size: 0.8rem;
+            background: #222;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
         .btn {
             background: transparent;
-            border: 1px solid #00FF41;
-            color: #00FF41;
-            padding: 10px 20px;
+            border: 1px solid var(--glow-color);
+            color: var(--glow-color);
+            padding: 12px 24px;
             cursor: pointer;
             margin: 5px;
             font-family: inherit;
-            text-transform: uppercase;
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
-        .btn:hover { background: #00FF41; color: #000; }
+        .btn:hover {
+            background: var(--glow-color);
+            color: #000;
+            box-shadow: 0 0 10px var(--glow-color);
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>You are offline!</h1>
-        <p>Some features might not work. Please check your internet connection and try again.</p>
-        <button class="btn" onclick="window.location.reload()">Try again or Reload</button>
-        <button class="btn" onclick="window.history.back()">Continue</button>
+        <div class="status-tag">SYSTEM_OFFLINE</div>
+        <h1>Connection Lost</h1>
+        <p>It seems you've drifted into a dead zone. Reconnect to the internet to continue.</p>
+        
+        <button class="btn" onclick="window.location.reload()">RETRY CONNECTION</button>
+        <button class="btn" onclick="window.history.back()">GO BACK</button>
     </div>
+
+    <script>
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
 </body>
 </html>
