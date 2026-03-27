@@ -1,6 +1,7 @@
+const OFFLINE_HTML = '/offline.html';
+
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.4.0/workbox-sw.js');
 
-const OFFLINE_HTML = '/offline.html';
 const FALLBACK_IMAGE = '/images/ituze.png'; 
 
 workbox.precaching.precacheAndRoute([
