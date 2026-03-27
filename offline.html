@@ -61,16 +61,17 @@
     <div class="container">
         <div class="status-tag">SYSTEM_OFFLINE</div>
         <h1>Connection Lost</h1>
-        <p>It seems you've drifted into a dead zone. Reconnect to the internet to continue.</p>
-        
-        <button class="btn" onclick="window.location.reload()">RETRY CONNECTION</button>
-        <button class="btn" onclick="window.history.back()">GO BACK</button>
-    </div>
+        <p>Some features might not work. Please check your internet connection and try again.</p>
 
-    <script>
-        window.addEventListener('online', () => {
-            window.location.reload();
-        });
-    </script>
-</body>
-</html>
+<button class="btn" onclick="window.location.reload()">Try again or Reload</button>
+<button class="btn" onclick="continueOffline()">Continue</button>
+
+<script>
+    function continueOffline() {
+        const currentUrl = new URL(window.location.href);
+        
+        currentUrl.searchParams.set('offline_accepted', 'true');
+        
+        window.location.href = currentUrl.toString();
+    }
+</script>
