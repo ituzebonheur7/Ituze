@@ -1,9 +1,25 @@
 {
   "name": "Ituze Bonheur",
   "short_name": "Ituze",
-  "start_url": ".",
+  "description": "A website built to train Ituze",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "description": "A website built to train."
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0a",
+  "theme_color": "#00FF41",
+  "icons": [
+    {
+      "src": "images/ituze.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "images/ituze.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }
