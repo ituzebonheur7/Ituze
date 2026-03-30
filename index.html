@@ -12,39 +12,6 @@
       <script src="/scrollbar.js"></script>
       <script src="/screen.js"></script>
 
-<script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('SW registered'))
-          .catch(err => console.log('SW failed', err));
-      });
-    }
-
-    let deferredPrompt;
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const btn = document.getElementById('installBtn');
-      if (btn) btn.style.display = 'block';
-    });
-
-    async function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response: ${outcome}`);
-        deferredPrompt = null;
-        document.getElementById('installBtn').style.display = 'none';
-      }
-    }
-
-    window.addEventListener('appinstalled', () => {
-      document.getElementById('installBtn').style.display = 'none';
-    });
-  </script>
-  
   <style>
     :root {
       --accent: #00ff9c;
@@ -58,6 +25,8 @@
       --launcher-section-bg: rgba(15,23,42,0.55);
       --launcher-section-border: rgba(148,163,184,0.35);
     }
+
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -99,6 +68,10 @@
       text-decoration: none;
       transition: 0.3s;
       z-index: 1200;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
     .top-btn:hover {
       transform: scale(1.05);
@@ -127,7 +100,6 @@
       box-shadow: 0 0 18px var(--accent);
     }
 
-    /* Settings panel: now scrollable and constrained to viewport */
     #settingsPanel {
       position: fixed;
       top: 70px;
@@ -141,7 +113,6 @@
       transition: 0.3s ease;
       z-index: 2000;
 
-      /* Make the panel scrollable if content exceeds viewport */
       max-height: calc(100vh - 100px);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -232,6 +203,7 @@
       margin-bottom: 12px;
       text-shadow: 0 0 22px var(--accent);
     }
+    .tz { font-size: 13px; opacity: 0.8; margin-bottom: 16px; }
 
     .chrome-search-wrapper {
       width: 100%;
@@ -404,7 +376,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Battery placed behind panels (lower z-index) */
     #battery {
       position: fixed;
       bottom: 20px;
@@ -415,7 +386,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      z-index: 50; /* lowered so it sits behind panels/launchers/settings */
+      z-index: 50; 
     }
 
     #battery-icon {
@@ -778,74 +749,8 @@
     .ai-msg.assistant {
       background: rgba(0,0,0,0.45);
     }
-    /* Shortcut edit button */
-    .shortcut-edit-btn {
-      padding: 8px 16px;
-      margin-top: 12px;
-      border-radius: 12px;
-      border: none;
-      background: rgba(255,255,255,0.1);
-      color: var(--text-main);
-      font-size: 13px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .shortcut-edit-btn:hover {
-      background: rgba(255,255,255,0.15);
-      transform: scale(1.03);
-    }
 
-    /* Shortcut editor modal */
-    .shortcut-modal {
-      position: fixed;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%) scale(0.98);
-      width: min(600px, 96vw);
-      max-height: 80vh;
-      overflow-y: auto;
-      background: rgba(10,12,15,0.95);
-      border: 1px solid var(--glass-border);
-      padding: 18px;
-      border-radius: 12px;
-      display: none;
-      z-index: 4000;
-    }
-    .shortcut-modal.open {
-      display: block;
-    }
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-      justify-content: flex-end;
-    }
-    .shortcut-item {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      align-items: center;
-    }
-    .shortcut-item input {
-      flex: 1;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--glass-border);
-      background: rgba(0,0,0,0.35);
-      color: var(--text-main);
-      outline: none;
-    }
-    .shortcut-item button {
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: none;
-      background: linear-gradient(135deg, #ef4444, #f43f5e);
-      color: white;
-      cursor: pointer;
-    }
-
-    /* shortcut help modal */
-.help-modal {
+    .help-modal {
       position: fixed;
       left: 50%;
       top: 50%;
@@ -864,8 +769,7 @@
       display: block;
     }
 
-    /* custom context menu for links (open in bg/fg) */
-    .link-menu {
+    .context-menu {
       position: fixed;
       background: rgba(5,7,10,0.98);
       border: 1px solid var(--glass-border);
@@ -876,7 +780,7 @@
       box-shadow: 0 8px 30px rgba(0,0,0,0.7);
       min-width: 160px;
     }
-    .link-menu button {
+    .context-menu button {
       display: block;
       width: 100%;
       text-align: left;
@@ -887,31 +791,7 @@
       cursor: pointer;
       border-radius: 6px;
     }
-    .link-menu button:hover { background: rgba(255,255,255,0.03); }
-
-    /* drag-drop overlay */
-    .drop-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 6000;
-      pointer-events: none;
-    }
-    .drop-overlay.active {
-      display: flex;
-      pointer-events: all;
-    }
-    .drop-hint {
-      padding: 18px 22px;
-      border-radius: 12px;
-      background: rgba(0,0,0,0.6);
-      border: 1px dashed rgba(255,255,255,0.12);
-      color: var(--text-main);
-      font-size: 16px;
-      backdrop-filter: blur(6px);
-    }
+    .context-menu button:hover { background: rgba(255,255,255,0.03); }
 
     /* Weather wedge (bottom-left, next to apps) */
     #weatherWedge {
@@ -958,23 +838,30 @@
 <body>
 
   <canvas id="matrix"></canvas>
-    <a id="topLink" href="https://www.google.com/search?udm=50&amp;aep=11&amp;q=Who%27s+Ituze+Bonheur"
-     class="top-btn glass" rel="noopener noreferrer">
-    Ituze
-  </a>
-<div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
+
+  <!-- Top identity button now opens Social Panel (per requirements) -->
+  <button id="topLink" class="top-btn glass" aria-label="Open identity panel">
+    Ituze Bonheur
+  </button>
+
+  <div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
+
   <div id="settingsPanel" class="glass" role="dialog" aria-modal="false" aria-hidden="true">
     <h3>Settings</h3>
 
+    <!-- Display name must be first setting and editable -->
     <div class="settings-group">
-      <label>Your Name</label>
-      <input id="userNameInput" type="text" placeholder="Ituze" aria-label="Your name">
+      <label>Display name</label>
+      <input id="displayNameInput" type="text" placeholder="Ituze" aria-label="Display name">
+      <div style="font-size:12px;opacity:0.85;margin-top:8px;">
+        Name used in greetings (default: Ituze)
+      </div>
     </div>
 
     <div class="settings-group">
       <label>Default Search Engine</label>
       <select id="engineSelect" aria-label="Default search engine">
-<option value="google">Google</option>
+        <option value="google">Google</option>
         <option value="bing">Bing</option>
         <option value="duckduckgo">DuckDuckGo</option>
         <option value="brave">Brave</option>
@@ -1015,7 +902,7 @@
         <input type="checkbox" id="toggleKeyboard" aria-label="Keyboard shortcuts">
       </div>
       <div class="settings-row">
-        <span>Open links in new tab (default)</span>
+        <span>Open links in new tab</span>
         <input type="checkbox" id="toggleNewTab" aria-label="Open links in new tab">
       </div>
       <div class="settings-row">
@@ -1033,41 +920,11 @@
     </div>
 
     <div class="settings-group">
-      <label>Google Apps Launcher</label>
-      <div class="settings-row">
-        <span>Transparency</span>
-        <select id="launcherOpacitySelect" aria-label="Launcher transparency">
-          <option value="0.24">Subtle</option>
-          <option value="0.32">Balanced</option>
-          <option value="0.42">Solid</option>
-        </select>
-      </div>
-      <div class="settings-row">
-        <span>Compact list density</span>
-        <input type="checkbox" id="launcherCompact" aria-label="Compact launcher list">
-      </div>
-    </div>
-
-    <div class="settings-group">
-      <label>OpenAI (AI Assistant)</label>
-      <input id="openaiKeyInput" type="password" placeholder="Paste OpenAI API key (optional)" aria-label="OpenAI API Key">
-      <div style="font-size:12px;opacity:0.85;margin-top:8px;">
-        Client-side API usage stores your key in localStorage — not recommended for public devices. Prefer a server-side proxy.
-      </div>
-    </div>
-
-    <div class="settings-group">
-      <label>Weather</label>
-      <div style="font-size:13px;color:#cbd5e1;">Weather uses a free no-key API (Open-Meteo). You can also set location manually below.</div>
-      <input id="manualLocation" type="text" placeholder="City, Country (optional)" aria-label="Manual weather location" style="margin-top:8px;">
-    </div>
-<div class="settings-group">
       <label>Storage</label>
       <div style="margin-top:8px;">
         <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data & reset</button>
       </div>
     </div>
-<!-- Save & Apply removed — changes are applied automatically -->
 
   </div>
 
@@ -1107,7 +964,6 @@
     </div>
 
     <div class="launcher-scroll" id="launcherScroll">
-      <!-- Sections (same as original) -->
       <div class="launcher-section collapsed" data-section="productivity">
         <div class="launcher-section-header ripple-target">
           <div class="launcher-section-title">Productivity & Workspace</div>
@@ -1196,11 +1052,7 @@
                 <span>Google Search</span><small>google.com</small>
               </a>
             </li>
-            <li class="launcher-item">
-              <a class="launcher-link ripple-target" data-name="gemini ai" href="https://gemini.google.com" rel="noopener noreferrer">
-                <span>Gemini (AI)</span><small>gemini.google.com</small>
-              </a>
-            </li>
+            <!-- Gemini removed per requirements -->
             <li class="launcher-item">
               <a class="launcher-link ripple-target" data-name="google maps" href="https://maps.google.com" rel="noopener noreferrer">
                 <span>Google Maps</span><small>maps.google.com</small>
@@ -1463,41 +1315,28 @@
   <div class="container">
     <div class="date" id="date"></div>
     <div class="clock" id="clock"></div>
-    <div class="greeting" id="greeting">Welcome, Ituze</div>
-<div class="chrome-search-wrapper">
+    <div class="tz" id="timezoneDisplay"></div>
+    <div class="greeting" id="greeting"></div>
+
+    <div class="chrome-search-wrapper">
       <div class="chrome-search glass" id="searchSurface">
         <input id="searchInput" placeholder="Search or type a URL (try :calc 2+2 or wiki:javascript)" autocomplete="off" aria-label="Search or type a URL" />
         <div class="chrome-icons">
           <button id="voiceBtn" class="icon-btn" aria-pressed="false" aria-label="Toggle voice search">🎤</button>
-          <button id="aiModeBtn" class="ai-mode-btn glass" aria-label="AI Mode">AI</button>
+          <button id="aiModeBtn" class="ai-mode-btn glass" aria-label="AI Mode">AI Mode</button>
         </div>
       </div>
       <div id="suggestions" class="suggestions glass" role="listbox" aria-expanded="false" aria-label="Search suggestions"></div>
     </div>
-    <div class="shortcuts">
-      <div class="shortcuts-row" id="shortcutsRow1"></div>
-      <div class="shortcuts-row" id="shortcutsRow2"></div>
-      <div class="shortcuts-row" id="shortcutsRow3"></div>
-      <button id="editShortcutsBtn" class="shortcut-edit-btn glass">Edit Shortcuts</button>
-    </div>
 
-    <!-- Shortcut Editor Modal -->
-    <div class="shortcut-modal glass" id="shortcutModal" role="dialog" aria-modal="true" aria-hidden="true">
-      <h3>Edit Shortcuts</h3>
-      <div id="shortcutEditor"></div>
-      <div class="modal-actions">
-        <button id="addShortcutBtn" class="save-btn">Add Shortcut</button>
-        <button id="saveShortcutsBtn" class="save-btn">Save</button>
-        <button id="cancelShortcutsBtn" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Cancel</button>
-      </div>
-    </div>
-</div>
+    <div class="shortcuts" id="shortcutsContainer" aria-live="polite"></div>
+  </div>
 
-  <!-- AI sidebar -->
+  <!-- AI sidebar (kept, but AI Mode main actions implemented via button) -->
   <div class="ai-sidebar glass" id="aiSidebar" role="region" aria-label="AI assistant">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <div style="font-weight:700;">AI Assistant</div>
-      <div style="font-size:12px;opacity:0.85;">(client-side mode)</div>
+      <div style="font-size:12px;opacity:0.85;">(Google AI Mode)</div>
     </div>
     <div class="ai-messages" id="aiMessages" aria-live="polite"></div>
     <div class="ai-input-row">
@@ -1511,13 +1350,12 @@
     <h3>Keyboard Shortcuts</h3>
     <ul>
       <li><strong>/</strong> — Focus search</li>
-      <li><strong>Ctrl/Cmd + L</strong> — Focus & select search</li>
+      <li><strong>Ctrl/Cmd + L</strong> �� Focus & select search</li>
       <li><strong>Arrow Up / Arrow Down</strong> — Navigate suggestions</li>
       <li><strong>Enter</strong> — Search / open suggestion</li>
       <li><strong>Esc</strong> — Clear search / close settings</li>
       <li><strong>Ctrl + Alt + /</strong> — Show this help</li>
-      <li><strong>Right-click (on launcher links)</strong> — Set per-link open behavior (background/foreground)</li>
-      <li><strong>Drag & Drop image</strong> — Reverse image search (Google Lens / Images)</li>
+      <li><strong>Right-click (on launcher links)</strong> — Set per-link open behavior</li>
       <li><strong>AI Mode</strong> — Toggle AI sidebar</li>
     </ul>
     <div style="margin-top:12px;text-align:right;">
@@ -1525,13 +1363,23 @@
     </div>
   </div>
 
-  <!-- Custom link context menu -->
-  <div id="linkMenu" class="link-menu" role="menu">
-    <button id="linkOpenForeground">Open (foreground)</button>
-    <button id="linkOpenBackground">Open (background)</button>
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 0;">
-    <button id="linkRememberBg">Remember as background</button>
-    <button id="linkRememberFg">Remember as foreground</button>
+  <!-- Context menu (used for shortcuts & empty space) -->
+  <div id="contextMenu" class="context-menu" role="menu" aria-hidden="true">
+    <!-- Buttons are added dynamically depending on context -->
+  </div>
+
+  <!-- Social / identity panel (renamed title to "Ituze Bonheur" and close button removed id) -->
+  <div id="socialPanel" class="glass" style="position:fixed;left:20px;top:80px;width:320px;padding:16px;border-radius:12px;display:none;z-index:2100;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-weight:700;">Ituze Bonheur</div>
+      <button class="launcher-close" aria-label="Close social panel">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a class="shortcut glass" href="https://github.com/ituzebonheur7" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="shortcut glass" href="https://www.facebook.com/ituzebonheur7" target="_blank" rel="noopener noreferrer">Facebook</a>
+      <a class="shortcut glass" href="https://www.tiktok.com/@ituzebonheur7" target="_blank" rel="noopener noreferrer">TikTok</a>
+      <a class="shortcut glass" href="https://www.instagram.com/ituzebonheur7" target="_blank" rel="noopener noreferrer">Instagram</a>
+    </div>
   </div>
 
   <!-- Drag & drop overlay -->
@@ -1549,9 +1397,12 @@
       duckduckgo: "https://duckduckgo.com/?q=",
       brave: "https://search.brave.com/search?q=",
       startpage: "https://www.startpage.com/do/search?q=",
-      you: "https://you.com/search?q=",
-      gemini: "https://gemini.google.com/app/search?q="
+      you: "https://you.com/search?q="
     };
+
+    // Google AI Mode search redirect URL template
+    const GOOGLE_AI_MODE_URL = (q) => `https://www.google.com/aimode?q=${encodeURIComponent(q)}`;
+    const GOOGLE_AIMODE_LANDING = "https://www.google.com/aimode";
 
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
@@ -1568,7 +1419,7 @@
       initDrops();
     });
 
-    const chars = "ABCDEFGHIJKLMNOPRSTUVWXYZ0123456789";
+    const chars = "ABCDEFGHIJKLMNOPRSTUVWXYZ01234567897";
     const fontSize = 16;
     let columns = canvas.width / fontSize;
     let drops = [];
@@ -1618,28 +1469,82 @@
       else startMatrix();
     });
 
+    /* =========================================
+       Time, Timezone & Locale (Automatic, Network-Based)
+       ========================================= */
+    const clockEl = document.getElementById("clock");
+    const dateEl = document.getElementById("date");
+    const tzEl = document.getElementById("timezoneDisplay");
+    const displayNameInput = document.getElementById("displayNameInput");
+
+    // Determine timezone name using browser Intl API (network/browser inferred).
+    // Fallback to "UTC" if not available.
+    function getTimeZoneName() {
+      try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz) return tz;
+      } catch (e) {}
+      return "UTC";
+    }
+
+    // Determine hour format rule: 12-hour for US, 24-hour elsewhere (as requested).
+    function prefers12HourInUS() {
+      try {
+        const lg = (navigator.language || "").toLowerCase();
+        if (lg.includes("en-us") || lg.includes("us")) return true;
+        const tz = getTimeZoneName().toLowerCase();
+        if (tz.startsWith("america/")) return true;
+      } catch (e) {}
+      return false;
+    }
+
+    let FORCE_12_HOUR = prefers12HourInUS();
+    const TIMEZONE_NAME = getTimeZoneName();
+
     function updateClock() {
       const now = new Date();
-      document.getElementById("clock").textContent =
-        now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-      document.getElementById("date").textContent =
-        now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+      const hour12 = FORCE_12_HOUR;
+      const timeOptions = {
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12,
+        timeZone: TIMEZONE_NAME
+      };
+      const dateOptions = { weekday: "long", month: "long", day: "numeric", timeZone: TIMEZONE_NAME };
+
+      try {
+        clockEl.textContent = new Intl.DateTimeFormat(undefined, timeOptions).format(now);
+        dateEl.textContent = new Intl.DateTimeFormat(undefined, dateOptions).format(now);
+      } catch (e) {
+        clockEl.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        dateEl.textContent = now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+      }
+
+      try {
+        const offsetMin = -now.getTimezoneOffset();
+        const sign = offsetMin >= 0 ? "+" : "-";
+        const hh = String(Math.floor(Math.abs(offsetMin) / 60)).padStart(2, "0");
+        const mm = String(Math.abs(offsetMin) % 60).padStart(2, "0");
+        tzEl.textContent = `${TIMEZONE_NAME} (UTC${sign}${hh}:${mm})`;
+      } catch (e) {
+        tzEl.textContent = TIMEZONE_NAME;
+      }
     }
     setInterval(updateClock, 1000);
     updateClock();
-function updateGreeting() {
+
+    function updateGreeting() {
       const hour = new Date().getHours();
-      const userName = localStorage.getItem("userName") || "Ituze";
-      let text = `Welcome, ${userName}`;
-      if (hour < 12) text = `Good morning, ${userName}`;
-      else if (hour < 18) text = `Good afternoon, ${userName}`;
-      else text = `Good evening, ${userName}`;
+      const name = (localStorage.getItem("displayName") || "Ituze");
+      let text = `Welcome, ${name}`;
+      if (hour < 12) text = `Good morning, ${name}`;
+      else if (hour < 18) text = `Good afternoon, ${name}`;
+      else text = `Good evening, ${name}`;
       document.getElementById("greeting").textContent = text;
     }
-updateGreeting();
+    updateGreeting();
 
     /* =========================================
-       Search / suggestions + history + omnibox commands
+       Search / suggestions + omnibox commands
        ========================================= */
 
     const searchInput = document.getElementById("searchInput");
@@ -1651,33 +1556,14 @@ updateGreeting();
     const toggleNewTabEl = document.getElementById("toggleNewTab");
     let activeSuggestionIndex = -1;
     let openInNewTabSetting = true;
-    const MAX_HISTORY = 30;
-    const HISTORY_KEY = "searchHistoryV2";
+
+    // HISTORY: per requirements, search history storage is disabled.
+    function saveToHistory(q) { /* no-op */ }
+    function readHistory(limit = 8) { return []; }
 
     function getEngineUrl() {
       const key = localStorage.getItem("searchEngine") || "google";
       return SEARCH_ENGINES[key] || SEARCH_ENGINES.google;
-    }
-
-    function saveToHistory(q) {
-      if (!q || !q.trim()) return;
-      try {
-        const raw = localStorage.getItem(HISTORY_KEY);
-        let arr = raw ? JSON.parse(raw) : [];
-        // dedupe most recent identical
-        arr = arr.filter(x => x !== q);
-        arr.unshift(q);
-        if (arr.length > MAX_HISTORY) arr = arr.slice(0, MAX_HISTORY);
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
-      } catch (e) { /* ignore */ }
-    }
-
-    function readHistory(limit = 8) {
-      try {
-        const raw = localStorage.getItem(HISTORY_KEY);
-        let arr = raw ? JSON.parse(raw) : [];
-        return arr.slice(0, limit);
-      } catch (e) { return []; }
     }
 
     // Clear search input immediately and hide suggestions.
@@ -1694,38 +1580,29 @@ updateGreeting();
 
     // When opening links via code paths use this so clearing always happens.
     function openLink(url, opts = { background: undefined }) {
-      // Clear the search input in-page so the state is reset when the user returns.
       clearSearchImmediate();
-
-      // Explicit background preference or global setting
       const preferBackground = opts.background !== undefined ? opts.background : openInNewTabSetting;
-
       if (preferBackground) {
-        // open in background by opening a new window and immediately focusing back to this (some browsers will open in new tab)
         const newWin = window.open(url, "_blank", "noopener,noreferrer");
-        // try to blur new window (not always allowed)
         try { newWin.blur(); window.focus(); } catch (e) { /* ignore */ }
       } else {
         window.location.href = url;
       }
     }
+
     function performSearch(query) {
       if (!query || !query.trim()) return;
       const trimmed = query.trim();
 
-      // handle omnibox commands
       if (trimmed.startsWith(":")) {
-// :calc or :math
         const cmd = trimmed.slice(1).trim();
         const m = cmd.match(/^calc\s+(.+)$/i);
         if (m) {
           const expr = m[1];
           const result = safeCalc(expr);
           showInlineSuggestion(`${expr} = ${result}`, `calc result`, expr);
-          saveToHistory(query);
           return;
         }
-        // fallback echo
         showInlineSuggestion(`Unknown command`, `command`);
         return;
       }
@@ -1734,27 +1611,21 @@ updateGreeting();
         const term = trimmed.replace(/^wiki:/i, "").trim();
         if (!term) return;
         openLink("https://en.wikipedia.org/w/index.php?search=" + encodeURIComponent(term));
-        saveToHistory(query);
         return;
       }
 
-      // if looks like URL
       if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
         openLink(trimmed);
-        saveToHistory(query);
         return;
       } else if (trimmed.includes(".") && !trimmed.includes(" ")) {
         openLink("https://" + trimmed);
-        saveToHistory(query);
         return;
       } else {
         const engineUrl = getEngineUrl();
         openLink(engineUrl + encodeURIComponent(trimmed));
-        saveToHistory(query);
       }
     }
 
-    // show a single transient suggestion (helpful for calc)
     function showInlineSuggestion(text, meta, originalQuery) {
       suggestionsBox.innerHTML = "";
       const div = document.createElement("div");
@@ -1777,7 +1648,6 @@ updateGreeting();
       activeSuggestionIndex = -1;
     }
 
-    // Simple safe calculator: only allow digits, spaces and +-*/().% operators
     function safeCalc(expr) {
       try {
         const sanitized = expr.replace(/[^0-9+\-*/().%\s]/g, "");
@@ -1791,12 +1661,9 @@ updateGreeting();
     }
 
     function isMathExpression(q) {
-      // Consider typical math forms: contain digits and arithmetic operators, and not whitespace-only words
       if (!q || typeof q !== "string") return false;
       const trimmed = q.trim();
-      // disallow if it contains letters (to avoid "2 apples")
       if (/[a-zA-Z]/.test(trimmed)) return false;
-      // allow digits, spaces and . + - * / % ( )
       return /^[0-9\s\+\-\*\/\.\%\(\)]+$/.test(trimmed) && /[0-9]/.test(trimmed);
     }
 
@@ -1925,34 +1792,10 @@ updateGreeting();
     };
 
     function populateHistorySuggestions(query = "") {
-      const hist = readHistory(8).filter(x => !query || x.toLowerCase().includes(query.toLowerCase()));
+      // History is disabled. Show nothing (or optionally hide suggestions).
       suggestionsBox.innerHTML = "";
       activeSuggestionIndex = -1;
-
-      if (hist.length > 0) {
-        suggestionsBox.style.display = "block";
-        suggestionsBox.setAttribute("aria-expanded", "true");
-        hist.forEach(item => {
-          const div = document.createElement("div");
-          div.className = "suggestion-item";
-          div.dataset.query = item;
-          div.innerHTML = `<span>${escapeHtml(item)}</span><span class="suggestion-meta">recent</span>`;
-
-          const handler = (e) => {
-            e.preventDefault();
-            searchInput.value = item;
-            hideSuggestions();
-            performSearch(item);
-          };
-          div.addEventListener("pointerdown", handler);
-          div.addEventListener("mousedown", handler);
-          div.addEventListener("click", handler);
-
-          suggestionsBox.appendChild(div);
-        });
-      } else {
-        hideSuggestions();
-      }
+      hideSuggestions();
     }
 
     function hideSuggestions() {
@@ -1961,147 +1804,6 @@ updateGreeting();
       suggestionsBox.innerHTML = "";
       activeSuggestionIndex = -1;
     }
-
-    // Weather suggestion helper (returns a string or null)
-    async function fetchWeatherSummaryForQuery(query) {
-      // Query could be 'weather' or 'weather City, Country'
-      const cleaned = query.trim();
-      const after = cleaned.replace(/^weather[:\s]*/i, "").trim();
-      try {
-        if (after) {
-          // geocode with nominatim
-          const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(after)}&format=json&limit=1`);
-          if (!r.ok) throw new Error("geo fail");
-          const d = await r.json();
-          if (d && d.length) {
-            const { lat, lon } = d[0];
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&timezone=auto`;
-            const w = await fetch(url);
-            if (!w.ok) throw new Error("weather fail");
-            const jd = await w.json();
-            if (jd.current_weather) {
-              return `${jd.current_weather.temperature}°C, wind ${jd.current_weather.windspeed} km/h`;
-            }
-          }
-        } else if (navigator.geolocation) {
-          // attempt to get current location (best-effort)
-          const pos = await new Promise((res, rej) => {
-            const t = setTimeout(() => rej(new Error("geo timeout")), 8000);
-            navigator.geolocation.getCurrentPosition(p => { clearTimeout(t); res(p); }, err => { clearTimeout(t); rej(err); }, { timeout: 8000 });
-          });
-          if (pos && pos.coords) {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(pos.coords.latitude)}&longitude=${encodeURIComponent(pos.coords.longitude)}&current_weather=true&timezone=auto`;
-            const w = await fetch(url);
-            if (!w.ok) throw new Error("weather fail");
-            const jd = await w.json();
-            if (jd.current_weather) {
-              return `${jd.current_weather.temperature}°C, wind ${jd.current_weather.windspeed} km/h`;
-            }
-          }
-        }
-      } catch (e) {
-        // ignore and return null to fallback to other suggestions
-      }
-      return null;
-    }
-
-    // show math suggestion (display answer but search original expression)
-    function showMathSuggestion(query, result) {
-      suggestionsBox.innerHTML = "";
-      const div = document.createElement("div");
-      div.className = "suggestion-item";
-      div.setAttribute("role", "option");
-      div.dataset.query = query; // ensure clicking uses original expression
-      div.innerHTML = `<span>${escapeHtml(query)} = ${escapeHtml(String(result))}</span><span class="suggestion-meta">calc</span>`;
-      const handler = (e) => {
-        e.preventDefault();
-        hideSuggestions();
-        performSearch(query);
-      };
-      div.addEventListener("pointerdown", handler);
-      div.addEventListener("mousedown", handler);
-      div.addEventListener("click", handler);
-      suggestionsBox.appendChild(div);
-      suggestionsBox.style.display = "block";
-      suggestionsBox.setAttribute("aria-expanded", "true");
-      activeSuggestionIndex = -1;
-    }
-
-    // show weather suggestion (display weather info but search original query)
-    function showWeatherSuggestion(originalQuery, summary) {
-      suggestionsBox.innerHTML = "";
-      const div = document.createElement("div");
-      div.className = "suggestion-item";
-      div.setAttribute("role", "option");
-      div.dataset.query = originalQuery;
-      div.innerHTML = `<span>${escapeHtml(originalQuery)} — ${escapeHtml(summary)}</span><span class="suggestion-meta">weather</span>`;
-      const handler = (e) => {
-        e.preventDefault();
-        hideSuggestions();
-        performSearch(originalQuery);
-      };
-      div.addEventListener("pointerdown", handler);
-      div.addEventListener("mousedown", handler);
-      div.addEventListener("click", handler);
-      suggestionsBox.appendChild(div);
-      suggestionsBox.style.display = "block";
-      suggestionsBox.setAttribute("aria-expanded", "true");
-      activeSuggestionIndex = -1;
-    }
-
-    // main input listener: enhanced — math and weather first
-    searchInput.addEventListener("input", () => {
-      const query = searchInput.value.trim();
-      if (!toggleSuggestionsEl.checked || query.length === 0) {
-        populateHistorySuggestions(query);
-        return;
-      }
-
-      if (isMathExpression(query)) {
-        const result = safeCalc(query);
-        showMathSuggestion(query, result);
-        return;
-      }
-
-      // weather trigger: display inline weather but keep original query for search
-      if (/^weather\b/i.test(query)) {
-        // show a "loading" suggestion and attempt to fetch weather then replace suggestion content
-        suggestionsBox.innerHTML = "";
-        const loading = document.createElement("div");
-        loading.className = "suggestion-item";
-        loading.innerHTML = `<span>Loading weather…</span><span class="suggestion-meta">weather</span>`;
-        suggestionsBox.appendChild(loading);
-        suggestionsBox.style.display = "block";
-        (async () => {
-          const summary = await fetchWeatherSummaryForQuery(query);
-          if (summary) {
-            showWeatherSuggestion(query, summary);
-          } else {
-            populateHistorySuggestions(query);
-          }
-        })();
-        return;
-      }
-
-      if (!toggleSuggestionsEl.checked || query.length < 2 || toggleLocalOnlyEl.checked) {
-        populateHistorySuggestions(query);
-        return;
-      }
-
-      fetchSuggestions(query);
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-        hideSuggestions();
-      }
-    });
-
-    searchInput.addEventListener("blur", () => {
-      setTimeout(() => {
-        hideSuggestions();
-      }, 120);
-    });
 
     /* =========================================
        Voice integration
@@ -2188,16 +1890,15 @@ updateGreeting();
     const toggleMatrixEl = document.getElementById("toggleMatrix");
     const toast = document.getElementById("toast");
     const themeSelect = document.getElementById("themeSelect");
-    const launcherOpacitySelect = document.getElementById("launcherOpacitySelect");
-    const launcherCompact = document.getElementById("launcherCompact");
     const customColorPicker = document.getElementById("customColorPicker");
     const customColorInput = document.getElementById("customColorInput");
     const customColorHex = document.getElementById("customColorHex");
     const openaiKeyInput = document.getElementById("openaiKeyInput");
-    const manualLocationInput = document.getElementById("manualLocation");
     const weatherWedge = document.getElementById("weatherWedge");
     const weatherText = document.getElementById("weatherText");
     const weatherIcon = document.getElementById("weatherIcon");
+    const aiModeBtn = document.getElementById("aiModeBtn");
+    const shortcutsContainer = document.getElementById("shortcutsContainer");
 
     function showToast(msg, ms = 1100) {
       toast.textContent = msg;
@@ -2208,10 +1909,10 @@ updateGreeting();
       }, ms);
     }
 
-    // PANEL MANAGEMENT: strict closeAllPanels
+    // PANEL MANAGEMENT: strict closeAllPanels - ensures only one panel open at a time
     function closeAllPanels(exclude = []) {
-      // exclude may contain DOM elements to keep open
       const exEls = Array.isArray(exclude) ? exclude.filter(Boolean) : [];
+
       if (!exEls.includes(settingsPanel)) {
         settingsPanel.classList.remove("open");
         settingsPanel.setAttribute("aria-hidden", "true");
@@ -2220,7 +1921,6 @@ updateGreeting();
         waffleMenu.classList.remove("open");
         waffleBtn.classList.remove("open");
         waffleMenu.setAttribute("aria-hidden", "true");
-        // ensure hidden from display after close animation
         setTimeout(() => {
           if (!waffleMenu.classList.contains("open")) waffleMenu.style.display = "none";
         }, 280);
@@ -2233,15 +1933,15 @@ updateGreeting();
         helpModal.classList.remove("open");
         helpModal.setAttribute("aria-hidden", "true");
       }
-      if (!exEls.includes(linkMenu)) {
-        hideLinkMenu();
+      if (!exEls.includes(socialPanel)) {
+        socialPanel.style.display = "none";
       }
+      hideContextMenu();
       hideDropOverlay();
     }
 
     function openSettings() {
       closeAllPanels([settingsPanel]);
-      // allow panel open after closing others
       settingsPanel.classList.add("open");
       settingsPanel.setAttribute("aria-hidden", "false");
     }
@@ -2262,14 +1962,12 @@ updateGreeting();
     });
 
     document.addEventListener("click", (e) => {
-      // If click is inside an open panel or its toggle controls, ignore.
       const target = e.target;
       if (target.closest && (target.closest("#settingsPanel") || target.closest("#settingsToggle") ||
           target.closest("#waffleMenu") || target.closest("#openWaffle") ||
-          target.closest(".ai-sidebar") || target.closest(".help-modal") || target.closest("#linkMenu"))) {
+          target.closest(".ai-sidebar") || target.closest(".help-modal") || target.closest("#contextMenu") || target.closest("#socialPanel"))) {
         return;
       }
-      // clicking the background closes everything
       closeAllPanels();
     });
 
@@ -2307,44 +2005,41 @@ updateGreeting();
       root.style.setProperty("--launcher-section-border", `color-mix(in srgb, ${t.accent} 30%, rgba(148,163,184,0.35))`);
     }
 
-    // Save settings (keeps behavior but no longer closes panel). This is used by auto-save listeners.
+    // Save settings (auto-save). Persist only allowed keys. No search history is saved.
     function saveSettings() {
       try {
-        const userName = document.getElementById("userNameInput").value.trim();
-        if (userName) {
-          localStorage.setItem("userName", userName);
-        }
         localStorage.setItem("searchEngine", engineSelect.value);
-localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0");
+        localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0");
         localStorage.setItem("voiceAuto", toggleVoiceAutoEl.checked ? "1" : "0");
         localStorage.setItem("matrixEnabled", toggleMatrixEl.checked ? "0" : "1");
         localStorage.setItem("keyboardShortcuts", toggleKeyboardEl.checked ? "1" : "0");
         localStorage.setItem("themeColor", themeSelect.value);
         localStorage.setItem("openInNewTab", toggleNewTabEl.checked ? "1" : "0");
-        localStorage.setItem("launcherOpacity", launcherOpacitySelect.value);
-        localStorage.setItem("launcherCompact", launcherCompact.checked ? "1" : "0");
         localStorage.setItem("voiceActive", isListening ? "1" : (localStorage.getItem("voiceActive") || "0"));
         localStorage.setItem("localOnlySuggestions", toggleLocalOnlyEl.checked ? "1" : "0");
-        localStorage.setItem("manualWeatherLocation", manualLocationInput.value || "");
         const key = openaiKeyInput.value.trim();
         if (key) {
           localStorage.setItem("openaiKey", key);
+        } else {
+          // do not overwrite with empty on every edit
         }
         if (themeSelect.value === "custom") {
           const hex = (customColorHex.value || customColorInput.value || "#00ff9c").trim();
           localStorage.setItem("customAccent", hex);
         }
+        const dn = (displayNameInput.value || "").trim();
+        if (dn) localStorage.setItem("displayName", dn);
       } catch (e) {}
 
       applySettings();
+      showToast("Saved", 900);
     }
 
     const autoSave = debounce(saveSettings, 280);
+
     function applySettings() {
       const engineKey = localStorage.getItem("searchEngine") || "google";
-      const userName = localStorage.getItem("userName") || "Ituze";
-      document.getElementById("userNameInput").value = userName;
-engineSelect.value = engineKey;
+      engineSelect.value = engineKey;
 
       const showSuggestions = localStorage.getItem("showSuggestions") === "1";
       toggleSuggestionsEl.checked = showSuggestions;
@@ -2383,16 +2078,6 @@ engineSelect.value = engineKey;
       openInNewTabSetting = localStorage.getItem("openInNewTab") !== "0";
       toggleNewTabEl.checked = openInNewTabSetting;
 
-      const launcherOpacity = localStorage.getItem("launcherOpacity") || "0.32";
-      launcherOpacitySelect.value = launcherOpacity;
-      document.documentElement.style.setProperty("--launcher-opacity", launcherOpacity);
-
-      const compact = localStorage.getItem("launcherCompact") === "1";
-      launcherCompact.checked = compact;
-      document.querySelectorAll(".launcher-link").forEach(link => {
-        link.style.padding = compact ? "6px 9px" : "8px 10px";
-      });
-
       try {
         const savedMic = localStorage.getItem("voiceActive");
         if (savedMic === "1") {
@@ -2404,9 +2089,16 @@ engineSelect.value = engineKey;
         }
       } catch (e) {}
 
-      // local-only suggestions
       const localOnly = localStorage.getItem("localOnlySuggestions") === "1";
       toggleLocalOnlyEl.checked = localOnly;
+
+      const savedKey = localStorage.getItem("openaiKey") || "";
+      openaiKeyInput.value = savedKey;
+
+      // display name
+      const dn = localStorage.getItem("displayName") || "Ituze";
+      displayNameInput.value = dn;
+      updateGreeting();
     }
 
     window.saveSettings = saveSettings;
@@ -2446,6 +2138,7 @@ engineSelect.value = engineKey;
 
     // Attach auto-save listeners for all settings controls
     [
+      displayNameInput,
       engineSelect,
       toggleSuggestionsEl,
       toggleVoiceAutoEl,
@@ -2453,12 +2146,9 @@ engineSelect.value = engineKey;
       toggleNewTabEl,
       toggleLocalOnlyEl,
       toggleMatrixEl,
-      launcherOpacitySelect,
-      launcherCompact,
       customColorInput,
       customColorHex,
-      openaiKeyInput,
-      manualLocationInput
+      openaiKeyInput
     ].forEach(el => {
       if (!el) return;
       const ev = (el.tagName === "INPUT" && el.type === "text") || el.tagName === "TEXTAREA" || el.type === "password" ? "input" : "change";
@@ -2480,40 +2170,34 @@ engineSelect.value = engineKey;
         searchInput.select();
       }
 
-      //  Alt + / show help modal (user requested)
-      if (e.altKey && e.key === "/") {
+      // Ctrl + Alt + / show help modal
+      if (e.ctrlKey && e.altKey && e.key === "/") {
         e.preventDefault();
         toggleHelp(true);
       }
     });
 
-    document.querySelectorAll(".shortcut").forEach(link => {
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-        // open in preferred mode (global or per-link setting)
-        openLinkWithPrefs(link.href);
-      });
-    });
-
     /* =========================================
-       Clear data
+       Clear data / reset (history excluded)
        ========================================= */
     document.getElementById("resetStorage").addEventListener("click", () => {
-      if (!confirm("Clear all saved settings, history, and customizations? This will reset date for this site.")) return;
+      if (!confirm("Clear all saved settings and customizations? This cannot be undone.")) return;
       try {
-        localStorage.clear();
+        const keys = ["searchEngine","showSuggestions","voiceAuto","matrixEnabled","keyboardShortcuts","themeColor","openInNewTab","voiceActive","localOnlySuggestions","customAccent","openaiKey","clearSearchOnReturn","displayName","shortcutsV2"];
+        keys.forEach(k => localStorage.removeItem(k));
         showToast("Local data cleared");
         setTimeout(() => location.reload(), 350);
       } catch (e) {
         showToast("Failed to clear data");
       }
     });
-/* =========================================
-       Weather widget (Open-Meteo, no API key)
+
+    /* =========================================
+       Weather widget (Open-Meteo, automatic only)
        ========================================= */
+
     const batteryText = document.getElementById("battery-text");
     const batteryLevelBar = document.getElementById("battery-level-bar");
-    const weatherElId = "battery"; // reused area for now: replace with dedicated UI if desired
 
     function updateBatteryDisplay(level, charging) {
       const percent = Math.round(level * 100);
@@ -2531,16 +2215,17 @@ engineSelect.value = engineKey;
       batteryText.textContent = "Battery: N/A";
     }
 
-    async function fetchWeatherByCoordsSimple(lat, lon) {
+    async function fetchWeatherByCoordsSimple(lat, lon, units = "auto") {
       try {
-        // Open-Meteo simple current weather
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&timezone=auto`;
         const res = await fetch(url);
         if (!res.ok) throw new Error("weather failed");
         const data = await res.json();
         const cw = data.current_weather;
         if (cw) {
-          return `${cw.temperature}°C, wind ${cw.windspeed} km/h`;
+          const c = Math.round(cw.temperature);
+          const f = Math.round((c * 9/5) + 32);
+          return `${c}°C / ${f}°F, wind ${cw.windspeed} km/h`;
         }
       } catch (e) {
         return null;
@@ -2549,20 +2234,9 @@ engineSelect.value = engineKey;
     }
 
     async function refreshWeatherWidget() {
-      const manual = (localStorage.getItem("manualWeatherLocation") || "").trim();
       let summary = null;
-      if (manual) {
-        try {
-          const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(manual)}&format=json&limit=1`);
-          if (!r.ok) throw new Error("geo fail");
-          const d = await r.json();
-          if (d && d.length) {
-            const { lat, lon } = d[0];
-            summary = await fetchWeatherByCoordsSimple(lat, lon);
-          }
-        } catch (e) { /* fallback to geolocation */ }
-      }
-      if (!summary && navigator.geolocation) {
+
+      if (navigator.geolocation) {
         try {
           const pos = await new Promise((res, rej) => {
             const t = setTimeout(() => rej(new Error("geo timeout")), 8000);
@@ -2571,8 +2245,21 @@ engineSelect.value = engineKey;
           if (pos && pos.coords) {
             summary = await fetchWeatherByCoordsSimple(pos.coords.latitude, pos.coords.longitude);
           }
+        } catch (e) { /* ignore and fallback to IP-based */ }
+      }
+
+      if (!summary) {
+        try {
+          const ipr = await fetch("https://ipapi.co/json/");
+          if (ipr.ok) {
+            const ipd = await ipr.json();
+            if (ipd && ipd.latitude && ipd.longitude) {
+              summary = await fetchWeatherByCoordsSimple(ipd.latitude, ipd.longitude);
+            }
+          }
         } catch (e) { /* ignore */ }
       }
+
       if (summary) {
         weatherText.textContent = `Weather: ${summary}`;
         weatherWedge.setAttribute("aria-hidden", "false");
@@ -2582,7 +2269,6 @@ engineSelect.value = engineKey;
       }
     }
 
-    // click weather wedge to refresh
     weatherWedge.addEventListener("click", (e) => {
       e.stopPropagation();
       refreshWeatherWidget();
@@ -2591,15 +2277,8 @@ engineSelect.value = engineKey;
 
     refreshWeatherWidget();
 
-    async function updateWeather() {
-      // kept for compatibility with other code paths – uses toast notifications
-      await refreshWeatherWidget();
-    }
-
-    updateWeather();
-
     /* =========================================
-       Launcher (preserved) + per-link open preferences
+       Launcher (preserved)
        ========================================= */
     const waffleBtn = document.getElementById("openWaffle");
     const waffleMenu = document.getElementById("waffleMenu");
@@ -2720,147 +2399,221 @@ engineSelect.value = engineKey;
     });
 
     /* =========================================
-       Per-link open-in-background vs foreground preference
+       Right-Click Behavior
        ========================================= */
-    const linkMenu = document.getElementById("linkMenu");
-    let currentContextLink = null; // anchor element
-    const LINK_PREF_KEY = "linkOpenPrefsV1"; // store mapping url->"bg"|"fg"
 
-    function loadLinkPrefs() {
-      try {
-        return JSON.parse(localStorage.getItem(LINK_PREF_KEY) || "{}");
-      } catch (e) { return {}; }
-    }
-    function saveLinkPrefs(p) {
-      try { localStorage.setItem(LINK_PREF_KEY, JSON.stringify(p)); } catch (e) {}
+    const contextMenu = document.getElementById("contextMenu");
+    const socialPanel = document.getElementById("socialPanel");
+
+    function showContextMenuAt(x, y, buttons) {
+      contextMenu.innerHTML = "";
+      buttons.forEach(btn => {
+        const b = document.createElement("button");
+        b.textContent = btn.label;
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          hideContextMenu();
+          btn.onClick();
+        });
+        contextMenu.appendChild(b);
+      });
+      contextMenu.style.left = x + "px";
+      contextMenu.style.top = y + "px";
+      contextMenu.style.display = "block";
+      contextMenu.setAttribute("aria-hidden", "false");
     }
 
+    function hideContextMenu() {
+      contextMenu.style.display = "none";
+    }
+
+    // Global contextmenu handler
     document.addEventListener("contextmenu", (evt) => {
-      const anchor = evt.target.closest && evt.target.closest("a");
-      if (!anchor) return;
+      const shortcut = evt.target.closest && evt.target.closest(".shortcut");
       evt.preventDefault();
-      currentContextLink = anchor;
-      const rect = anchor.getBoundingClientRect();
       const x = evt.clientX;
       const y = evt.clientY;
-      openLinkMenuAt(x, y, anchor);
-    });
 
-    function openLinkMenuAt(x, y, anchor) {
-      const prefs = loadLinkPrefs();
-      const pref = prefs[anchor.href];
-      linkMenu.style.left = x + "px";
-      linkMenu.style.top = y + "px";
-      linkMenu.style.display = "block";
-      linkMenu.style.opacity = "1";
-    }
-
-    document.getElementById("linkOpenForeground").addEventListener("click", () => {
-      if (!currentContextLink) return hideLinkMenu();
-      hideLinkMenu();
-      openLink(currentContextLink.href, { background: false });
+      if (shortcut) {
+        const href = shortcut.href;
+        showContextMenuAt(x, y, [
+          {
+            label: "Open",
+            onClick: () => { openLink(href, { background: false }); }
+          },
+          {
+            label: "Open in New Tab",
+            onClick: () => { openLink(href, { background: true }); }
+          }
+        ]);
+      } else {
+        showContextMenuAt(x, y, [
+          {
+            label: "Learn More",
+            onClick: () => { window.open("https://github.com/ituzebonheur7/Matrix-Homepage", "_blank", "noopener,noreferrer"); }
+          }
+        ]);
+      }
     });
-    document.getElementById("linkOpenBackground").addEventListener("click", () => {
-      if (!currentContextLink) return hideLinkMenu();
-      hideLinkMenu();
-      openLink(currentContextLink.href, { background: true });
-    });
-    document.getElementById("linkRememberBg").addEventListener("click", () => {
-      if (!currentContextLink) return hideLinkMenu();
-      const prefs = loadLinkPrefs();
-      prefs[currentContextLink.href] = "bg";
-      saveLinkPrefs(prefs);
-      hideLinkMenu();
-      showToast("Saved: open in background");
-    });
-    document.getElementById("linkRememberFg").addEventListener("click", () => {
-      if (!currentContextLink) return hideLinkMenu();
-      const prefs = loadLinkPrefs();
-      prefs[currentContextLink.href] = "fg";
-      saveLinkPrefs(prefs);
-      hideLinkMenu();
-      showToast("Saved: open in foreground");
-    });
-
-    function hideLinkMenu() {
-      currentContextLink = null;
-      linkMenu.style.display = "none";
-    }
 
     document.addEventListener("click", (e) => {
-      if (!linkMenu.contains(e.target)) hideLinkMenu();
+      if (!contextMenu.contains(e.target)) hideContextMenu();
     });
-
-    // Intercept clicks to honor remembered preferences
-    document.addEventListener("click", (evt) => {
-      const anchor = evt.target.closest && evt.target.closest("a");
-      if (!anchor) return;
-      const prefs = loadLinkPrefs();
-      const pref = prefs[anchor.href];
-      if (pref) {
-        evt.preventDefault();
-        openLink(anchor.href, { background: pref === "bg" });
-      } else {
-        // normal behavior
-      }
-    }, true);
 
     /* =========================================
-       Drag & drop image -> Google reverse image search (Lens/Images)
+       Shortcuts (editable, defaults updated)
+       - Max 15 shortcuts, max 3 rows
+       - Double-click a shortcut to edit label & URL
        ========================================= */
-    const dropOverlay = document.getElementById("dropOverlay");
 
-    function showDropOverlay() { dropOverlay.classList.add("active"); }
-    function hideDropOverlay() { dropOverlay.classList.remove("active"); }
+    const DEFAULT_SHORTCUTS = [
+      { label: "Amazon", url: "https://www.amazon.com" },        // replaced Aspen -> Amazon
+      { label: "Google", url: "https://google.com" },
+      { label: "Gmail", url: "https://mail.google.com" },
+      { label: "YouTube", url: "https://youtube.com" },
+      { label: "GitHub", url: "https://github.com" },
 
-    // highlight drop area
-    ["dragenter", "dragover"].forEach(ev => {
-      document.addEventListener(ev, (e) => {
-        const hasImage = Array.from(e.dataTransfer?.items || []).some(i => i.type && i.type.startsWith && i.type.startsWith("image/"));
-        if (hasImage) {
-          e.preventDefault();
-          showDropOverlay();
+      { label: "ChatGPT", url: "https://chat.openai.com" },
+      { label: "Copilot", url: "https://copilot.microsoft.com/" },
+      { label: "Twitter", url: "https://x.com" },
+      { label: "Instagram", url: "https://www.instagram.com" },
+      { label: "Facebook", url: "https://www.facebook.com" },
+
+      { label: "TikTok", url: "https://www.tiktok.com" },
+      { label: "Gemini", url: "https://gemini.google.com" },
+      { label: "WhatsApp", url: "https://web.whatsapp.com" },
+      { label: "Yahoo", url: "https://www.yahoo.com" }, // replaced SmashKarts -> Yahoo
+      { label: "GitHub Copilot", url: "https://github.com/copilot" } // replaced SmashKartsUnblocked
+    ];
+
+    const SHORTCUTS_KEY = "shortcutsV2";
+
+    function loadShortcuts() {
+      try {
+        const raw = localStorage.getItem(SHORTCUTS_KEY);
+        if (!raw) return DEFAULT_SHORTCUTS.slice(0, 15);
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return DEFAULT_SHORTCUTS.slice(0, 15);
+        // enforce max 15
+        return parsed.slice(0, 15);
+      } catch (e) {
+        return DEFAULT_SHORTCUTS.slice(0, 15);
+      }
+    }
+
+    function saveShortcuts(arr) {
+      try {
+        const limited = arr.slice(0, 15);
+        localStorage.setItem(SHORTCUTS_KEY, JSON.stringify(limited));
+      } catch (e) { /* ignore */ }
+    }
+
+    function renderShortcuts() {
+      const shortcuts = loadShortcuts();
+      shortcutsContainer.innerHTML = "";
+      const rows = 3;
+      const perRow = 5;
+      for (let r = 0; r < rows; r++) {
+        const row = document.createElement("div");
+        row.className = "shortcuts-row";
+        row.id = `shortcutsRow${r+1}`;
+        for (let c = 0; c < perRow; c++) {
+          const index = r * perRow + c;
+          const item = shortcuts[index];
+          if (item) {
+            const a = document.createElement("a");
+            a.className = "shortcut glass";
+            a.href = item.url;
+            a.textContent = item.label;
+            a.title = item.url;
+            a.setAttribute("data-index", index);
+            // click opens with prefs
+            a.addEventListener("click", (e) => {
+              e.preventDefault();
+              openLinkWithPrefs(a.href);
+            });
+            // double-click to edit (inline prompt)
+            a.addEventListener("dblclick", (e) => {
+              e.preventDefault();
+              const curLabel = item.label;
+              const curUrl = item.url;
+              const newLabel = prompt("Edit shortcut label:", curLabel);
+              if (newLabel === null) return;
+              let newUrl = prompt("Edit shortcut URL (include https://):", curUrl);
+              if (newUrl === null) return;
+              newUrl = newUrl.trim();
+              if (!/^https?:\/\//i.test(newUrl)) {
+                // try to normalize simple hostnames
+                if (/^[\w.-]+\.[a-z]{2,}$/i.test(newUrl)) {
+                  newUrl = "https://" + newUrl;
+                } else {
+                  alert("Invalid URL. Changes not saved.");
+                  return;
+                }
+              }
+              const sc = loadShortcuts();
+              sc[index] = { label: (newLabel.trim() || curLabel), url: newUrl };
+              saveShortcuts(sc);
+              renderShortcuts();
+              showToast("Shortcut updated", 900);
+            });
+            row.appendChild(a);
+          } else {
+            const placeholder = document.createElement("div");
+            placeholder.className = "shortcut glass";
+            placeholder.style.opacity = "0.25";
+            placeholder.textContent = "";
+            row.appendChild(placeholder);
+          }
+        }
+        shortcutsContainer.appendChild(row);
+      }
+      enforceShortcutLimits(); // hide extras if any
+    }
+
+    // enforce limits (silently): max 3 rows & 15 shortcuts
+    function enforceShortcutLimits() {
+      const rows = Array.from(document.querySelectorAll(".shortcuts-row"));
+      rows.forEach((r, idx) => {
+        if (idx >= 3) r.style.display = "none";
+        else r.style.display = "";
+      });
+      const allShortcuts = Array.from(document.querySelectorAll(".shortcuts .shortcut"));
+      allShortcuts.forEach((el, idx) => {
+        // Only show first 15 actual anchors (placeholders preserved)
+        if (el.tagName.toLowerCase() === "a") {
+          if (idx >= 15) el.style.display = "none";
+          else el.style.display = "";
         }
       });
+    }
+
+    // click to open social panel & close via its internal close button
+    const socialCloseBtn = socialPanel.querySelector('.launcher-close');
+    socialCloseBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      socialPanel.style.display = "none";
     });
 
-    ["dragleave", "dragend"].forEach(ev => {
-      document.addEventListener(ev, (e) => {
-        hideDropOverlay();
-      });
+    // Social top button
+    const topBtn = document.getElementById("topLink");
+    topBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeAllPanels([socialPanel]);
+      socialPanel.style.display = "block";
     });
 
-    document.addEventListener("drop", async (e) => {
-      e.preventDefault();
-      hideDropOverlay();
-      const files = Array.from(e.dataTransfer.files || []);
-      const img = files.find(f => f.type && f.type.startsWith && f.type.startsWith("image/"));
-      if (!img) { showToast("No image found in drop"); return; }
-
-      try {
-        // Attempt form-based upload approach:
-        const form = document.createElement("form");
-        form.action = "https://www.google.com/searchbyimage/upload";
-        form.method = "POST";
-        form.enctype = "multipart/form-data";
-        form.target = "_blank";
-
-        const fileInput = document.createElement("input");
-        fileInput.type = "file";
-        fileInput.name = "encoded_image";
-
-        const dt = new DataTransfer();
-        dt.items.add(img);
-        fileInput.files = dt.files;
-        form.appendChild(fileInput);
-        document.body.appendChild(form);
-        form.submit();
-        form.remove();
-        showToast("Opened reverse image search");
-      } catch (err) {
-        showToast("Reverse image search failed (browser restrictions)");
-      }
+    // initial render shortcuts
+    document.addEventListener("DOMContentLoaded", () => {
+      applySettings();
+      renderShortcuts();
+      enforceShortcutLimits();
     });
+
+    /* =========================================
+       Context menu adjustments remain as required
+       (Open / Open in New Tab for shortcuts; Learn More for empty space)
+       ========================================= */
 
     /* =========================================
        Accessibility / UX tweaks
@@ -2870,17 +2623,14 @@ engineSelect.value = engineKey;
       hideSuggestions();
     });
 
-    // Expose utilities for debugging if needed
     window._ituze_utils = {
       performSearch,
       hideSuggestions,
       startRecognition,
       stopRecognition,
-      clearSearchImmediate,
-      readHistory
+      clearSearchImmediate
     };
 
-    // Focus the search input when page is shown and clear persisted search marker if present.
     window.addEventListener("pageshow", (evt) => {
       try {
         if (localStorage.getItem("clearSearchOnReturn") === "1") {
@@ -2898,7 +2648,6 @@ engineSelect.value = engineKey;
       } catch (e) {}
     });
 
-    // Global capture-phase click listener to clear local search state before navigation.
     document.addEventListener("click", (evt) => {
       const anchor = evt.target.closest && evt.target.closest("a");
       if (!anchor) return;
@@ -2907,14 +2656,11 @@ engineSelect.value = engineKey;
       try { clearSearchImmediate(); } catch (e) {}
     }, true);
 
-    // Ensure launcher links and other programmatic opens are handled by openLink (which clears search).
+    // Ensure launcher links are handled by openLink (which clears search).
     document.querySelectorAll(".launcher-link").forEach(a => {
-      a.addEventListener("click", (ev) => {
-        // nothing else required; global capture handler already cleared state
-      });
+      a.addEventListener("click", (ev) => {});
     });
 
-    // Initial focus on load (with slight delay to allow painting)
     (function initOnLoad() {
       try {
         setTimeout(() => {
@@ -2945,177 +2691,37 @@ engineSelect.value = engineKey;
     closeHelp.addEventListener("click", () => toggleHelp(false));
 
     /* =========================================
-       Utilities
+       AI Mode button behavior (per latest request)
+       - If search box empty: redirect to https://www.google.com/aimode
+       - If search box has text: send to Google AI Mode search URL with encoded query
+       Note: This is a direct redirect action when the AI Mode button is clicked.
+       ========================================= */
+
+    aiModeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const q = (searchInput.value || "").trim();
+      if (!q) {
+        // go to google aimode landing
+        openLink(GOOGLE_AIMODE_LANDING);
+      } else {
+        // perform Google AI Mode search
+        openLink(GOOGLE_AI_MODE_URL(q));
+      }
+    });
+
+    /* =========================================
+       Utilities & final adjustments
        ========================================= */
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
     }
 
-    // Enhance suggestion box: when empty input, show recent queries
-    searchInput.addEventListener("focus", () => {
-      if (!toggleSuggestionsEl.checked) return;
-      const q = searchInput.value.trim();
-      if (!q) populateHistorySuggestions("");
-    });
-
-    // Respect per-link preferences when opening programmatically (shortcuts etc.)
     function openLinkWithPrefs(url) {
-      const prefs = loadLinkPrefs();
-      const pref = prefs[url];
-      if (pref === "bg") openLink(url, { background: true });
-      else if (pref === "fg") openLink(url, { background: false });
-      else openLink(url);
+      if (openInNewTabSetting) openLink(url, { background: true });
+      else openLink(url, { background: false });
     }
 
-    // On page load, attempt to apply saved settings and show recent suggestions button if appropriate
-    document.addEventListener("DOMContentLoaded", () => {
-      applySettings();
-    });
-  </script>
-  <script>
-    /* =========================================
-       Editable Shortcuts
-       ========================================= */
-    const SHORTCUTS_KEY = "userShortcuts";
-    const DEFAULT_SHORTCUTS = [
-      { name: "GitHub", url: "https://github.com" },
-      { name: "Google", url: "https://google.com" },
-      { name: "Gmail", url: "https://mail.google.com" },
-      { name: "YouTube", url: "https://youtube.com" },
-      { name: "Amazon", url: "https://amazon.com" },
-      { name: "ChatGPT", url: "https://chat.openai.com" },
-      { name: "Copilot", url: "https://copilot.microsoft.com/" },
-      { name: "Twitter", url: "https://x.com" },
-      { name: "Instagram", url: "https://www.instagram.com" },
-      { name: "Facebook", url: "https://www.facebook.com" },
-      { name: "TikTok", url: "https://www.tiktok.com" },
-      { name: "Gemini", url: "https://gemini.google.com" },
-      { name: "WhatsApp", url: "https://web.whatsapp.com" },
-      { name: "Yahoo", url: "https://yahoo.com" },
-      { name: "GitHub Copilot", url: "https://github.com/copilot" }
-    ];
-
-    function loadShortcuts() {
-      try {
-        const saved = localStorage.getItem(SHORTCUTS_KEY);
-        return saved ? JSON.parse(saved) : [...DEFAULT_SHORTCUTS];
-      } catch {
-        return [...DEFAULT_SHORTCUTS];
-      }
-    }
-
-    function saveShortcuts(shortcuts) {
-      try {
-        localStorage.setItem(SHORTCUTS_KEY, JSON.stringify(shortcuts));
-      } catch {}
-    }
-
-    function renderShortcuts() {
-      const shortcuts = loadShortcuts();
-      const rows = [
-        document.getElementById("shortcutsRow1"),
-        document.getElementById("shortcutsRow2"),
-        document.getElementById("shortcutsRow3")
-      ];
-
-      // Clear all rows
-      rows.forEach(row => row.innerHTML = '');
-
-      // Distribute shortcuts across rows
-      shortcuts.forEach((shortcut, index) => {
-        const rowIndex = Math.floor(index / 5);
-        if (rowIndex < rows.length) {
-          const a = document.createElement('a');
-          a.className = 'shortcut glass';
-          a.href = shortcut.url;
-          a.textContent = shortcut.name;
-          a.addEventListener('click', (e) => {
-            e.preventDefault();
-            openLinkWithPrefs(shortcut.url);
-          });
-          rows[rowIndex].appendChild(a);
-        }
-      });
-    }
-
-    function openShortcutEditor() {
-      const shortcuts = loadShortcuts();
-      const editor = document.getElementById('shortcutEditor');
-      editor.innerHTML = '';
-
-      shortcuts.forEach((shortcut, index) => {
-        const div = document.createElement('div');
-        div.className = 'shortcut-item';
-        div.innerHTML = `
-          <input type="text" placeholder="Name" value="${escapeHtml(shortcut.name)}" data-index="${index}" data-field="name">
-          <input type="text" placeholder="URL" value="${escapeHtml(shortcut.url)}" data-index="${index}" data-field="url">
-          <button class="remove-shortcut" data-index="${index}">×</button>
-        `;
-        editor.appendChild(div);
-      });
-
-      document.getElementById('shortcutModal').classList.add('open');
-    }
-
-    function closeShortcutEditor() {
-      document.getElementById('shortcutModal').classList.remove('open');
-    }
-
-    function saveEditedShortcuts() {
-      const inputs = document.querySelectorAll('#shortcutEditor input');
-      const shortcuts = [];
-      
-      // Group inputs by index
-      const grouped = {};
-      inputs.forEach(input => {
-        const index = input.dataset.index;
-        if (!grouped[index]) grouped[index] = {};
-        grouped[index][input.dataset.field] = input.value.trim();
-      });
-
-      // Convert to array
-      for (const index in grouped) {
-        const item = grouped[index];
-        if (item.name && item.url) {
-          shortcuts.push({
-            name: item.name,
-            url: item.url.startsWith('http') ? item.url : `https://${item.url}`
-          });
-        }
-      }
-
-      saveShortcuts(shortcuts);
-      renderShortcuts();
-      closeShortcutEditor();
-      showToast('Shortcuts saved');
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      renderShortcuts();
-
-      document.getElementById('editShortcutsBtn').addEventListener('click', openShortcutEditor);
-      document.getElementById('saveShortcutsBtn').addEventListener('click', saveEditedShortcuts);
-      document.getElementById('cancelShortcutsBtn').addEventListener('click', closeShortcutEditor);
-
-      document.getElementById('addShortcutBtn').addEventListener('click', () => {
-        const editor = document.getElementById('shortcutEditor');
-        const div = document.createElement('div');
-        div.className = 'shortcut-item';
-        const newIndex = editor.children.length;
-        div.innerHTML = `
-          <input type="text" placeholder="Name" data-index="${newIndex}" data-field="name">
-          <input type="text" placeholder="URL" data-index="${newIndex}" data-field="url">
-          <button class="remove-shortcut" data-index="${newIndex}">×</button>
-        `;
-        editor.appendChild(div);
-      });
-
-      document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('remove-shortcut')) {
-          e.target.parentNode.remove();
-        }
-      });
-    });
+    try { localStorage.removeItem("linkOpenPrefsV1"); } catch (e) {}
   </script>
 </body>
 </html>
