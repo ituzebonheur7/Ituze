@@ -266,23 +266,6 @@
       transform: scale(1.04);
     }
 
-    .ai-mode-btn {
-      padding: 6px 16px;
-      border-radius: 20px;
-      border: 1px solid var(--glass-border);
-      background: rgba(0,0,0,0.25);
-      color: #fff;
-      font-size: 13px;
-      cursor: pointer;
-      transition: 0.2s;
-      transform-origin: center;
-    }
-    .ai-mode-btn:hover {
-      border-color: var(--accent);
-      box-shadow: 0 0 18px var(--accent);
-      transform: scale(1.04);
-    }
-
     .suggestions {
       position: absolute;
       top: 58px;
@@ -1332,19 +1315,6 @@
     <div class="shortcuts" id="shortcutsContainer" aria-live="polite"></div>
   </div>
 
-  <!-- AI sidebar (kept, but AI Mode main actions implemented via button) -->
-  <div class="ai-sidebar glass" id="aiSidebar" role="region" aria-label="AI assistant">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-weight:700;">AI Assistant</div>
-      <div style="font-size:12px;opacity:0.85;">(Google AI Mode)</div>
-    </div>
-    <div class="ai-messages" id="aiMessages" aria-live="polite"></div>
-    <div class="ai-input-row">
-      <input id="aiInput" class="ai-input" placeholder="Ask a question..." />
-      <button id="aiSend" class="ai-send">Send</button>
-    </div>
-  </div>
-
   <!-- Help modal (keyboard shortcuts) -->
   <div class="help-modal glass" id="helpModal" role="dialog" aria-modal="true" aria-hidden="true">
     <h3>Keyboard Shortcuts</h3>
@@ -1356,7 +1326,6 @@
       <li><strong>Esc</strong> — Clear search / close settings</li>
       <li><strong>Ctrl + Alt + /</strong> — Show this help</li>
       <li><strong>Right-click (on launcher links)</strong> — Set per-link open behavior</li>
-      <li><strong>AI Mode</strong> — Toggle AI sidebar</li>
     </ul>
     <div style="margin-top:12px;text-align:right;">
       <button id="closeHelp" class="save-btn" style="width:160px;">Close</button>
@@ -1382,10 +1351,6 @@
     </div>
   </div>
 
-  <!-- Drag & drop overlay -->
-  <div id="dropOverlay" class="drop-overlay">
-    <div class="drop-hint">Drop an image here to search (Google Lens)</div>
-  </div>
 
   <script>
     /* =========================================
