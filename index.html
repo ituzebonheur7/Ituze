@@ -12,22 +12,7 @@
       <script src="/scrollbar.js"></script>
       <script src="/screen.js"></script>
 
-  <style>
-    :root {
-      --accent: #00ff9c;
-      --matrix-color: #00ff9c;
-      --glass-bg: rgba(0,0,0,0.18);
-      --glass-border: rgba(255,255,255,0.22);
-      --text-main: #e5e7eb;
-
-      --launcher-opacity: 0.32;
-      --launcher-border-color: rgba(255,255,255,0.18);
-      --launcher-section-bg: rgba(15,23,42,0.55);
-      --launcher-section-border: rgba(148,163,184,0.35);
-    }
-
-    * { box-sizing: border-box; }
-
+  <script>
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
@@ -100,6 +85,7 @@
       box-shadow: 0 0 18px var(--accent);
     }
 
+    /* Settings panel: now scrollable and constrained to viewport */
     #settingsPanel {
       position: fixed;
       top: 70px;
@@ -113,6 +99,7 @@
       transition: 0.3s ease;
       z-index: 2000;
 
+      /* Make the panel scrollable if content exceeds viewport */
       max-height: calc(100vh - 100px);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -266,6 +253,23 @@
       transform: scale(1.04);
     }
 
+    .ai-mode-btn {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+      transform-origin: center;
+    }
+    .ai-mode-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 18px var(--accent);
+      transform: scale(1.04);
+    }
+
     .suggestions {
       position: absolute;
       top: 58px;
@@ -359,6 +363,7 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* Battery placed behind panels (lower z-index) */
     #battery {
       position: fixed;
       bottom: 20px;
@@ -369,7 +374,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      z-index: 50; 
+      z-index: 50; /* lowered so it sits behind panels/launchers/settings */
     }
 
     #battery-icon {
@@ -733,6 +738,7 @@
       background: rgba(0,0,0,0.45);
     }
 
+    /* shortcut help modal */
     .help-modal {
       position: fixed;
       left: 50%;
@@ -752,6 +758,7 @@
       display: block;
     }
 
+    /* custom context menu for shortcuts / empty space */
     .context-menu {
       position: fixed;
       background: rgba(5,7,10,0.98);
@@ -775,6 +782,30 @@
       border-radius: 6px;
     }
     .context-menu button:hover { background: rgba(255,255,255,0.03); }
+
+    /* drag-drop overlay */
+    .drop-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 6000;
+      pointer-events: none;
+    }
+    .drop-overlay.active {
+      display: flex;
+      pointer-events: all;
+    }
+    .drop-hint {
+      padding: 18px 22px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.6);
+      border: 1px dashed rgba(255,255,255,0.12);
+      color: var(--text-main);
+      font-size: 16px;
+      backdrop-filter: blur(6px);
+    }
 
     /* Weather wedge (bottom-left, next to apps) */
     #weatherWedge {
@@ -903,11 +934,21 @@
     </div>
 
     <div class="settings-group">
+      <label>OpenAI (AI Assistant)</label>
+      <input id="openaiKeyInput" type="password" placeholder="Paste OpenAI API key (optional)" aria-label="OpenAI API Key">
+      <div style="font-size:12px;opacity:0.85;margin-top:8px;">
+        Client-side API usage stores your key in localStorage — not recommended for public devices. Prefer a server-side proxy.
+      </div>
+    </div>
+
+    <div class="settings-group">
       <label>Storage</label>
       <div style="margin-top:8px;">
         <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data & reset</button>
       </div>
     </div>
+
+    <!-- Save & Apply removed — changes are applied automatically -->
 
   </div>
 
@@ -947,6 +988,7 @@
     </div>
 
     <div class="launcher-scroll" id="launcherScroll">
+      <!-- Sections (same as original, Gemini removed per requirements) -->
       <div class="launcher-section collapsed" data-section="productivity">
         <div class="launcher-section-header ripple-target">
           <div class="launcher-section-title">Productivity & Workspace</div>
@@ -1315,6 +1357,19 @@
     <div class="shortcuts" id="shortcutsContainer" aria-live="polite"></div>
   </div>
 
+  <!-- AI sidebar (kept, but AI Mode main actions implemented via button) -->
+  <div class="ai-sidebar glass" id="aiSidebar" role="region" aria-label="AI assistant">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-weight:700;">AI Assistant</div>
+      <div style="font-size:12px;opacity:0.85;">(Google AI Mode)</div>
+    </div>
+    <div class="ai-messages" id="aiMessages" aria-live="polite"></div>
+    <div class="ai-input-row">
+      <input id="aiInput" class="ai-input" placeholder="Ask a question..." />
+      <button id="aiSend" class="ai-send">Send</button>
+    </div>
+  </div>
+
   <!-- Help modal (keyboard shortcuts) -->
   <div class="help-modal glass" id="helpModal" role="dialog" aria-modal="true" aria-hidden="true">
     <h3>Keyboard Shortcuts</h3>
@@ -1326,6 +1381,8 @@
       <li><strong>Esc</strong> — Clear search / close settings</li>
       <li><strong>Ctrl + Alt + /</strong> — Show this help</li>
       <li><strong>Right-click (on launcher links)</strong> — Set per-link open behavior</li>
+      <li><strong>Drag & Drop image</strong> — Reverse image search (Google Lens / Images)</li>
+      <li><strong>AI Mode</strong> — Toggle AI sidebar</li>
     </ul>
     <div style="margin-top:12px;text-align:right;">
       <button id="closeHelp" class="save-btn" style="width:160px;">Close</button>
@@ -1344,6 +1401,7 @@
       <button class="launcher-close" aria-label="Close social panel">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;">
+      <!-- GitHub first per request -->
       <a class="shortcut glass" href="https://github.com/ituzebonheur7" target="_blank" rel="noopener noreferrer">GitHub</a>
       <a class="shortcut glass" href="https://www.facebook.com/ituzebonheur7" target="_blank" rel="noopener noreferrer">Facebook</a>
       <a class="shortcut glass" href="https://www.tiktok.com/@ituzebonheur7" target="_blank" rel="noopener noreferrer">TikTok</a>
@@ -1351,6 +1409,10 @@
     </div>
   </div>
 
+  <!-- Drag & drop overlay -->
+  <div id="dropOverlay" class="drop-overlay">
+    <div class="drop-hint">Drop an image here to search (Google Lens)</div>
+  </div>
 
   <script>
     /* =========================================
@@ -1384,7 +1446,7 @@
       initDrops();
     });
 
-    const chars = "ABCDEFGHIJKLMNOPRSTUVWXYZ01234567897";
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const fontSize = 16;
     let columns = canvas.width / fontSize;
     let drops = [];
@@ -2364,7 +2426,10 @@
     });
 
     /* =========================================
-       Right-Click Behavior
+       Right-Click Behavior (Strict Rules)
+       - Shortcuts: show Open / Open in New Tab
+       - Empty space: show Learn More -> opens GitHub repo in new tab
+       - No "background/foreground" wording anywhere
        ========================================= */
 
     const contextMenu = document.getElementById("contextMenu");
@@ -2581,6 +2646,61 @@
        ========================================= */
 
     /* =========================================
+       Drag & drop image -> Google reverse image search (Lens/Images)
+       ========================================= */
+    const dropOverlay = document.getElementById("dropOverlay");
+
+    function showDropOverlay() { dropOverlay.classList.add("active"); }
+    function hideDropOverlay() { dropOverlay.classList.remove("active"); }
+
+    ["dragenter", "dragover"].forEach(ev => {
+      document.addEventListener(ev, (e) => {
+        const hasImage = Array.from(e.dataTransfer?.items || []).some(i => i.type && i.type.startsWith && i.type.startsWith("image/"));
+        if (hasImage) {
+          e.preventDefault();
+          showDropOverlay();
+        }
+      });
+    });
+
+    ["dragleave", "dragend"].forEach(ev => {
+      document.addEventListener(ev, (e) => {
+        hideDropOverlay();
+      });
+    });
+
+    document.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      hideDropOverlay();
+      const files = Array.from(e.dataTransfer.files || []);
+      const img = files.find(f => f.type && f.type.startsWith && f.type.startsWith("image/"));
+      if (!img) { showToast("No image found in drop"); return; }
+
+      try {
+        const form = document.createElement("form");
+        form.action = "https://www.google.com/searchbyimage/upload";
+        form.method = "POST";
+        form.enctype = "multipart/form-data";
+        form.target = "_blank";
+
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.name = "encoded_image";
+
+        const dt = new DataTransfer();
+        dt.items.add(img);
+        fileInput.files = dt.files;
+        form.appendChild(fileInput);
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
+        showToast("Opened reverse image search");
+      } catch (err) {
+        showToast("Reverse image search failed (browser restrictions)");
+      }
+    });
+
+    /* =========================================
        Accessibility / UX tweaks
        ========================================= */
 
@@ -2656,21 +2776,98 @@
     closeHelp.addEventListener("click", () => toggleHelp(false));
 
     /* =========================================
-       AI Mode button behavior (per latest request)
-       - If search box empty: redirect to https://www.google.com/aimode
-       - If search box has text: send to Google AI Mode search URL with encoded query
-       Note: This is a direct redirect action when the AI Mode button is clicked.
+       AI Mode button behavior 
        ========================================= */
 
     aiModeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       const q = (searchInput.value || "").trim();
       if (!q) {
-        // go to google aimode landing
         openLink(GOOGLE_AIMODE_LANDING);
       } else {
-        // perform Google AI Mode search
         openLink(GOOGLE_AI_MODE_URL(q));
+      }
+    });
+
+    /* =========================================
+       AI sidebar functions 
+       ========================================= */
+
+    const aiMessages = document.getElementById("aiMessages");
+    const aiInput = document.getElementById("aiInput");
+    const aiSend = document.getElementById("aiSend");
+
+    function appendAiMessage(text, who = "user") {
+      const el = document.createElement("div");
+      el.className = "ai-msg " + (who === "assistant" ? "assistant" : "user");
+      el.textContent = text;
+      aiMessages.appendChild(el);
+      aiMessages.scrollTop = aiMessages.scrollHeight;
+    }
+
+    async function sendAiPrompt(prompt) {
+      appendAiMessage(prompt, "user");
+      appendAiMessage("Thinking...", "assistant");
+      const assistantNode = aiMessages.querySelector(".ai-msg.assistant:last-child");
+      try {
+        const proxyUrl = "/api/chat";
+        try {
+          const resProxy = await fetch(proxyUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt })
+          });
+          if (resProxy.ok) {
+            const json = await resProxy.json();
+            assistantNode.textContent = json.result || json.response || "No response";
+            return;
+          }
+        } catch (e) { /* fallthrough */ }
+
+        const key = localStorage.getItem("openaiKey");
+        if (!key) {
+          assistantNode.textContent = "No OpenAI key provided. Set it in Settings or provide a server proxy at /api/chat.";
+          return;
+        }
+
+        const payload = {
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.7,
+          max_tokens: 600
+        };
+
+        const r = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + key
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!r.ok) {
+          const errText = await r.text();
+          assistantNode.textContent = "OpenAI error: " + (errText || r.statusText);
+          return;
+        }
+        const jr = await r.json();
+        const text = jr.choices && jr.choices[0] && jr.choices[0].message && jr.choices[0].message.content ? jr.choices[0].message.content : "(no response)";
+        assistantNode.textContent = text;
+      } catch (err) {
+        assistantNode.textContent = "Error: " + (err.message || "unknown");
+      }
+    }
+
+    aiSend.addEventListener("click", () => {
+      const v = aiInput.value.trim();
+      if (!v) return;
+      aiInput.value = "";
+      sendAiPrompt(v);
+    });
+    aiInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        aiSend.click();
       }
     });
 
@@ -2686,7 +2883,11 @@
       else openLink(url, { background: false });
     }
 
+    // Clean up any old per-link pref keys (kept but not used)
     try { localStorage.removeItem("linkOpenPrefsV1"); } catch (e) {}
+
+    // Ensure no UI uses "background/foreground" wording (checked in visible strings)
   </script>
+
 </body>
 </html>
