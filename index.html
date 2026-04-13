@@ -899,7 +899,6 @@
         <option value="custom">Custom</option>
       </select>
 
-      <!-- Custom color UI (shown when Custom is selected). Label remains "Theme Color" -->
       <div id="customColorPicker" class="custom-color-row" style="display:none;">
         <input id="customColorInput" type="color" aria-label="Custom accent color picker" value="#00ff9c">
         <input id="customColorHex" type="text" aria-label="Custom accent hex value" placeholder="#00ff9c">
@@ -953,8 +952,6 @@
       </div>
     </div>
 
-    <!-- Save & Apply removed — changes are applied automatically -->
-
   </div>
 
   <div id="toast" class="glass" role="status" aria-live="polite">Settings saved</div>
@@ -966,16 +963,13 @@
     <span id="battery-text">Battery: --%</span>
   </div>
 
-  <!-- Google Apps waffle button -->
   <button id="openWaffle" class="waffle-btn glass" aria-label="Open apps launcher"></button>
 
-  <!-- Weather wedge -->
   <div id="weatherWedge" class="glass" aria-hidden="true" title="Current weather (click to refresh)">
     <div id="weatherIcon">☀️</div>
     <div id="weatherText">Weather: --</div>
   </div>
 
-  <!-- Liquid glass Google Apps launcher -->
   <div class="glass-launcher" id="waffleMenu" aria-hidden="true">
     <div class="launcher-header">
       <div class="launcher-title">Google Apps</div>
@@ -1362,7 +1356,6 @@
     <div class="shortcuts" id="shortcutsContainer" aria-live="polite"></div>
   </div>
 
-  <!-- AI sidebar (kept, but AI Mode main actions implemented via button) -->
   <div class="ai-sidebar glass" id="aiSidebar" role="region" aria-label="AI assistant">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <div style="font-weight:700;">AI Assistant</div>
@@ -1375,7 +1368,6 @@
     </div>
   </div>
 
-  <!-- Help modal (keyboard shortcuts) -->
   <div class="help-modal glass" id="helpModal" role="dialog" aria-modal="true" aria-hidden="true">
     <h3>Keyboard Shortcuts</h3>
     <ul>
@@ -1414,7 +1406,6 @@
     </div>
   </div>
 
-  <!-- Drag & drop overlay -->
   <div id="dropOverlay" class="drop-overlay">
     <div class="drop-hint">Drop an image here to search (Google Lens)</div>
   </div>
@@ -2502,23 +2493,23 @@
        ========================================= */
 
     const DEFAULT_SHORTCUTS = [
-      { label: "Amazon", url: "https://www.amazon.com" },        // replaced Aspen -> Amazon
       { label: "Google", url: "https://google.com" },
-      { label: "Gmail", url: "https://mail.google.com" },
+      { label: "Games", url: "/games" },
+      { label: "Hunter", url: "/hunter" },
       { label: "YouTube", url: "https://youtube.com" },
-      { label: "GitHub", url: "https://github.com" },
-
-      { label: "ChatGPT", url: "https://chat.openai.com" },
+      { label: "Code Viewer", url: "/codeviewer" },
+      
+      { label: "QR Code", url: "/qrcode" },
       { label: "Copilot", url: "https://copilot.microsoft.com/" },
       { label: "Twitter", url: "https://x.com" },
       { label: "Instagram", url: "https://www.instagram.com" },
       { label: "Facebook", url: "https://www.facebook.com" },
-
+      
       { label: "TikTok", url: "https://www.tiktok.com" },
       { label: "Gemini", url: "https://gemini.google.com" },
       { label: "WhatsApp", url: "https://web.whatsapp.com" },
-      { label: "Yahoo", url: "https://www.yahoo.com" }, // replaced SmashKarts -> Yahoo
-      { label: "GitHub Copilot", url: "https://github.com/copilot" } // replaced SmashKartsUnblocked
+      { label: "Performance", url: "/performance" },
+      { label: "Feedback", url: "/feedback" },
     ];
 
     const SHORTCUTS_KEY = "shortcutsV2";
