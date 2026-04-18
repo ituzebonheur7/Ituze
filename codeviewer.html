@@ -1,23 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="8bbd8a71-e680-441b-9be0-bcc88e5b8d7b"></script>
-    <title>Code Viewer - Ituze</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDE Codeviewer - Ituze</title>
     <link rel="icon" href="images/code.png" type="image/png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
     <script src="/js/router.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="8bbd8a71-e680-441b-9be0-bcc88e5b8d7b"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/sw.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.53.0/min/vs/loader.min.js"></script>
+
     <style>
         :root {
             --bg: #0d1117;
@@ -29,10 +23,12 @@
             --accent-hover: #58a6ff;
             --hover: #21262d;
             --danger: #f85149;
+            --header-h: 50px;
+            --tab-h: 35px;
+            --sidebar-w: 260px;
         }
 
         * { box-sizing: border-box; outline: none; }
-        
         body {
             background: var(--bg);
             color: var(--text);
@@ -44,425 +40,653 @@
             overflow: hidden;
         }
 
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
         header {
-            height: 60px;
+            height: var(--header-h);
             background: var(--panel);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 15px;
             z-index: 100;
         }
+        .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--accent); }
+        .actions { display: flex; gap: 8px; }
 
-        .logo-area { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            font-weight: 700; 
-            color: var(--accent);
-            font-size: 16px;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .btn {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-        
-        .btn:hover { background: var(--hover); border-color: var(--text-dim); }
-        .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
-        .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-        .btn-run { background: #238636; border-color: #2ea043; color: white; }
-        .btn-run:hover { background: #2ea043; border-color: #3fb950; }
-
-        .icon-sm { width: 16px; height: 16px; }
-
-        @media (max-width: 768px) {
-            .btn-hide-mobile { display: none; }
-        }
-
-        main { flex: 1; display: flex; overflow: hidden; position: relative; }
+        main { flex: 1; display: flex; overflow: hidden; }
 
         #sidebar {
-            width: 240px;
+            width: var(--sidebar-w);
             background: var(--panel);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-        }
-
-        .sidebar-header {
-            padding: 15px;
-            font-size: 12px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .file-list { flex: 1; overflow-y: auto; padding: 10px 0; }
-        .file-item {
-            padding: 8px 15px;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-dim);
-            border-left: 3px solid transparent;
-        }
-        .file-item:hover { background: var(--hover); color: var(--text); }
-        .file-item.active { background: #1f6feb15; color: #fff; border-left-color: var(--accent); }
-        
-        .del-btn { width: 14px; height: 14px; color: var(--border); cursor: pointer; transition: 0.2s; opacity: 0; }
-        .file-item:hover .del-btn { opacity: 1; }
-        .del-btn:hover { color: var(--danger); }
-        .file-item svg:not(.del-btn) { width: 16px; height: 16px; }
-
-        #editor-container { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg); }
-        .CodeMirror { flex: 1; height: 100% !important; font-size: 14px; }
-
-        #resizer { width: 4px; cursor: col-resize; background: var(--border); z-index: 10; transition: background 0.2s; }
-        #resizer:hover { background: var(--accent); }
-
-        #preview-section {
-            width: 45%;
-            display: flex;
-            flex-direction: column;
-            background: #000;
+            transition: background 0.3s, backdrop-filter 0.3s;
             position: relative;
         }
+        .glass-sidebar { backdrop-filter: blur(10px); background: rgba(22, 27, 34, 0.7) !important; }
 
-        .preview-toolbar {
+        .sidebar-header {
+            padding: 12px 15px;
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tree-item { cursor: pointer; padding: 4px 15px; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dim); }
+        .tree-item:hover { background: var(--hover); color: var(--text); }
+        .tree-item.active { background: #1f6feb15; color: var(--accent); border-left: 2px solid var(--accent); }
+        .folder-indent { margin-left: 15px; border-left: 1px solid var(--border); }
+
+        #context-menu {
+            display: none;
+            position: absolute;
+            z-index: 1000;
             background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 5px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            min-width: 140px;
+        }
+        .menu-item {
             padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--text);
             display: flex;
             align-items: center;
+            gap: 8px;
+            border-radius: 4px;
+        }
+        .menu-item:hover { background: var(--hover); }
+        .menu-item.danger:hover { background: rgba(248, 81, 73, 0.1); color: var(--danger); }
+
+        /* --- Tabs & Monaco --- */
+        #editor-container { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        #tab-bar {
+            height: var(--tab-h);
+            background: var(--panel);
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 0 12px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-dim);
+            border-right: 1px solid var(--border);
+            cursor: pointer;
+            background: var(--panel);
+        }
+        .tab.active { background: var(--bg); color: var(--text); }
+        .tab-close:hover { color: var(--danger); }
+
+        #monaco-editor { flex: 1; }
+
+        /* --- Preview & Settings Panel --- */
+        #resizer { width: 4px; cursor: col-resize; background: var(--border); }
+        #preview-section { width: 40%; display: flex; flex-direction: column; background: #fff; position: relative; }
+        
+        .preview-toolbar {
+            background: var(--panel);
+            padding: 5px 10px;
+            display: flex;
             justify-content: space-between;
             border-bottom: 1px solid var(--border);
         }
 
-        .controls-group { display: flex; gap: 12px; align-items: center; }
-        .toolbar-icon { width: 18px; height: 18px; color: var(--text-dim); cursor: pointer; transition: 0.2s; }
-        .toolbar-icon:hover { color: var(--accent); }
+        #preview-frame { flex: 1; border: none; width: 100%; height: 100%; transition: width 0.3s; margin: 0 auto; }
 
-        #preview-frame { 
-            flex: 1; 
-            border: none; 
-            background: #fff;
-            width: 100%; 
-            height: 100%; 
-            transition: width 0.3s, margin 0.3s, border-radius 0.3s;
+        /* Settings Modal */
+        #settings-panel {
+            position: absolute;
+            right: 0; top: 0; bottom: 0; width: 300px;
+            background: var(--panel);
+            border-left: 1px solid var(--border);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
         }
+        .settings-header { padding: 15px; border-bottom: 1px solid var(--border); font-weight: bold; display: flex; justify-content: space-between; }
+        .settings-content { padding: 15px; overflow-y: auto; flex: 1; }
+        .setting-group { margin-bottom: 20px; }
+        .setting-label { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; display: block; }
+        
+        input[type="text"], input[type="range"], select { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 6px; border-radius: 4px; }
 
-        .preview-mobile { width: 375px !important; margin: 20px auto; border: 12px solid #333 !important; border-radius: 30px; height: 80% !important; }
-        .preview-tablet { width: 768px !important; margin: 20px auto; border: 12px solid #333 !important; border-radius: 20px; height: 90% !important; }
+        /* Device Toggles */
+        .preview-mobile { width: 375px !important; border: 10px solid #333 !important; border-radius: 20px; height: 80% !important; margin: 20px auto !important; }
+        .preview-tablet { width: 768px !important; border: 10px solid #333 !important; border-radius: 10px; height: 90% !important; margin: 10px auto !important; }
 
-        body.theater-mode #sidebar, body.theater-mode #editor-container, body.theater-mode #resizer { display: none; }
-        body.theater-mode #preview-section { width: 100% !important; }
+        .btn { cursor: pointer; background: var(--hover); border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        .btn:hover { border-color: var(--text-dim); }
+        .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo-area">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layout" aria-hidden="true" class="lucide lucide-layout"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg>
-            <span>Ituze Code Viewer<span style="font-weight:300; opacity: 0.7;"></span></span>
-        </div>
-        <div class="actions">
-            <button class="btn btn-hide-mobile" onclick="createNewFile()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-plus" aria-hidden="true" class="lucide lucide-file-plus icon-sm"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M9 15h6"></path><path d="M12 18v-6"></path></svg> 
-                New
-            </button>
-            <button class="btn" onclick="downloadProject()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="archive" aria-hidden="true" class="lucide lucide-archive icon-sm"><rect width="20" height="5" x="2" y="3" rx="1"></rect><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"></path><path d="M10 12h4"></path></svg> 
-                Export ZIP
-            </button>
-            <button class="btn btn-primary" onclick="downloadActiveFile()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download icon-sm"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> 
-                Download File
-            </button>
-        </div>
-    </header>
+<header>
+    <div class="logo-area">
+        <i data-lucide="layout"></i>
+        <span>Ituze IDE</span>
+    </div>
+    <div class="actions">
+        <button class="btn" onclick="openInNewTab()"><i data-lucide="external-link"></i> New Tab</button>
+        <button class="btn" onclick="toggleSettings()"><i data-lucide="settings"></i> Settings</button>
+        <button class="btn btn-primary" onclick="updatePreview()"><i data-lucide="play"></i> Run Code</button>
+    </div>
+</header>
 
-    <main>
-        <div id="sidebar">
-            <div class="sidebar-header">
-                <span>Explorer</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus-circle" aria-hidden="true" style="cursor:pointer; width: 16px;" onclick="createNewFile()" class="lucide lucide-plus-circle"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+<main>
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <span>Explorer</span>
+            <div style="display:flex; gap:5px;">
+                <i data-lucide="file-plus" style="width:14px; cursor:pointer;" onclick="createItem('file')" title="New File"></i>
+                <i data-lucide="folder-plus" style="width:14px; cursor:pointer;" onclick="createItem('folder')" title="New Folder"></i>
             </div>
-            <div id="file-list" class="file-list"></div>
         </div>
+        <div id="file-tree"></div>
 
-        <div id="editor-container">
-            <textarea id="editor"></textarea>
+        <div id="context-menu">
+            <div class="menu-item" onclick="handleContext('new-file')"><i data-lucide="file-plus" style="width:14px"></i> New File</div>
+            <div class="menu-item" onclick="handleContext('new-folder')"><i data-lucide="folder-plus" style="width:14px"></i> New Folder</div>
+            <div style="height:1px; background:var(--border); margin: 4px 0;"></div>
+            <div class="menu-item danger" id="ctx-delete" onclick="handleContext('delete')"><i data-lucide="trash-2" style="width:14px"></i> Delete</div>
         </div>
+    </div>
 
-        <div id="resizer"></div>
+    <div id="editor-container">
+        <div id="tab-bar"></div>
+        <div id="monaco-editor"></div>
+    </div>
 
-        <div id="preview-section">
-            <div class="preview-toolbar">
-                <div class="controls-group">
-                    <button class="btn btn-run" onclick="updatePreview()" style="padding: 4px 12px; margin-right: 8px;">
-                        <i data-lucide="play" class="icon-sm"></i> Run Code
-                    </button>
-                    <div style="width:1px; height:16px; background:var(--border);"></div>
-                    
-                    <i data-lucide="monitor" class="toolbar-icon" onclick="resizePreview('100%')" title="Desktop View"></i>
-                    <i data-lucide="tablet" class="toolbar-icon" onclick="resizePreview('tablet')" title="Tablet View"></i>
-                    <i data-lucide="smartphone" class="toolbar-icon" onclick="resizePreview('mobile')" title="Mobile View"></i>
-                    
-                    <div style="width:1px; height:16px; background:var(--border);"></div>
-                    <i data-lucide="external-link" class="toolbar-icon" title="Open Preview in New Tab" onclick="openInNewTab()"></i>
+    <div id="resizer"></div>
+
+    <div id="preview-section">
+        <div class="preview-toolbar">
+            <div style="display:flex; gap:8px;">
+                <button class="btn" onclick="resizePreview('desktop')"><i data-lucide="monitor"></i></button>
+                <button class="btn" onclick="resizePreview('tablet')"><i data-lucide="tablet"></i></button>
+                <button class="btn" onclick="resizePreview('mobile')"><i data-lucide="smartphone"></i></button>
+            </div>
+            <div id="auto-run-status" style="font-size:10px; color:var(--text-dim); align-self:center">Auto-run: ON</div>
+        </div>
+        <iframe id="preview-frame" allow="accelerometer; camera; encrypted-media; geolocation; gyroscope; microphone; midi; pointer-lock; usb; xr-spatial-tracking" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-pointer-lock allow-popups"></iframe>
+        
+        <div id="settings-panel">
+            <div class="settings-header">
+                <span>IDE Settings</span>
+                <i data-lucide="x" style="cursor:pointer; width:18px" onclick="toggleSettings()"></i>
+            </div>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <label class="setting-label">Base URL (For Assets/Images)</label>
+                    <input type="text" id="set-baseurl" placeholder="https://ituzebonheur.com/" onchange="applySettings()">
                 </div>
-                <div class="controls-group">
-                    <i data-lucide="maximize-2" class="toolbar-icon" onclick="toggleTheater()" title="Toggle Fullscreen"></i>
+                <div class="setting-group">
+                    <label class="setting-label">Editor Theme</label>
+                    <select id="set-theme" onchange="applySettings()">
+                        <option value="vs-dark">GitHub Dark</option>
+                        <option value="vs">Light</option>
+                        <option value="hc-black">High Contrast</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Font Family</label>
+                    <select id="set-font" onchange="applySettings()">
+                        <option value="'Fira Code', monospace">Fira Code</option>
+                        <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+                        <option value="monospace">Standard Monospace</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Line Height (1.2 - 1.8)</label>
+                    <input type="range" id="set-lineheight" min="1.2" max="1.8" step="0.1" oninput="applySettings()">
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Line Wrap</label>
+                    <select id="set-wordwrap" onchange="applySettings()">
+                        <option value="off">Off</option>
+                        <option value="on">On</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Cursor Style</label>
+                    <select id="set-cursor" onchange="applySettings()">
+                        <option value="line">Line</option>
+                        <option value="block">Block</option>
+                        <option value="underline">Underline</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Appearance</label>
+                    <label style="font-size:12px;"><input type="checkbox" id="set-glass" onchange="applySettings()"> Glass Sidebar</label><br>
+                    <label style="font-size:12px;"><input type="checkbox" id="set-numbers" onchange="applySettings()" checked> Show Line Numbers</label>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Behavior</label>
+                    <label style="font-size:12px;"><input type="checkbox" id="set-autorun" onchange="applySettings()" checked> Auto-Run Code</label>
                 </div>
             </div>
-
-            <iframe 
-                id="preview-frame" 
-                allow="accelerometer; camera; encrypted-media; geolocation; gyroscope; microphone; midi; pointer-lock; usb; xr-spatial-tracking"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-pointer-lock allow-popups"
-            ></iframe>
         </div>
-    </main>
+    </div>
+</main>
 
-    <script>
-        let editor;
-        let files = {};
-        let activeFile = 'index.html';
-        let currentBlobUrl = null;
+<script>
+    let editor;
+    let files = {};
+    let openTabs = ['index.html'];
+    let activeFile = 'index.html';
+    let autoRunTimer;
 
-        const defaultProject = {
-            'index.html': { content: '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="UTF-8">\n  <title>Cyber App</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <div class="card">\n    <h1>Ituze Code Viewer</h1>\n    <p>File management, code editing, and full hardware permissions.</p>\n    <button id="btn">Test Script</button>\n  </div>\n  <script src="script.js"><\/script>\n</body>\n</html>', type: 'text' },
-            'style.css': { content: 'body {\n  background: #0d1117;\n  color: #c9d1d9;\n  font-family: system-ui;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 90vh;\n  margin: 0;\n}\n.card {\n  text-align: center;\n  padding: 2.5rem;\n  border: 1px solid #30363d;\n  border-radius: 12px;\n  background: #161b22;\n  box-shadow: 0 8px 24px rgba(0,0,0,0.5);\n}\nh1 { color: #58a6ff; margin-top: 0; }\nbutton {\n  background: #238636;\n  color: white;\n  border: 1px solid rgba(240,246,252,0.1);\n  padding: 10px 24px;\n  border-radius: 6px;\n  cursor: pointer;\n  font-weight: bold;\n  transition: 0.2s;\n}\nbutton:hover { background: #2ea043; }', type: 'text' },
-            'script.js': { content: 'document.getElementById("btn").addEventListener("click", () => {\n  alert("JavaScript execution is working properly!");\n});', type: 'text' }
+    const defaultFiles = {
+        'index.html': { type: 'file', content: '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="UTF-8">\n  <title>Cyber App</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <div class="card">\n    <h1>Ituze Code Viewer</h1>\n    <p>File management, code editing, and full hardware permissions.</p>\n    <button id="btn">Test Script</button>\n  </div>\n  <script src="script.js"><\/script>\n</body>\n</html>' },
+        'style.css': { type: 'file', content: 'body {\n  background: #0d1117;\n  color: #c9d1d9;\n  font-family: system-ui;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 90vh;\n  margin: 0;\n}\n.card {\n  text-align: center;\n  padding: 2.5rem;\n  border: 1px solid #30363d;\n  border-radius: 12px;\n  background: #161b22;\n  box-shadow: 0 8px 24px rgba(0,0,0,0.5);\n}\nh1 { color: #58a6ff; margin-top: 0; }\nbutton {\n  background: #238636;\n  color: white;\n  border: 1px solid rgba(240,246,252,0.1);\n  padding: 10px 24px;\n  border-radius: 6px;\n  cursor: pointer;\n  font-weight: bold;\n  transition: 0.2s;\n}\nbutton:hover { background: #2ea043; }' },
+        'script.js': { type: 'file', content: 'document.getElementById("btn").addEventListener("click", () => {\n  alert("JavaScript execution is working properly!");\n});' },
+        'assets': { type: 'folder', children: {} }
+    };
+
+    // 1. Monaco Setup (Syncing versions to 0.53.0 to avoid mismatch)
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.53.0/min/vs' }});
+    require(['vs/editor/editor.main'], () => {
+        initIDE();
+    });
+
+    function initIDE() {
+        // Load Files (Bumped version key to v3 for new defaults)
+        const savedFiles = localStorage.getItem('ituze_files_v3');
+        files = savedFiles ? JSON.parse(savedFiles) : defaultFiles;
+
+        // Load Settings
+        const savedSettings = JSON.parse(localStorage.getItem('ituze_settings_v3')) || {
+            theme: 'vs-dark', font: 'monospace', lineheight: 1.5, wrap: 'off', cursor: 'line', glass: false, numbers: true, autorun: true, baseurl: ''
         };
 
-        function init() {
-            const saved = localStorage.getItem('ituze_code_viewer_v1');
-            files = saved ? JSON.parse(saved) : defaultProject;
+        editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+            theme: savedSettings.theme,
+            fontFamily: savedSettings.font,
+            lineHeight: savedSettings.lineheight * 14,
+            wordWrap: savedSettings.wrap,
+            cursorStyle: savedSettings.cursor,
+            lineNumbers: savedSettings.numbers ? 'on' : 'off',
+            automaticLayout: true,
+            minimap: { enabled: false }
+        });
 
-            if (!files['index.html']) files['index.html'] = defaultProject['index.html'];
-            if(!files[activeFile]) activeFile = 'index.html';
-
-            editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
-                theme: 'dracula',
-                lineNumbers: true,
-                mode: 'htmlmixed',
-                indentUnit: 4,
-                autoCloseBrackets: true,
-                matchBrackets: true
-            });
-
-            editor.on('change', () => {
-                if (files[activeFile]) {
-                    files[activeFile].content = editor.getValue();
-                    saveData();
-                }
-            });
-
-            renderFileList();
-            switchFile(activeFile);
-            setupResizer();
+        // Register Keyboard Shortcuts
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+            saveToLocalStorage();
             updatePreview();
-            lucide.createIcons();
+        });
+
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+            updatePreview();
+        });
+
+        // Initialize Models
+        setupModels(files);
+        
+        // Settings panel values
+        document.getElementById('set-theme').value = savedSettings.theme;
+        document.getElementById('set-font').value = savedSettings.font;
+        document.getElementById('set-lineheight').value = savedSettings.lineheight;
+        document.getElementById('set-wordwrap').value = savedSettings.wrap;
+        document.getElementById('set-cursor').value = savedSettings.cursor;
+        document.getElementById('set-glass').checked = savedSettings.glass;
+        document.getElementById('set-numbers').checked = savedSettings.numbers;
+        document.getElementById('set-autorun').checked = savedSettings.autorun;
+        document.getElementById('set-baseurl').value = savedSettings.baseurl || '';
+        
+        applySettings(false);
+        
+        // Ensure index.html exists, fallback if deleted
+        if (files['index.html']) {
+            switchFile('index.html');
+        } else {
+            const firstFile = Object.keys(files).find(k => files[k].type === 'file');
+            if(firstFile) switchFile(firstFile);
         }
 
-        function saveData() {
-            localStorage.setItem('ituze_code_viewer_v1', JSON.stringify(files));
-        }
+        renderTree();
+        setupResizer();
+        setupContextMenu();
+        lucide.createIcons();
+    }
 
-        function switchFile(name) {
-            if (!files[name]) return;
-            activeFile = name;
-            editor.setValue(files[name].content);
-            const mode = name.endsWith('.js') ? 'javascript' : name.endsWith('.css') ? 'css' : 'htmlmixed';
-            editor.setOption('mode', mode);
-            renderFileList();
+    function setupModels(obj, path = '') {
+        for (let key in obj) {
+            const fullPath = path + key;
+            if (obj[key].type === 'file') {
+                const ext = key.split('.').pop();
+                const lang = ext === 'js' ? 'javascript' : ext === 'css' ? 'css' : 'html';
+                if (!monaco.editor.getModel(monaco.Uri.parse(`file:///${fullPath}`))) {
+                    monaco.editor.createModel(obj[key].content, lang, monaco.Uri.parse(`file:///${fullPath}`));
+                }
+            } else {
+                setupModels(obj[key].children, fullPath + '/');
+            }
         }
+    }
 
-        function getFileIcon(name) {
-            if (name.endsWith('.html')) return '<i data-lucide="file-code-2" style="width:16px"></i>';
-            if (name.endsWith('.css')) return '<i data-lucide="palette" style="width:16px"></i>';
-            if (name.endsWith('.js')) return '<i data-lucide="braces" style="width:16px"></i>';
-            return '<i data-lucide="file" style="width:16px"></i>';
+    // --- File Management ---
+    function switchFile(path) {
+        activeFile = path;
+        const model = monaco.editor.getModel(monaco.Uri.parse(`file:///${path}`));
+        if (model) {
+            editor.setModel(model);
+            if (!openTabs.includes(path)) openTabs.push(path);
+            renderTabs();
+            renderTree();
         }
+    }
 
-        function renderFileList() {
-            const list = document.getElementById('file-list');
-            list.innerHTML = '';
-            Object.keys(files).forEach(name => {
+    function renderTree() {
+        const container = document.getElementById('file-tree');
+        container.innerHTML = '';
+        
+        const buildTree = (obj, parent, path = '') => {
+            for (let key in obj) {
+                const fullPath = path + key;
                 const div = document.createElement('div');
-                div.className = `file-item ${name === activeFile ? 'active' : ''}`;
-                div.onclick = () => switchFile(name);
+                div.className = `tree-item ${fullPath === activeFile ? 'active' : ''}`;
+                div.setAttribute('data-path', fullPath);
                 
-                div.innerHTML = `
-                    ${getFileIcon(name)}
-                    <span style="flex:1">${name}</span>
-                    <i data-lucide="trash-2" class="del-btn" onclick="event.stopPropagation(); deleteFile('${name}')"></i>
-                `;
-                list.appendChild(div);
-            });
-            lucide.createIcons();
-        }
+                const icon = obj[key].type === 'folder' ? 'folder' : 'file-code';
+                div.innerHTML = `<i data-lucide="${icon}" style="width:14px"></i> ${key}`;
+                
+                div.onclick = () => {
+                    if (obj[key].type === 'file') switchFile(fullPath);
+                };
+                
+                parent.appendChild(div);
+                if (obj[key].type === 'folder') {
+                    const childCont = document.createElement('div');
+                    childCont.className = 'folder-indent';
+                    parent.appendChild(childCont);
+                    buildTree(obj[key].children, childCont, fullPath + '/');
+                }
+            }
+        };
+        buildTree(files, container);
+        lucide.createIcons();
+    }
 
-        function deleteFile(name) {
-            if (name === 'index.html') {
-                alert("Cannot delete index.html");
+    function renderTabs() {
+        const bar = document.getElementById('tab-bar');
+        bar.innerHTML = '';
+        openTabs.forEach(path => {
+            const name = path.split('/').pop();
+            const div = document.createElement('div');
+            div.className = `tab ${path === activeFile ? 'active' : ''}`;
+            div.innerHTML = `<span>${name}</span> <i data-lucide="x" class="tab-close" style="width:12px" onclick="event.stopPropagation(); closeTab('${path}')"></i>`;
+            div.onclick = () => switchFile(path);
+            bar.appendChild(div);
+        });
+        lucide.createIcons();
+    }
+
+    function closeTab(path) {
+        openTabs = openTabs.filter(p => p !== path);
+        if (activeFile === path && openTabs.length > 0) switchFile(openTabs[0]);
+        else if (openTabs.length === 0) {
+            activeFile = null;
+            editor.setModel(null);
+        }
+        renderTabs();
+    }
+
+    function createItem(type) {
+        const name = prompt(`Enter ${type} name (e.g. ${type === 'file' ? 'app.js' : 'images'}):`);
+        if (name) {
+            // Check for duplicate
+            if(files[name]) return alert("Name already exists in root.");
+            
+            if (type === 'file') {
+                files[name] = { type: 'file', content: '' };
+                setupModels({ [name]: files[name] });
+                switchFile(name);
+            } else {
+                files[name] = { type: 'folder', children: {} };
+            }
+            saveToLocalStorage();
+            renderTree();
+        }
+    }
+
+    // --- Deletion Logic ---
+    function countHtmlFiles(obj) {
+        let count = 0;
+        for (let k in obj) {
+            if (obj[k].type === 'file' && k.endsWith('.html')) count++;
+            if (obj[k].type === 'folder') count += countHtmlFiles(obj[k].children);
+        }
+        return count;
+    }
+
+    function deleteItem(path) {
+        const parts = path.split('/');
+        const name = parts.pop();
+        
+        let current = files;
+        for (let p of parts) { current = current[p].children; }
+
+        // Rule: Cannot delete if it's the last HTML file
+        if (current[name].type === 'file' && name.endsWith('.html')) {
+            if (countHtmlFiles(files) <= 1) {
+                alert("Cannot delete this file. You must have at least one HTML file.");
                 return;
             }
-            if (confirm(`Delete ${name}?`)) {
-                delete files[name];
-                saveData();
-                if (activeFile === name) switchFile('index.html');
-                else renderFileList();
+        }
+
+        // Delete from object
+        delete current[name];
+
+        // Clean up open tabs
+        openTabs = openTabs.filter(p => !p.startsWith(path));
+        
+        if (!openTabs.includes(activeFile)) {
+            activeFile = openTabs.length > 0 ? openTabs[0] : null;
+            if(activeFile) {
+                switchFile(activeFile);
+            } else {
+                editor.setModel(null);
+            }
+        } else {
+            renderTabs();
+        }
+
+        saveToLocalStorage();
+        renderTree();
+    }
+
+    // --- Context Menu Setup ---
+    let ctxTarget = null;
+    function setupContextMenu() {
+        const sidebar = document.getElementById('sidebar');
+        const menu = document.getElementById('context-menu');
+
+        sidebar.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            menu.style.display = 'block';
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+
+            const item = e.target.closest('.tree-item');
+            if (item) {
+                ctxTarget = item.getAttribute('data-path');
+                document.getElementById('ctx-delete').style.display = 'flex';
+            } else {
+                ctxTarget = null;
+                document.getElementById('ctx-delete').style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', () => {
+            menu.style.display = 'none';
+        });
+    }
+
+    function handleContext(action) {
+        if (action === 'new-file') createItem('file');
+        if (action === 'new-folder') createItem('folder');
+        if (action === 'delete' && ctxTarget) {
+            if (confirm(`Are you sure you want to delete ${ctxTarget}?`)) {
+                deleteItem(ctxTarget);
             }
         }
+        document.getElementById('context-menu').style.display = 'none';
+    }
 
-        function updatePreview() {
-            const frame = document.getElementById('preview-frame');
-            if (!files['index.html']) return;
-            
-            let html = files['index.html'].content;
-            
-            if (files['style.css']) {
-                html = html.replace(/<link[^>]*href=["']?style\.css["']?[^>]*>/i, `<style>${files['style.css'].content}</style>`);
-            }
-            if (files['script.js']) {
-                html = html.replace(/<script[^>]*src=["']?script\.js["']?[^>]*><\/script>/i, `<script>${files['script.js'].content}<\/script>`);
-            }
 
-            if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
-            const blob = new Blob([html], { type: 'text/html' });
-            currentBlobUrl = URL.createObjectURL(blob);
-            frame.src = currentBlobUrl;
+    // --- Settings & UI ---
+    function applySettings(save = true) {
+        const settings = {
+            theme: document.getElementById('set-theme').value,
+            font: document.getElementById('set-font').value,
+            lineheight: parseFloat(document.getElementById('set-lineheight').value),
+            wrap: document.getElementById('set-wordwrap').value,
+            cursor: document.getElementById('set-cursor').value,
+            glass: document.getElementById('set-glass').checked,
+            numbers: document.getElementById('set-numbers').checked,
+            autorun: document.getElementById('set-autorun').checked,
+            baseurl: document.getElementById('set-baseurl').value.trim()
+        };
+
+        monaco.editor.setTheme(settings.theme);
+        editor.updateOptions({
+            fontFamily: settings.font,
+            lineHeight: settings.lineheight * 14,
+            wordWrap: settings.wrap,
+            cursorStyle: settings.cursor,
+            lineNumbers: settings.numbers ? 'on' : 'off'
+        });
+
+        const sidebar = document.getElementById('sidebar');
+        settings.glass ? sidebar.classList.add('glass-sidebar') : sidebar.classList.remove('glass-sidebar');
+        
+        document.getElementById('auto-run-status').innerText = `Auto-run: ${settings.autorun ? 'ON' : 'OFF'}`;
+
+        if (save) {
+            localStorage.setItem('ituze_settings_v3', JSON.stringify(settings));
+            updatePreview(); // re-render preview in case Base URL changed
         }
+    }
 
-        function openInNewTab() {
-            if (currentBlobUrl) window.open(currentBlobUrl, '_blank');
-        }
+    function toggleSettings() {
+        const panel = document.getElementById('settings-panel');
+        panel.style.display = (panel.style.display === 'flex') ? 'none' : 'flex';
+    }
 
-        function resizePreview(size) {
-            const frame = document.getElementById('preview-frame');
-            frame.className = '';
-            if(size === 'mobile') frame.classList.add('preview-mobile');
-            else if(size === 'tablet') frame.classList.add('preview-tablet');
-        }
+    function resizePreview(device) {
+        const frame = document.getElementById('preview-frame');
+        frame.className = '';
+        if (device === 'mobile') frame.classList.add('preview-mobile');
+        if (device === 'tablet') frame.classList.add('preview-tablet');
+    }
 
-        function toggleTheater() {
-            document.body.classList.toggle('theater-mode');
-            setTimeout(() => editor.refresh(), 300);
-        }
+    // --- Core Logic ---
+    function getBaseTag() {
+        const url = document.getElementById('set-baseurl').value.trim();
+        if (!url) return '';
+        // Ensure trailing slash for proper base resolution
+        const formattedUrl = url.endsWith('/') ? url : url + '/';
+        return `<base href="${formattedUrl}">`;
+    }
 
-        function createNewFile() {
-            const n = prompt("Enter file name (e.g. game.js, theme.css):");
-            if (n && n.trim() !== '') {
-                if (files[n]) {
-                    alert("A file with that name already exists!");
+    function updatePreview() {
+        const htmlModel = monaco.editor.getModel(monaco.Uri.parse('file:///index.html'));
+        const cssModel = monaco.editor.getModel(monaco.Uri.parse('file:///style.css'));
+        const jsModel = monaco.editor.getModel(monaco.Uri.parse('file:///script.js'));
+
+        const fullSource = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                ${getBaseTag()}
+                <style>${cssModel ? cssModel.getValue() : ''}</style>
+            </head>
+            <body>
+                ${htmlModel ? htmlModel.getValue() : ''}
+                <script>${jsModel ? jsModel.getValue() : ''}<\/script>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([fullSource], { type: 'text/html' });
+        document.getElementById('preview-frame').src = URL.createObjectURL(blob);
+    }
+
+    function openInNewTab() {
+        const html = monaco.editor.getModel(monaco.Uri.parse('file:///index.html'))?.getValue() || '';
+        const css = monaco.editor.getModel(monaco.Uri.parse('file:///style.css'))?.getValue() || '';
+        const js = monaco.editor.getModel(monaco.Uri.parse('file:///script.js'))?.getValue() || '';
+        
+        const source = `<!DOCTYPE html><html><head>${getBaseTag()}<style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`;
+        
+        const blob = new Blob([source], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+
+    function saveToLocalStorage() {
+        // Recursively update content from models
+        const updateContent = (obj, path = '') => {
+            for (let key in obj) {
+                const fullPath = path + key;
+                if (obj[key].type === 'file') {
+                    const model = monaco.editor.getModel(monaco.Uri.parse(`file:///${fullPath}`));
+                    if (model) obj[key].content = model.getValue();
                 } else {
-                    files[n] = { content: "/* New File */", type: "text" };
-                    saveData();
-                    renderFileList();
-                    switchFile(n);
+                    updateContent(obj[key].children, fullPath + '/');
                 }
             }
-        }
+        };
+        updateContent(files);
+        localStorage.setItem('ituze_files_v3', JSON.stringify(files));
+    }
 
-        function downloadActiveFile() {
-            if (!files[activeFile]) return;
-            const content = files[activeFile].content;
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = activeFile;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        async function downloadProject() {
-            if (typeof JSZip === 'undefined') {
-                alert("Zip library is still loading. Try again in a second.");
-                return;
+    // Listen for changes
+    window.addEventListener('load', () => {
+        editor.onDidChangeModelContent(() => {
+            const isAuto = document.getElementById('set-autorun').checked;
+            if (isAuto) {
+                clearTimeout(autoRunTimer);
+                autoRunTimer = setTimeout(() => {
+                    saveToLocalStorage();
+                    updatePreview();
+                }, 1000);
             }
-            const zip = new JSZip();
-            Object.keys(files).forEach(fileName => {
-                zip.file(fileName, files[fileName].content);
-            });
-            
-            const zipBlob = await zip.generateAsync({type:"blob"});
-            const url = URL.createObjectURL(zipBlob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "ituze-project.zip";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
+        });
+    });
 
-        function setupResizer() {
-            const resizer = document.getElementById('resizer');
-            const editorCont = document.getElementById('editor-container');
-            const previewSect = document.getElementById('preview-section');
-            let isResizing = false;
-
-            resizer.addEventListener('mousedown', () => {
-                isResizing = true;
-                document.body.style.cursor = 'col-resize';
-                document.getElementById('preview-frame').style.pointerEvents = 'none'; 
-            });
-            
-            window.addEventListener('mousemove', (e) => {
-                if (!isResizing) return;
-                const sidebarWidth = 240;
-                let total = window.innerWidth - sidebarWidth;
-                let offset = e.clientX - sidebarWidth;
-                let percent = (offset / total) * 100;
-                
-                percent = Math.max(15, Math.min(85, percent)); 
-                editorCont.style.flex = `0 0 ${percent}%`;
-                previewSect.style.width = `${100 - percent}%`;
-            });
-            
-            window.addEventListener('mouseup', () => {
-                if (isResizing) {
-                    isResizing = false;
-                    document.body.style.cursor = 'default';
-                    document.getElementById('preview-frame').style.pointerEvents = 'auto';
-                }
-            });
-        }
-
-        window.onload = init;
-    </script>
+    function setupResizer() {
+        const resizer = document.getElementById('resizer');
+        const editorCont = document.getElementById('editor-container');
+        const previewSect = document.getElementById('preview-section');
+        let isResizing = false;
+        
+        resizer.addEventListener('mousedown', () => isResizing = true);
+        window.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            let offset = e.clientX - 260; // Subtract sidebar width
+            let percent = (offset / (window.innerWidth - 260)) * 100;
+            percent = Math.max(10, Math.min(90, percent));
+            editorCont.style.flex = `0 0 ${percent}%`;
+            previewSect.style.width = `${100 - percent}%`;
+        });
+        window.addEventListener('mouseup', () => isResizing = false);
+    }
+</script>
 </body>
 </html>
