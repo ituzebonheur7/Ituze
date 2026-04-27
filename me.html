@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ituze Bonheur | @ituzebonheur7</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg: #030712;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 40%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* --- Main Profile Card --- */
+        .profile-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 40px 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: cardEntrance 1s ease-out forwards;
+        }
+
+        /* --- Header Section --- */
+        .profile-image-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--glass-border);
+            object-fit: cover;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .handle {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .bio {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            padding: 0 10px;
+        }
+
+        /* --- Social Links --- */
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .link-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.6s forwards;
+        }
+
+        .link-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .link-card i {
+            font-size: 1.25rem;
+            width: 32px;
+            color: var(--accent);
+        }
+
+        .link-card span { flex: 1; text-align: left; margin-left: 8px; }
+
+        .link-card .chevron { font-size: 0.8rem; opacity: 0.3; }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .link-card:nth-child(1) { animation-delay: 0.2s; }
+        .link-card:nth-child(2) { animation-delay: 0.4s; }
+        .link-card:nth-child(3) { animation-delay: 0.5s; }
+        .link-card:nth-child(4) { animation-delay: 0.6s; }
+        .link-card:nth-child(5) { animation-delay: 0.8s; }
+
+        footer {
+            margin-top: 32px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="profile-card">
+        <div class="profile-image-wrapper">
+            <img src="https://ituzebonheur.com/images/ituze.png" alt="Ituze Bonheur" class="profile-image">
+        </div>
+
+        <h1>Ituze Bonheur</h1>
+        <span class="handle">@ituzebonheur7</span>
+
+        <p class="bio">
+            "Remember, the real magic happens behind the scenes. Focus on quiet progress, not loud displays. Success grows best out of sight." ◉⁠‿⁠◉
+        </p>
+
+        <nav class="links-container">
+            <a href="https://www.threads.net/@ituzebonheur7" class="link-card" target="_blank">
+                <i class="fa-brands fa-threads"></i>
+                <span>Threads</span>
+                <i class="fas fa-chevron-right chevron"></i>
+            </a>
+
+            <a href="https://www.instagram.com/ituzebonheur7" class="link-card" target="_blank">
+                <i class="fa-brands fa-instagram"></i>
+                <span>Instagram</span>
+                <i class="fas fa-chevron-right chevron"></i>
+            </a>
+
+            <a href="https://www.tiktok.com/@ituzebonheur7" class="link-card" target="_blank">
+                <i class="fa-brands fa-tiktok"></i>
+                <span>TikTok</span>
+                <i class="fas fa-chevron-right chevron"></i>
+            </a>
+
+            <a href="https://www.twitter.com/ituzebonheur7" class="link-card" target="_blank">
+                <i class="fa-brands fa-x-twitter"></i>
+                <span>Twitter / X</span>
+                <i class="fas fa-chevron-right chevron"></i>
+            </a>
+
+            <a href="mailto:ituzebonheurib@gmail.com" class="link-card" style="background: var(--accent); border: none;">
+                <i class="fas fa-envelope" style="color: white;"></i>
+                <span style="color: white;">Get in Touch</span>
+                <i class="fas fa-chevron-right chevron" style="color: white;"></i>
+            </a>
+        </nav>
+
+        <footer>
+            &copy; 2026 • ituzebonheur7 • Quiet Progress
+        </footer>
+    </main>
+
+</body>
+</html>
