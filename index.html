@@ -1,64 +1,2027 @@
-/* Identity panel with iframe */
-#identityPanel {
-  position: fixed;
-  top: 70px;
-  left: 20px;
-  width: min(600px, 90vw);
-  height: min(500px, 80vh);
-  border-radius: 16px;
-  opacity: 0;
-  transform: translateY(-16px);
-  pointer-events: none;
-  transition: 0.3s ease;
-  z-index: 2000;
-  overflow: hidden;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-}
-#identityPanel.open {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-#identityPanel iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: transparent;
-}
+<!doctype html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta charset="utf-8" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
+  <meta name="description" content="A Cyber-inspired dashboard featuring a dynamic Matrix-rain backdrop and real-time utility tracking. @ituzebonheur7">
+  <link rel="icon" href="images/ituze.png" type="image/png">
+  <title>Home Tab - Ituze</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <script src="/js/router.js"></script>
+      <script src="/sw.js"></script>
+      <script src="/js/scrollbar.js"></script>
+      <script src="/js/screen.js"></script>
 
-<button id="topLink" class="top-btn glass" aria-label="Open identity panel">
-  Ituze Bonheur
-</button>
-
-<div id="identityPanel" class="glass" role="dialog" aria-modal="true" aria-hidden="true">
-  <iframe src="https://ituzebonheur.com/me" title="Ituze Bonheur Profile"></iframe>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const topLink = document.getElementById('topLink');
-  const identityPanel = document.getElementById('identityPanel');
-  const settingsToggle = document.getElementById('settingsToggle');
-  const settingsPanel = document.getElementById('settingsPanel');
-  
-  // Toggle identity panel
-  topLink.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const isOpen = identityPanel.classList.toggle('open');
-    identityPanel.setAttribute('aria-hidden', !isOpen);
-    settingsPanel.classList.remove('open');
-    settingsPanel.setAttribute('aria-hidden', 'true');
-  });
-  
-  // Close panels when clicking outside
-  document.addEventListener('click', function(e) {
-    if (!identityPanel.contains(e.target) && !topLink.contains(e.target) && 
-        !settingsPanel.contains(e.target) && !settingsToggle.contains(e.target)) {
-      identityPanel.classList.remove('open');
-      identityPanel.setAttribute('aria-hidden', 'true');
-      settingsPanel.classList.remove('open');
-      settingsPanel.setAttribute('aria-hidden', 'true');
+  <style>
+   :root {
+     --text-main: #cbd5e1;
+     --bg-dark: #020617;
+   }
+    * { box-sizing: border-box; }
+    html, body, * {
+      -ms-overflow-style: none;
+      scrollbar-width: none;   
     }
-  });
-});
-</script>
+    *::-webkit-scrollbar { display: none !important; width: 0; height: 0; }
+    
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background: #020617;
+      background-image: radial-gradient(circle at top, #0b1120 0%, #020617 55%, #000 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      overflow: hidden;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: -1;
+      background: transparent !important;
+    }
+
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+    }
+
+    .top-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 10px 26px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      border-radius: 25px;
+      text-decoration: none;
+      transition: 0.3s;
+      z-index: 1200;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      background: var(--glass-bg);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+    }
+    .top-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.7);
+    }
+
+    #settingsToggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0.8;
+      font-size: 20px;
+      transition: 0.3s;
+      z-index: 1500;
+    }
+    #settingsToggle:hover {
+      opacity: 1;
+      transform: rotate(45deg) scale(1.06);
+      box-shadow: 0 0 18px var(--accent);
+    }
+
+    /* Settings panel: now scrollable and constrained to viewport */
+    #settingsPanel {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 420px;
+      padding: 20px;
+      border-radius: 16px;
+      opacity: 0;
+      transform: translateY(-16px);
+      pointer-events: none;
+      transition: 0.3s ease;
+      z-index: 2000;
+
+      /* Make the panel scrollable if content exceeds viewport */
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    }
+    #settingsPanel.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    #settingsPanel h3 {
+      margin: 0 0 12px;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .settings-group {
+      margin-bottom: 16px;
+    }
+
+    .settings-group label {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 6px;
+      color: #93c5fd;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .settings-group select, .settings-group input[type="text"], .settings-group input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.35);
+      color: #e5e7eb;
+      outline: none;
+      appearance: none;
+    }
+
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .settings-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .container {
+      position: absolute;
+      top: 43%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(980px, 96vw);
+      text-align: center;
+    }
+
+    .date { font-size: 15px; opacity: 0.8; margin-bottom: 4px; }
+    .clock { font-size: 40px; font-weight: 600; margin-bottom: 4px; }
+    .greeting {
+      font-size: 46px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      text-shadow: 0 0 22px var(--accent);
+    }
+    .tz { font-size: 13px; opacity: 0.8; margin-bottom: 16px; }
+
+    .chrome-search-wrapper {
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto 25px;
+      position: relative;
+    }
+
+    .chrome-search {
+      display: flex;
+      align-items: center;
+      height: 52px;
+      padding: 0 16px;
+      border-radius: 32px;
+    }
+
+    .chrome-search input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 17px;
+      color: #fff;
+      outline: none;
+    }
+
+    .chrome-search input::placeholder {
+      color: rgba(255,255,255,0.75);
+    }
+
+    .chrome-icons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.75;
+      color: #fff;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      transform-origin: center;
+    }
+    .icon-btn:hover {
+      opacity: 1;
+      text-shadow: 0 0 12px var(--accent);
+      transform: scale(1.06);
+    }
+
+    .icon-btn.listening {
+      box-shadow: 0 0 18px var(--accent), 0 0 42px color-mix(in srgb, var(--accent) 30%, rgba(0,0,0,0));
+      transform: scale(1.04);
+    }
+
+    .ai-mode-btn {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+      transform-origin: center;
+    }
+    .ai-mode-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 18px var(--accent);
+      transform: scale(1.04);
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 58px;
+      left: 0;
+      width: 100%;
+      border-radius: 18px;
+      display: none;
+      overflow: hidden;
+      z-index: 1000;
+      text-align: left;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 6px 0;
+    }
+
+    .suggestion-item {
+      padding: 12px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: #fff;
+      text-align: left;
+      background: transparent;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      transform-origin: left center;
+      transition: 0.12s ease;
+    }
+    .suggestion-item:hover,
+    .suggestion-item.active {
+      background: rgba(255,255,255,0.04);
+      transform: scale(1.01);
+    }
+    .suggestion-meta {
+      opacity: 0.7;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .shortcuts {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .shortcuts-row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .shortcut {
+      padding: 12px;
+      border-radius: 14px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 14px;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 500;
+      transform-origin: center;
+    }
+    .shortcut:hover {
+      transform: scale(1.06);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.7);
+      border-color: var(--accent);
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s;
+      z-index: 2500;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Battery placed behind panels (lower z-index) */
+    #battery {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 50;
+    }
+
+    #battery-icon {
+      width: 18px;
+      height: 10px;
+      border-radius: 3px;
+      border: 2px solid #e5e7eb;
+      position: relative;
+    }
+
+    #battery-icon::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 2px;
+      width: 3px;
+      height: 6px;
+      border-radius: 1px;
+      background: #e5e7eb;
+    }
+
+    #battery-level-bar {
+      position: absolute;
+      left: 1px;
+      top: 1px;
+      bottom: 1px;
+      border-radius: 2px;
+      background: var(--accent);
+      width: 50%;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 999px;
+      transform: scale(0);
+      animation: ripple 0.5s ease-out;
+      pointer-events: none;
+      background: color-mix(in srgb, var(--accent) 35%, white);
+      opacity: 0.4;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(3.5);
+        opacity: 0;
+      }
+    }
+
+    .glass-launcher {
+      position: fixed;
+      bottom: 80px;
+      left: 20px;
+      width: 360px;
+      max-height: 520px;
+      padding: 18px 18px 14px;
+
+      background: rgba(15,23,42,var(--launcher-opacity));
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--launcher-border-color);
+
+      border-radius: 26px;
+      box-shadow:
+        0 18px 45px rgba(0,0,0,0.75),
+        0 0 40px var(--accent);
+
+      display: none;
+      z-index: 2100;
+      overflow: hidden;
+
+      opacity: 0;
+      transform: translateY(20px) scale(0.96);
+      transition: opacity .28s ease, transform .28s ease;
+    }
+
+    .glass-launcher.open {
+      display: block;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .launcher-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .launcher-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--accent) 70%, #e5e7eb);
+    }
+
+    .launcher-close {
+      border: none;
+      background: transparent;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 16px;
+      opacity: 0.7;
+      transition: 0.2s;
+      position: relative;
+      overflow: hidden;
+      border-radius: 999px;
+      padding: 4px 8px;
+      transform-origin: center;
+    }
+    .launcher-close:hover {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+
+    .launcher-search {
+      margin-bottom: 10px;
+    }
+
+    .launcher-search-input {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.6);
+      color: #e5e7eb;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .launcher-scroll {
+      max-height: 440px;
+      overflow-y: scroll;
+      padding-right: 4px;
+      scrollbar-width: none;
+    }
+    .launcher-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .launcher-section {
+      margin-bottom: 14px;
+      border-radius: 16px;
+      background: var(--launcher-section-bg);
+      border: 1px solid var(--launcher-section-border);
+      overflow: hidden;
+    }
+
+    .launcher-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .launcher-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      opacity: 0.9;
+    }
+
+    .launcher-section-toggle {
+      font-size: 14px;
+      color: #9ca3af;
+      transition: transform 0.2s ease;
+    }
+
+    .launcher-section.collapsed .launcher-section-toggle {
+      transform: rotate(-90deg);
+    }
+
+    .launcher-list-wrapper {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    .launcher-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .launcher-item {
+      border-top: 1px solid rgba(31,41,55,0.9);
+    }
+
+    .launcher-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      font-size: 13px;
+      text-decoration: none;
+      color: #e5e7eb;
+      transition: background 0.18s ease, transform 0.12s ease;
+      position: relative;
+      overflow: hidden;
+      border-radius: 0;
+    }
+
+    .launcher-link span {
+      opacity: 0.95;
+    }
+
+    .launcher-link small {
+      font-size: 11px;
+      color: #9ca3af;
+      opacity: 0.85;
+      margin-left: 8px;
+    }
+
+    .launcher-link:hover {
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--accent) 25%, transparent),
+        rgba(15,23,42,0.9)
+      );
+      transform: scale(1.02);
+    }
+
+    .launcher-empty {
+      font-size: 12px;
+      color: #9ca3af;
+      padding: 6px 10px 2px;
+      font-style: italic;
+    }
+
+    /* Custom color UI inside settings */
+    .custom-color-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .custom-color-row input[type="color"] {
+      width: 40px;
+      height: 34px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    .custom-color-row input[type="text"] {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.35);
+      color: #e5e7eb;
+      outline: none;
+      font-family: monospace;
+    }
+
+    /* custom context menu for shortcuts / empty space */
+    .context-menu {
+      position: fixed;
+      background: rgba(5,7,10,0.98);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 8px;
+      z-index: 5000;
+      display: none;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+      min-width: 160px;
+    }
+    .context-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .context-menu button:hover { background: rgba(255,255,255,0.03); }
+
+    /* Weather wedge (bottom-left, next to apps) */
+    #weatherWedge {
+      position: fixed;
+      bottom: 20px;
+      left: 80px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(10,12,15,0.6);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      font-size: 13px;
+      z-index: 2050;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      cursor: default;
+      transition: transform 0.18s ease;
+    }
+    #weatherWedge:hover { transform: scale(1.03); }
+
+    #iframePanel {
+      position: fixed;
+      top: 70px;
+      left: 20px;
+      width: 400px;
+      height: 500px;
+      border-radius: 32px;
+      opacity: 0;
+      transform: translateY(-16px);
+      pointer-events: none;
+      transition: 0.3s ease;
+      z-index: 2000;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    #iframePanel.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    #iframePanelContent {
+      flex: 1;
+      overflow: hidden;
+      border-radius: 16px;
+      width: 100%;
+      height: 100%;
+    }
+
+    #iframePanelContent iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .shortcuts-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      #settingsPanel { width: 340px; right: 12px; }
+      #weatherWedge { left: 76px; }
+      #iframePanel {
+        width: 90vw;
+        height: auto;
+        max-height: 70vh;
+        left: 5vw;
+        right: 5vw;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .shortcuts-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .glass-launcher {
+        left: 10px;
+        right: 10px;
+        width: auto;
+      }
+      #weatherWedge { display: none; }
+      #iframePanel {
+        width: calc(100vw - 20px);
+        height: auto;
+        max-height: 80vh;
+        left: 10px;
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="matrix"></canvas>
+
+  <!-- Top identity button now opens iframe -->
+  <button id="topLink" class="top-btn glass" aria-label="Open Ituze Bonheur profile">
+    Ituze Bonheur
+  </button>
+
+  <!-- Iframe panel - positioned below Ituze Bonheur button -->
+  <div id="iframePanel">
+    <div id="iframePanelContent">
+      <iframe src="https://ituzebonheur.com/me" title="Ituze Bonheur Profile"></iframe>
+    </div>
+  </div>
+
+  <div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
+
+  <div id="settingsPanel" class="glass" role="dialog" aria-modal="false" aria-hidden="true">
+    <h3>Settings</h3>
+
+    <!-- Display name must be first setting and editable -->
+    <div class="settings-group">
+      <label>Display name</label>
+      <input id="displayNameInput" type="text" placeholder="Ituze" aria-label="Display name">
+      <div style="font-size:12px;opacity:0.85;margin-top:8px;">
+        Name used in greetings (default: Ituze)
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>Default Search Engine</label>
+      <select id="engineSelect" aria-label="Default search engine">
+        <option value="google">Google</option>
+        <option value="bing">Bing</option>
+        <option value="duckduckgo">DuckDuckGo</option>
+        <option value="brave">Brave</option>
+        <option value="startpage">Startpage</option>
+        <option value="you">You.com</option>
+      </select>
+    </div>
+
+    <div class="settings-group">
+      <label>Theme Color</label>
+      <select id="themeSelect" aria-label="Theme color">
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+        <option value="red">Red</option>
+        <option value="yellow">Yellow</option>
+        <option value="custom">Custom</option>
+      </select>
+
+      <div id="customColorPicker" class="custom-color-row" style="display:none;">
+        <input id="customColorInput" type="color" aria-label="Custom accent color picker" value="#00ff9c">
+        <input id="customColorHex" type="text" aria-label="Custom accent hex value" placeholder="#00ff9c">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>Search Options</label>
+      <div class="settings-row">
+        <span>Show suggestions</span>
+        <input type="checkbox" id="toggleSuggestions" aria-label="Show suggestions">
+      </div>
+      <div class="settings-row">
+        <span>Auto-search after voice</span>
+        <input type="checkbox" id="toggleVoiceAuto" aria-label="Auto search after voice">
+      </div>
+      <div class="settings-row">
+        <span>Keyboard shortcuts</span>
+        <input type="checkbox" id="toggleKeyboard" aria-label="Keyboard shortcuts">
+      </div>
+      <div class="settings-row">
+        <span>Local-only suggestions (privacy)</span>
+        <input type="checkbox" id="toggleLocalOnly" aria-label="Local-only suggestions">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>Visuals</label>
+      <div class="settings-row">
+        <span>Disable Matrix</span>
+        <input type="checkbox" id="toggleMatrix" aria-label="Disable matrix">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>Storage</label>
+      <div style="margin-top:8px;">
+        <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data & reset</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="battery" class="glass" aria-hidden="false">
+    <div id="battery-icon">
+      <div id="battery-level-bar"></div>
+    </div>
+    <span id="battery-text">Battery: --%</span>
+  </div>
+
+  <button id="openWaffle" class="waffle-btn glass" aria-label="Open apps launcher"></button>
+
+  <div id="weatherWedge" class="glass" aria-hidden="true" title="Current weather (click to refresh)">
+    <div id="weatherIcon">☀️</div>
+    <div id="weatherText">Weather: --</div>
+  </div>
+
+  <div class="container">
+    <div class="date" id="date"></div>
+    <div class="clock" id="clock"></div>
+    <div class="tz" id="timezoneDisplay"></div>
+    <div class="greeting" id="greeting"></div>
+
+    <div class="chrome-search-wrapper">
+      <div class="chrome-search glass" id="searchSurface">
+        <input id="searchInput" placeholder="Search or type a URL (try :calc 2+2 or wiki:javascript)" autocomplete="off" aria-label="Search or type a URL" />
+        <div class="chrome-icons">
+          <button id="voiceBtn" class="icon-btn" aria-pressed="false" aria-label="Toggle voice search">🎤</button>
+          <button id="aiModeBtn" class="ai-mode-btn glass" aria-label="AI Mode">AI Mode</button>
+        </div>
+      </div>
+      <div id="suggestions" class="suggestions glass" role="listbox" aria-expanded="false" aria-label="Search suggestions"></div>
+    </div>
+
+    <div class="shortcuts" id="shortcutsContainer" aria-live="polite"></div>
+  </div>
+
+  <!-- Context menu (used for shortcuts & empty space) -->
+  <div id="contextMenu" class="context-menu" role="menu" aria-hidden="true">
+    <!-- Buttons are added dynamically depending on context -->
+  </div>
+
+  <script>
+    /* =========================================
+       Iframe Panel Management
+       ========================================= */
+    const iframePanel = document.getElementById("iframePanel");
+    const topBtn = document.getElementById("topLink");
+    let isPanelOpen = false;
+
+    function openIframePanel() {
+      closeAllPanels([iframePanel]);
+      iframePanel.classList.add("open");
+      isPanelOpen = true;
+    }
+
+    function closeIframePanel() {
+      iframePanel.classList.remove("open");
+      isPanelOpen = false;
+    }
+
+    function toggleIframePanel() {
+      if (iframePanel.classList.contains("open")) {
+        closeIframePanel();
+      } else {
+        openIframePanel();
+      }
+    }
+
+    topBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleIframePanel();
+    });
+
+    /* =========================================
+       Constants & basic UI wiring
+       ========================================= */
+    const SEARCH_ENGINES = {
+      google: "https://google.com/search?q=",
+      bing: "https://bing.com/search?q=",
+      duckduckgo: "https://duckduckgo.com/?q=",
+      brave: "https://search.brave.com/search?q=",
+      startpage: "https://www.startpage.com/do/search?q=",
+      you: "https://you.com/search?q="
+    };
+
+    const GOOGLE_AI_MODE_URL = (q) => `https://www.google.com/aimode?q=${encodeURIComponent(q)}`;
+    const GOOGLE_AIMODE_LANDING = "https://www.google.com/aimode";
+
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    let matrixInterval = null;
+    let matrixEnabled = true;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      initDrops();
+    });
+
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const fontSize = 16;
+    let columns = canvas.width / fontSize;
+    let drops = [];
+
+    function initDrops() {
+      columns = Math.floor(canvas.width / fontSize);
+      drops = Array.from({ length: columns }, () => 1);
+    }
+    initDrops();
+
+    function drawMatrix() {
+      if (!matrixEnabled) return;
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = getComputedStyle(document.documentElement)
+        .getPropertyValue("--matrix-color") || "#00ff9c";
+
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    function startMatrix() {
+      if (!matrixInterval) {
+        matrixInterval = setInterval(drawMatrix, 35);
+      }
+    }
+
+    function stopMatrix() {
+      clearInterval(matrixInterval);
+      matrixInterval = null;
+    }
+
+    startMatrix();
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopMatrix();
+      else startMatrix();
+    });
+
+    /* =========================================
+       Time, Timezone & Locale
+       ========================================= */
+    const clockEl = document.getElementById("clock");
+    const dateEl = document.getElementById("date");
+    const tzEl = document.getElementById("timezoneDisplay");
+    const displayNameInput = document.getElementById("displayNameInput");
+
+    function getTimeZoneName() {
+      try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz) return tz;
+      } catch (e) {}
+      return "UTC";
+    }
+
+    function prefers12HourInUS() {
+      try {
+        const lg = (navigator.language || "").toLowerCase();
+        if (lg.includes("en-us") || lg.includes("us")) return true;
+        const tz = getTimeZoneName().toLowerCase();
+        if (tz.startsWith("america/")) return true;
+      } catch (e) {}
+      return false;
+    }
+
+    let FORCE_12_HOUR = prefers12HourInUS();
+    const TIMEZONE_NAME = getTimeZoneName();
+
+    function updateClock() {
+      const now = new Date();
+      const hour12 = FORCE_12_HOUR;
+      const timeOptions = {
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12,
+        timeZone: TIMEZONE_NAME
+      };
+      const dateOptions = { weekday: "long", month: "long", day: "numeric", timeZone: TIMEZONE_NAME };
+
+      try {
+        clockEl.textContent = new Intl.DateTimeFormat(undefined, timeOptions).format(now);
+        dateEl.textContent = new Intl.DateTimeFormat(undefined, dateOptions).format(now);
+      } catch (e) {
+        clockEl.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        dateEl.textContent = now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+      }
+
+      try {
+        const offsetMin = -now.getTimezoneOffset();
+        const sign = offsetMin >= 0 ? "+" : "-";
+        const hh = String(Math.floor(Math.abs(offsetMin) / 60)).padStart(2, "0");
+        const mm = String(Math.abs(offsetMin) % 60).padStart(2, "0");
+        tzEl.textContent = `${TIMEZONE_NAME} (UTC${sign}${hh}:${mm})`;
+      } catch (e) {
+        tzEl.textContent = TIMEZONE_NAME;
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function updateGreeting() {
+      const hour = new Date().getHours();
+      const name = (localStorage.getItem("displayName") || "Ituze");
+      let text = `Welcome, ${name}`;
+      if (hour < 12) text = `Good morning, ${name}`;
+      else if (hour < 18) text = `Good afternoon, ${name}`;
+      else text = `Good evening, ${name}`;
+      document.getElementById("greeting").textContent = text;
+    }
+    updateGreeting();
+
+    /* =========================================
+       Search / suggestions + omnibox commands
+       ========================================= */
+
+    const searchInput = document.getElementById("searchInput");
+    const suggestionsBox = document.getElementById("suggestions");
+    const toggleSuggestionsEl = document.getElementById("toggleSuggestions");
+    const toggleLocalOnlyEl = document.getElementById("toggleLocalOnly");
+    const engineSelect = document.getElementById("engineSelect");
+    const toggleKeyboardEl = document.getElementById("toggleKeyboard");
+    let activeSuggestionIndex = -1;
+    let openInNewTabSetting = true;
+
+    function saveToHistory(q) { /* no-op */ }
+    function readHistory(limit = 8) { return []; }
+
+    function getEngineUrl() {
+      const key = localStorage.getItem("searchEngine") || "google";
+      return SEARCH_ENGINES[key] || SEARCH_ENGINES.google;
+    }
+
+    function clearSearchImmediate() {
+      try {
+        searchInput.value = "";
+        hideSuggestions();
+        searchInput.blur();
+      } catch (e) { }
+      try {
+        localStorage.setItem("clearSearchOnReturn", "1");
+      } catch (e) { }
+    }
+
+    function openLink(url, opts = { background: undefined }) {
+      clearSearchImmediate();
+      const preferBackground = opts.background !== undefined ? opts.background : openInNewTabSetting;
+      if (preferBackground) {
+        const newWin = window.open(url, "_blank", "noopener,noreferrer");
+        try { newWin.blur(); window.focus(); } catch (e) { }
+      } else {
+        window.location.href = url;
+      }
+    }
+
+    function performSearch(query) {
+      if (!query || !query.trim()) return;
+      const trimmed = query.trim();
+
+      if (trimmed.startsWith(":")) {
+        const cmd = trimmed.slice(1).trim();
+        const m = cmd.match(/^calc\s+(.+)$/i);
+        if (m) {
+          const expr = m[1];
+          const result = safeCalc(expr);
+          showInlineSuggestion(`${expr} = ${result}`, `calc result`, expr);
+          return;
+        }
+        showInlineSuggestion(`Unknown command`, `command`);
+        return;
+      }
+
+      if (/^wiki:/i.test(trimmed)) {
+        const term = trimmed.replace(/^wiki:/i, "").trim();
+        if (!term) return;
+        openLink("https://en.wikipedia.org/w/index.php?search=" + encodeURIComponent(term));
+        return;
+      }
+
+      if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+        openLink(trimmed);
+        return;
+      } else if (trimmed.includes(".") && !trimmed.includes(" ")) {
+        openLink("https://" + trimmed);
+        return;
+      } else {
+        const engineUrl = getEngineUrl();
+        openLink(engineUrl + encodeURIComponent(trimmed));
+      }
+    }
+
+    function showInlineSuggestion(text, meta, originalQuery) {
+      suggestionsBox.innerHTML = "";
+      const div = document.createElement("div");
+      div.className = "suggestion-item";
+      div.setAttribute("role", "option");
+      div.dataset.query = originalQuery || text;
+      div.innerHTML = `<span>${escapeHtml(text)}</span><span class="suggestion-meta">${escapeHtml(meta || "")}</span>`;
+      const handler = (e) => {
+        e.preventDefault();
+        const q = div.dataset.query || text;
+        hideSuggestions();
+        performSearch(q);
+      };
+      div.addEventListener("pointerdown", handler);
+      div.addEventListener("mousedown", handler);
+      div.addEventListener("click", handler);
+      suggestionsBox.appendChild(div);
+      suggestionsBox.style.display = "block";
+      suggestionsBox.setAttribute("aria-expanded", "true");
+      activeSuggestionIndex = -1;
+    }
+
+    function safeCalc(expr) {
+      try {
+        const sanitized = expr.replace(/[^0-9+\-*/().%\s]/g, "");
+        if (!/^[0-9+\-*/().%\s]+$/.test(sanitized) || sanitized.trim().length === 0) return "invalid";
+        const res = Function('"use strict";return (' + sanitized + ')')();
+        if (typeof res === "number" && isFinite(res)) return res;
+        return String(res);
+      } catch (e) {
+        return "error";
+      }
+    }
+
+    function isMathExpression(q) {
+      if (!q || typeof q !== "string") return false;
+      const trimmed = q.trim();
+      if (/[a-zA-Z]/.test(trimmed)) return false;
+      return /^[0-9\s\+\-\*\/\.\%\(\)]+$/.test(trimmed) && /[0-9]/.test(trimmed);
+    }
+
+    searchInput.addEventListener("keydown", e => {
+      const items = Array.from(suggestionsBox.querySelectorAll(".suggestion-item"));
+      if (e.key === "ArrowDown" && items.length > 0) {
+        e.preventDefault();
+        activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
+        updateActiveSuggestion(items);
+      } else if (e.key === "ArrowUp" && items.length > 0) {
+        e.preventDefault();
+        activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
+        updateActiveSuggestion(items);
+      } else if (e.key === "Enter") {
+        if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
+          e.preventDefault();
+          const text = items[activeSuggestionIndex].dataset.query || items[activeSuggestionIndex].textContent;
+          searchInput.value = text;
+          hideSuggestions();
+          performSearch(text);
+        } else {
+          performSearch(searchInput.value);
+        }
+      } else if (e.key === "Escape") {
+        if (searchInput.value) searchInput.value = "";
+        hideSuggestions();
+      }
+    });
+
+    function updateActiveSuggestion(items) {
+      items.forEach((el, idx) => {
+        el.classList.toggle("active", idx === activeSuggestionIndex);
+      });
+    }
+
+    function debounce(fn, wait) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), wait);
+      };
+    }
+
+    let suggestionAbortController = null;
+
+    const fetchSuggestions = debounce(async (query) => {
+      if (!toggleSuggestionsEl.checked || !query || query.length < 2 || toggleLocalOnlyEl.checked) {
+        populateHistorySuggestions(query);
+        return;
+      }
+
+      if (suggestionAbortController) suggestionAbortController.abort();
+      suggestionAbortController = new AbortController();
+
+      try {
+        const url = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`;
+        const res = await fetch(url, { signal: suggestionAbortController.signal });
+        if (!res.ok) throw new Error("suggest fetch failed");
+        const data = await res.json();
+        window.showSuggestionsFromFetch(data);
+      } catch (err) {
+        jsonpFallback(query);
+      }
+    }, 160);
+
+    function jsonpFallback(query) {
+      try {
+        const cbName = "jsonp_cb_" + Date.now();
+        window[cbName] = function(data) {
+          try {
+            window.showSuggestionsFromFetch(data);
+          } finally {
+            delete window[cbName];
+            script.remove();
+          }
+        };
+        const script = document.createElement("script");
+        script.src = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(query)}&callback=${cbName}`;
+        script.onerror = function() {
+          try { populateHistorySuggestions(query); } finally { delete window[cbName]; script.remove(); }
+        };
+        document.body.appendChild(script);
+      } catch (e) {
+        populateHistorySuggestions(query);
+      }
+    }
+
+    window.showSuggestionsFromFetch = function(data) {
+      const results = Array.isArray(data) && data.length > 1 ? data[1] : [];
+      suggestionsBox.innerHTML = "";
+      activeSuggestionIndex = -1;
+
+      if (results && results.length > 0) {
+        suggestionsBox.style.display = "block";
+        suggestionsBox.setAttribute("aria-expanded", "true");
+        results.slice(0, 6).forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "suggestion-item";
+          div.setAttribute("role", "option");
+          div.setAttribute("aria-selected", "false");
+          div.dataset.query = item;
+          div.innerHTML = `<span>${escapeHtml(item)}</span><span class="suggestion-meta">suggest</span>`;
+
+          const handler = (e) => {
+            e.preventDefault();
+            searchInput.value = item;
+            hideSuggestions();
+            performSearch(item);
+          };
+          div.addEventListener("pointerdown", handler);
+          div.addEventListener("mousedown", handler);
+          div.addEventListener("click", (e) => {
+            e.preventDefault();
+            searchInput.value = item;
+            hideSuggestions();
+            performSearch(item);
+          });
+
+          suggestionsBox.appendChild(div);
+        });
+      } else {
+        populateHistorySuggestions(searchInput.value.trim());
+      }
+    };
+
+    function populateHistorySuggestions(query = "") {
+      suggestionsBox.innerHTML = "";
+      activeSuggestionIndex = -1;
+      hideSuggestions();
+    }
+
+    function hideSuggestions() {
+      suggestionsBox.style.display = "none";
+      suggestionsBox.setAttribute("aria-expanded", "false");
+      suggestionsBox.innerHTML = "";
+      activeSuggestionIndex = -1;
+    }
+
+    /* =========================================
+       Voice integration
+       ========================================= */
+
+    const voiceBtn = document.getElementById("voiceBtn");
+    const toggleVoiceAutoEl = document.getElementById("toggleVoiceAuto");
+    let recognition = null;
+    let isListening = false;
+    let supportsSpeech = false;
+
+    function setMicUI(listening) {
+      isListening = !!listening;
+      voiceBtn.classList.toggle("listening", isListening);
+      voiceBtn.setAttribute("aria-pressed", String(isListening));
+      try {
+        localStorage.setItem("voiceActive", isListening ? "1" : "0");
+      } catch (e) { }
+    }
+
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      supportsSpeech = true;
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => setMicUI(true);
+      recognition.onend = () => setMicUI(false);
+      recognition.onerror = () => setMicUI(false);
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        searchInput.value = transcript;
+        if (toggleVoiceAutoEl.checked) performSearch(transcript);
+        try { recognition.stop(); } catch (e) {}
+        setMicUI(false);
+      };
+    } else {
+      supportsSpeech = false;
+      voiceBtn.classList.add("disabled");
+      voiceBtn.title = "Voice search not supported in this browser";
+    }
+
+    async function startRecognition() {
+      if (!supportsSpeech || !recognition) return;
+      if (isListening) return;
+      try {
+        recognition.start();
+        setMicUI(true);
+      } catch (e) {
+        setMicUI(false);
+      }
+    }
+
+    function stopRecognition() {
+      if (!supportsSpeech || !recognition) return;
+      try { recognition.stop(); } catch (e) {}
+      finally { setMicUI(false); }
+    }
+
+    voiceBtn.addEventListener("click", (e) => {
+      if (!supportsSpeech) return;
+      if (isListening) stopRecognition();
+      else startRecognition();
+    });
+
+    (function restoreVoiceState() {
+      try {
+        const saved = localStorage.getItem("voiceActive");
+        if (saved === "1") {
+          voiceBtn.classList.add("listening");
+          voiceBtn.setAttribute("aria-pressed", "false");
+        }
+      } catch (e) { }
+    })();
+
+    /* =========================================
+       Settings panel & theme handling
+       ========================================= */
+
+    const settingsToggle = document.getElementById("settingsToggle");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const toggleMatrixEl = document.getElementById("toggleMatrix");
+    const toast = document.getElementById("toast");
+    const themeSelect = document.getElementById("themeSelect");
+    const customColorPicker = document.getElementById("customColorPicker");
+    const customColorInput = document.getElementById("customColorInput");
+    const customColorHex = document.getElementById("customColorHex");
+    const weatherWedge = document.getElementById("weatherWedge");
+    const weatherText = document.getElementById("weatherText");
+    const weatherIcon = document.getElementById("weatherIcon");
+    const shortcutsContainer = document.getElementById("shortcutsContainer");
+
+    function showToast(msg, ms = 1100) {
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(window._ituze_toast_t);
+      window._ituze_toast_t = setTimeout(() => {
+        toast.classList.remove("show");
+      }, ms);
+    }
+
+    function closeAllPanels(exclude = []) {
+      const exEls = Array.isArray(exclude) ? exclude.filter(Boolean) : [];
+
+      if (!exEls.includes(settingsPanel)) {
+        settingsPanel.classList.remove("open");
+        settingsPanel.setAttribute("aria-hidden", "true");
+      }
+      if (!exEls.includes(iframePanel)) {
+        iframePanel.classList.remove("open");
+        isPanelOpen = false;
+      }
+      hideContextMenu();
+    }
+
+    function openSettings() {
+      closeAllPanels([settingsPanel]);
+      settingsPanel.classList.add("open");
+      settingsPanel.setAttribute("aria-hidden", "false");
+    }
+
+    function closeSettings() {
+      settingsPanel.classList.remove("open");
+      settingsPanel.setAttribute("aria-hidden", "true");
+    }
+
+    function toggleSettings() {
+      if (settingsPanel.classList.contains("open")) closeSettings();
+      else openSettings();
+    }
+
+    settingsToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleSettings();
+    });
+
+    // Click anywhere outside panels to close them
+    document.addEventListener("click", (e) => {
+      const target = e.target;
+      
+      // Don't close if clicking inside iframe panel content
+      if (target.closest && target.closest("#iframePanel")) {
+        return;
+      }
+      
+      // Don't close if clicking the top button (it toggles)
+      if (target.closest && target.closest("#topLink")) {
+        return;
+      }
+      
+      // Don't close if clicking inside settings panel or toggle
+      if (target.closest && (target.closest("#settingsPanel") || target.closest("#settingsToggle") || target.closest("#contextMenu"))) {
+        return;
+      }
+      
+      // Close all panels
+      closeAllPanels();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (settingsPanel.classList.contains("open")) {
+          closeSettings();
+        }
+        if (iframePanel.classList.contains("open")) {
+          closeIframePanel();
+        }
+      }
+    });
+
+    function applyThemeKeyed(themeKeyOrColor) {
+      const root = document.documentElement;
+      const isExplicitColor = typeof themeKeyOrColor === "string" && themeKeyOrColor.startsWith("#");
+      if (isExplicitColor) {
+        const ac = themeKeyOrColor;
+        document.documentElement.style.setProperty('--accent', ac);
+        document.documentElement.style.setProperty('--matrix-color', ac);
+        document.documentElement.style.setProperty('--launcher-border-color', `color-mix(in srgb, ${ac} 25%, rgba(255,255,255,0.18))`);
+        document.documentElement.style.setProperty('--launcher-section-bg', 'rgba(15,23,42,0.6)');
+        document.documentElement.style.setProperty('--launcher-section-border', `color-mix(in srgb, ${ac} 30%, rgba(148,163,184,0.35))`);
+        return;
+      }
+
+      const themes = {
+        green:  { accent: "#00ff9c", matrix: "#00ff9c" },
+        blue:   { accent: "#4da3ff", matrix: "#4da3ff" },
+        red:    { accent: "#ff4d4d", matrix: "#ff4d4d" },
+        yellow: { accent: "#ffe44d", matrix: "#ffe44d" }
+      };
+      const t = themes[themeKeyOrColor] || themes.green;
+      root.style.setProperty("--accent", t.accent);
+      root.style.setProperty("--matrix-color", t.matrix);
+      root.style.setProperty("--launcher-border-color", `color-mix(in srgb, ${t.accent} 35%, rgba(255,255,255,0.18))`);
+      root.style.setProperty("--launcher-section-bg", "rgba(15,23,42,0.6)");
+      root.style.setProperty("--launcher-section-border", `color-mix(in srgb, ${t.accent} 30%, rgba(148,163,184,0.35))`);
+    }
+
+    function saveSettings() {
+      try {
+        localStorage.setItem("searchEngine", engineSelect.value);
+        localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0");
+        localStorage.setItem("voiceAuto", toggleVoiceAutoEl.checked ? "1" : "0");
+        localStorage.setItem("matrixEnabled", toggleMatrixEl.checked ? "0" : "1");
+        localStorage.setItem("keyboardShortcuts", toggleKeyboardEl.checked ? "1" : "0");
+        localStorage.setItem("themeColor", themeSelect.value);
+        localStorage.setItem("voiceActive", isListening ? "1" : (localStorage.getItem("voiceActive") || "0"));
+
+        if (themeSelect.value === "custom") {
+          const hex = (customColorHex.value || customColorInput.value || "#00ff9c").trim();
+          localStorage.setItem("customAccent", hex);
+        }
+        const dn = (displayNameInput.value || "").trim();
+        if (dn) localStorage.setItem("displayName", dn);
+      } catch (e) {}
+    }
+
+    const autoSave = debounce(saveSettings, 280);
+
+    function applySettings() {
+      const engineKey = localStorage.getItem("searchEngine") || "google";
+      engineSelect.value = engineKey;
+
+      const showSuggestions = localStorage.getItem("showSuggestions") === "1";
+      toggleSuggestionsEl.checked = showSuggestions;
+
+      const voiceAuto = localStorage.getItem("voiceAuto") === "1";
+      toggleVoiceAutoEl.checked = voiceAuto;
+
+      const matrixStored = localStorage.getItem("matrixEnabled");
+      matrixEnabled = matrixStored !== "0";
+      toggleMatrixEl.checked = !matrixEnabled;
+      if (!matrixEnabled) {
+        stopMatrix();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      } else {
+        startMatrix();
+      }
+
+      const keyboardShortcuts = localStorage.getItem("keyboardShortcuts") === "1";
+      toggleKeyboardEl.checked = keyboardShortcuts;
+
+      const savedTheme = localStorage.getItem("themeColor") || "green";
+      themeSelect.value = savedTheme;
+
+      const savedCustom = localStorage.getItem("customAccent") || "#00ff9c";
+      customColorInput.value = savedCustom;
+      customColorHex.value = savedCustom;
+
+      if (savedTheme === "custom") {
+        customColorPicker.style.display = "";
+        applyThemeKeyed(savedCustom);
+      } else {
+        customColorPicker.style.display = "none";
+        applyThemeKeyed(savedTheme);
+      }
+
+      openInNewTabSetting = localStorage.getItem("openInNewTab") !== "0";
+      try {
+        const savedMic = localStorage.getItem("voiceActive");
+        if (savedMic === "1") {
+          voiceBtn.classList.add("listening");
+          voiceBtn.setAttribute("aria-pressed", "false");
+        } else {
+          voiceBtn.classList.remove("listening");
+          voiceBtn.setAttribute("aria-pressed", "false");
+        }
+      } catch (e) {}
+
+      const localOnly = localStorage.getItem("localOnlySuggestions") === "1";
+      toggleLocalOnlyEl.checked = localOnly;
+
+      const dn = localStorage.getItem("displayName") || "Ituze";
+      displayNameInput.value = dn;
+      updateGreeting();
+    }
+
+    window.saveSettings = saveSettings;
+    applySettings();
+
+    themeSelect.addEventListener("change", () => {
+      const v = themeSelect.value;
+      if (v === "custom") {
+        customColorPicker.style.display = "";
+        const custom = localStorage.getItem("customAccent") || customColorInput.value || "#00ff9c";
+        customColorInput.value = custom;
+        customColorHex.value = custom;
+        applyThemeKeyed(custom);
+      } else {
+        customColorPicker.style.display = "none";
+        applyThemeKeyed(v);
+      }
+      autoSave();
+    });
+
+    customColorInput.addEventListener("input", () => {
+      const val = customColorInput.value;
+      customColorHex.value = val;
+      applyThemeKeyed(val);
+      autoSave();
+    });
+    customColorHex.addEventListener("input", () => {
+      const val = customColorHex.value.trim();
+      if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(val)) {
+        customColorInput.value = val;
+        applyThemeKeyed(val);
+        autoSave();
+      }
+    });
+
+    [
+      displayNameInput,
+      engineSelect,
+      toggleSuggestionsEl,
+      toggleVoiceAutoEl,
+      toggleKeyboardEl,
+      toggleLocalOnlyEl,
+      toggleMatrixEl,
+      customColorInput,
+      customColorHex,
+    ].forEach(el => {
+      if (!el) return;
+      const ev = (el.tagName === "INPUT" && el.type === "text") || el.tagName === "TEXTAREA" || el.type === "password" ? "input" : "change";
+      el.addEventListener(ev, () => autoSave());
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const keyboardEnabled = toggleKeyboardEl.checked;
+      if (!keyboardEnabled) return;
+
+      if (e.key === "/" && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+
+      if (e.ctrlKey && e.altKey && e.key === "/") {
+        e.preventDefault();
+      }
+    });
+
+    /* =========================================
+       Clear data / reset
+       ========================================= */
+    document.getElementById("resetStorage").addEventListener("click", () => {
+      if (!confirm("Clear all saved settings and customizations? This cannot be undone.")) return;
+      try {
+        const keys = ["searchEngine","showSuggestions","voiceAuto","matrixEnabled","keyboardShortcuts","themeColor","openInNewTab","voiceActive","localOnlySuggestions","customAccent","clearSearchOnReturn","displayName","shortcutsV2"];
+        keys.forEach(k => localStorage.removeItem(k));
+        showToast("Local data cleared");
+        setTimeout(() => location.reload(), 350);
+      } catch (e) {
+        showToast("Failed to clear data");
+      }
+    });
+
+    /* =========================================
+       Weather widget
+       ========================================= */
+
+    const batteryText = document.getElementById("battery-text");
+    const batteryLevelBar = document.getElementById("battery-level-bar");
+
+    function updateBatteryDisplay(level, charging) {
+      const percent = Math.round(level * 100);
+      batteryText.textContent = `Battery: ${percent}%${charging ? " ⚡" : ""}`;
+      batteryLevelBar.style.width = Math.max(5, percent) + "%";
+    }
+
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        updateBatteryDisplay(battery.level, battery.charging);
+        battery.addEventListener("levelchange", () => updateBatteryDisplay(battery.level, battery.charging));
+        battery.addEventListener("chargingchange", () => updateBatteryDisplay(battery.level, battery.charging));
+      }).catch(() => { batteryText.textContent = "Battery: N/A"; });
+    } else {
+      batteryText.textContent = "Battery: N/A";
+    }
+
+    async function fetchWeatherByCoordsSimple(lat, lon, units = "auto") {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&timezone=auto`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("weather failed");
+        const data = await res.json();
+        const cw = data.current_weather;
+        if (cw) {
+          const c = Math.round(cw.temperature);
+          const f = Math.round((c * 9/5) + 32);
+          return `${c}°C / ${f}°F, wind ${cw.windspeed} km/h`;
+        }
+      } catch (e) {
+        return null;
+      }
+      return null;
+    }
+
+    async function refreshWeatherWidget() {
+      let summary = null;
+
+      if (navigator.geolocation) {
+        try {
+          const pos = await new Promise((res, rej) => {
+            const t = setTimeout(() => rej(new Error("geo timeout")), 8000);
+            navigator.geolocation.getCurrentPosition(p => { clearTimeout(t); res(p); }, err => { clearTimeout(t); rej(err); }, { timeout: 8000 });
+          });
+          if (pos && pos.coords) {
+            summary = await fetchWeatherByCoordsSimple(pos.coords.latitude, pos.coords.longitude);
+          }
+        } catch (e) { }
+      }
+
+      if (!summary) {
+        try {
+          const ipr = await fetch("https://ipapi.co/json/");
+          if (ipr.ok) {
+            const ipd = await ipr.json();
+            if (ipd && ipd.latitude && ipd.longitude) {
+              summary = await fetchWeatherByCoordsSimple(ipd.latitude, ipd.longitude);
+            }
+          }
+        } catch (e) { }
+      }
+
+      if (summary) {
+        weatherText.textContent = `Weather: ${summary}`;
+        weatherWedge.setAttribute("aria-hidden", "false");
+      } else {
+        weatherText.textContent = `Weather: N/A`;
+        weatherWedge.setAttribute("aria-hidden", "true");
+      }
+    }
+
+    /* =========================================
+       Right-Click Behavior
+       ========================================= */
+
+    const contextMenu = document.getElementById("contextMenu");
+
+    function showContextMenuAt(x, y, buttons) {
+      contextMenu.innerHTML = "";
+      buttons.forEach(btn => {
+        const b = document.createElement("button");
+        b.textContent = btn.label;
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          hideContextMenu();
+          btn.onClick();
+        });
+        contextMenu.appendChild(b);
+      });
+      contextMenu.style.left = x + "px";
+      contextMenu.style.top = y + "px";
+      contextMenu.style.display = "block";
+      contextMenu.setAttribute("aria-hidden", "false");
+    }
+
+    function hideContextMenu() {
+      contextMenu.style.display = "none";
+    }
+
+    document.addEventListener("contextmenu", (evt) => {
+      const shortcut = evt.target.closest && evt.target.closest(".shortcut");
+      evt.preventDefault();
+      const x = evt.clientX;
+      const y = evt.clientY;
+
+      if (shortcut) {
+        const href = shortcut.href;
+        showContextMenuAt(x, y, [
+          {
+            label: "Open",
+            onClick: () => { openLink(href, { background: false }); }
+          },
+          {
+            label: "Open in New Tab",
+            onClick: () => { openLink(href, { background: true }); }
+          }
+        ]);
+      } else {
+        showContextMenuAt(x, y, [
+          {
+            label: "Learn More",
+            onClick: () => { window.open("https://github.com/ituzebonheur7/Matrix-Homepage", "_blank", "noopener,noreferrer"); }
+          }
+        ]);
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!contextMenu.contains(e.target)) hideContextMenu();
+    });
+
+    /* =========================================
+       Shortcuts
+       ========================================= */
+
+    const DEFAULT_SHORTCUTS = [
+      { label: "Google", url: "https://google.com" },
+      { label: "Games", url: "/games" },
+      { label: "Hunter", url: "/hunter" },
+      { label: "YouTube", url: "https://youtube.com" },
+      { label: "Code Viewer", url: "/codeviewer" },
+      
+      { label: "QR Code", url: "/qrcode" },
+      { label: "Copilot", url: "https://copilot.microsoft.com/" },
+      { label: "Twitter", url: "https://x.com" },
+      { label: "Instagram", url: "https://www.instagram.com" },
+      { label: "Facebook", url: "https://www.facebook.com" },
+      
+      { label: "TikTok", url: "https://www.tiktok.com" },
+      { label: "Gemini", url: "https://gemini.google.com" },
+      { label: "WhatsApp", url: "https://web.whatsapp.com" },
+      { label: "Performance", url: "/performance" },
+      { label: "Feedback", url: "/feedback" },
+    ];
+
+    const SHORTCUTS_KEY = "shortcutsV2";
+
+    function loadShortcuts() {
+      try {
+        const raw = localStorage.getItem(SHORTCUTS_KEY);
+        if (!raw) return DEFAULT_SHORTCUTS.slice(0, 15);
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return DEFAULT_SHORTCUTS.slice(0, 15);
+        return parsed.slice(0, 15);
+      } catch (e) {
+        return DEFAULT_SHORTCUTS.slice(0, 15);
+      }
+    }
+
+    function saveShortcuts(arr) {
+      try {
+        const limited = arr.slice(0, 15);
+        localStorage.setItem(SHORTCUTS_KEY, JSON.stringify(limited));
+      } catch (e) { }
+    }
+
+    function renderShortcuts() {
+      const shortcuts = loadShortcuts();
+      shortcutsContainer.innerHTML = "";
+      const rows = 3;
+      const perRow = 5;
+      for (let r = 0; r < rows; r++) {
+        const row = document.createElement("div");
+        row.className = "shortcuts-row";
+        row.id = `shortcutsRow${r+1}`;
+        for (let c = 0; c < perRow; c++) {
+          const index = r * perRow + c;
+          const item = shortcuts[index];
+          if (item) {
+            const a = document.createElement("a");
+            a.className = "shortcut glass";
+            a.href = item.url;
+            a.textContent = item.label;
+            a.title = item.url;
+            a.setAttribute("data-index", index);
+            a.addEventListener("click", (e) => {
+              e.preventDefault();
+              openLinkWithPrefs(a.href);
+            });
+            a.addEventListener("dblclick", (e) => {
+              e.preventDefault();
+              const curLabel = item.label;
+              const curUrl = item.url;
+              const newLabel = prompt("Edit shortcut label:", curLabel);
+              if (newLabel === null) return;
+              let newUrl = prompt("Edit shortcut URL (include https://):", curUrl);
+              if (newUrl === null) return;
+              newUrl = newUrl.trim();
+              if (!/^https?:\/\//i.test(newUrl)) {
+                if (/^[\w.-]+\.[a-z]{2,}$/i.test(newUrl)) {
+                  newUrl = "https://" + newUrl;
+                } else {
+                  alert("Invalid URL. Changes not saved.");
+                  return;
+                }
+              }
+              const sc = loadShortcuts();
+              sc[index] = { label: (newLabel.trim() || curLabel), url: newUrl };
+              saveShortcuts(sc);
+              renderShortcuts();
+              showToast("Shortcut updated", 900);
+            });
+            row.appendChild(a);
+          } else {
+            const placeholder = document.createElement("div");
+            placeholder.className = "shortcut glass";
+            placeholder.style.opacity = "0.25";
+            placeholder.textContent = "";
+            row.appendChild(placeholder);
+          }
+        }
+        shortcutsContainer.appendChild(row);
+      }
+      enforceShortcutLimits();
+    }
+
+    function enforceShortcutLimits() {
+      const rows = Array.from(document.querySelectorAll(".shortcuts-row"));
+      rows.forEach((r, idx) => {
+        if (idx >= 3) r.style.display = "none";
+        else r.style.display = "";
+      });
+      const allShortcuts = Array.from(document.querySelectorAll(".shortcuts .shortcut"));
+      allShortcuts.forEach((el, idx) => {
+        if (el.tagName.toLowerCase() === "a") {
+          if (idx >= 15) el.style.display = "none";
+          else el.style.display = "";
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      applySettings();
+      renderShortcuts();
+      enforceShortcutLimits();
+    });
+
+    /* =========================================
+       Accessibility / UX tweaks
+       ========================================= */
+
+    window.addEventListener("blur", () => {
+      hideSuggestions();
+    });
+
+    window._ituze_utils = {
+      performSearch,
+      hideSuggestions,
+      startRecognition,
+      stopRecognition,
+      clearSearchImmediate
+    };
+
+    window.addEventListener("pageshow", (evt) => {
+      try {
+        if (localStorage.getItem("clearSearchOnReturn") === "1") {
+          try { searchInput.value = ""; hideSuggestions(); } catch (e) {}
+          try { localStorage.removeItem("clearSearchOnReturn"); } catch (e) {}
+        }
+      } catch (e) {}
+
+      try {
+        if (document.activeElement === document.body || document.activeElement === document.documentElement) {
+          searchInput.focus();
+          const val = searchInput.value;
+          searchInput.setSelectionRange(val.length, val.length);
+        }
+      } catch (e) {}
+    });
+
+    document.addEventListener("click", (evt) => {
+      const anchor = evt.target.closest && evt.target.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href) return;
+      try { clearSearchImmediate(); } catch (e) {}
+    }, true);
+
+    document.querySelectorAll(".launcher-link").forEach(a => {
+      a.addEventListener("click", (ev) => {});
+    });
+
+    (function initOnLoad() {
+      try {
+        setTimeout(() => {
+          if (document.activeElement === document.body || document.activeElement === document.documentElement) {
+            searchInput.focus();
+            const v = searchInput.value || "";
+            searchInput.setSelectionRange(v.length, v.length);
+          }
+        }, 60);
+      } catch (e) {}
+    })();
+
+    /* =========================================
+       Utilities
+       ========================================= */
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+    }
+
+    function openLinkWithPrefs(url) {
+      if (openInNewTabSetting) openLink(url, { background: true });
+      else openLink(url, { background: false });
+    }
+
+    try { localStorage.removeItem("linkOpenPrefsV1"); } catch (e) {}
+
+  </script>
+
+</body>
+</html>
