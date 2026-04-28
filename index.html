@@ -10,7 +10,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
       <script src="/js/router.js"></script>
       <script src="/sw.js"></script>
-      <script src="/js/scrollbar.js"></script>
       <script src="/js/screen.js"></script>
 
   <style>
@@ -758,12 +757,10 @@
 
   <canvas id="matrix"></canvas>
 
-  <!-- Top identity button now opens iframe -->
   <button id="topLink" class="top-btn glass" aria-label="Open Ituze Bonheur profile">
     Ituze Bonheur
   </button>
 
-  <!-- Iframe panel - positioned below Ituze Bonheur button -->
   <div id="iframePanel">
     <div id="iframePanelContent">
       <iframe src="https://ituzebonheur.com/me" title="Ituze Bonheur Profile"></iframe>
@@ -787,12 +784,12 @@
     <div class="settings-group">
       <label>Default Search Engine</label>
       <select id="engineSelect" aria-label="Default search engine">
+        <option value="ituze">Ituze</option>
         <option value="google">Google</option>
         <option value="bing">Bing</option>
         <option value="duckduckgo">DuckDuckGo</option>
         <option value="brave">Brave</option>
         <option value="startpage">Startpage</option>
-        <option value="you">You.com</option>
       </select>
     </div>
 
@@ -924,6 +921,7 @@
        Constants & basic UI wiring
        ========================================= */
     const SEARCH_ENGINES = {
+      ituze: "https://ituzebonheur.com/search?q=",
       google: "https://google.com/search?q=",
       bing: "https://bing.com/search?q=",
       duckduckgo: "https://duckduckgo.com/?q=",
