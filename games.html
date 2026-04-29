@@ -5,18 +5,15 @@
   <link rel="preconnect" href="/">
   <title>Game Lab - Ituze</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9271533798664162"
-      crossorigin="anonymous"></script>
-      <script src="/js/router.js"></script>
-      <script src="/scrollbar.js"></script>
-      <script src="/screen.js"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
+  <script src="/js/router.js"></script>
+  <script src="/screen.js"></script>
   <style>
     :root {
       --accent: #00ff9c;
       --matrix-color: #00ff9c;
-      --glass-bg: rgba(0,0,0,0.25);
-      --glass-border: rgba(255,255,255,0.15);
+      --glass-bg: rgba(0, 0, 0, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.15);
       --text-main: #e5e7eb;
     }
 
@@ -66,9 +63,45 @@
 
     .top-btn:hover, .btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 18px 50px rgba(0,0,0,0.7);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.7);
       border-color: var(--accent);
       color: #fff;
+    }
+
+    #iframePanel {
+      position: fixed;
+      top: 75px;
+      left: 20px;
+      width: 400px;
+      height: 500px;
+      border-radius: 24px;
+      opacity: 0;
+      transform: translateY(-16px);
+      pointer-events: none;
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 2000;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      background: #000;
+      border: 1px solid var(--glass-border);
+    }
+
+    #iframePanel.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    #iframePanelContent {
+      width: 100%;
+      height: 100%;
+      display: flex;
+    }
+
+    #iframePanelContent iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
     #menu {
@@ -117,7 +150,7 @@
     }
 
     .game-card:hover {
-      background: rgba(0, 255, 156, 0.1);
+      background: rgba(var(--accent-rgb, 0, 255, 156), 0.1);
       border-color: var(--accent);
       transform: translateY(-8px);
       box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
@@ -138,7 +171,6 @@
       text-transform: uppercase;
     }
 
-    /* In-Game Stage */
     #stage {
       display: none;
       flex-direction: column;
@@ -168,12 +200,20 @@
       opacity: 0.8;
     }
 
-    iframe { width: 100%; height: 100%; border: none; }
+    #gameFrame { width: 100%; height: 100%; border: none; }
   </style>
 </head>
 <body oncontextmenu="return false;">
 
-  <a href="https://ituzebonheur.com" class="top-btn">Home</a>
+  <button id="topLink" class="top-btn" aria-label="Open Ituze Bonheur profile">
+    Ituze Bonheur
+  </button>
+
+  <div id="iframePanel">
+    <div id="iframePanelContent">
+      <iframe src="https://ituzebonheur.com/me" title="Ituze Bonheur Profile"></iframe>
+    </div>
+  </div>
 
   <canvas id="matrix"></canvas>
   <div id="custom-menu">Open Game</div>
@@ -200,6 +240,43 @@
   </div>
 
   <script>
+    /* =========================================
+       Cookie Utility (Share with Home Tab)
+       ========================================= */
+    function getCookie(name) {
+      let nameEQ = name + "=";
+      let ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+
+    function applyThemeFromCookie() {
+      // Home Tab should set "ituze_theme_color" cookie
+      const themeColor = getCookie("ituze_theme_color");
+      if (themeColor) {
+        const root = document.documentElement;
+        
+        // Define color map for named themes
+        const themes = {
+          green:  "#00ff9c",
+          blue:   "#4da3ff",
+          red:    "#ff4d4d",
+          yellow: "#ffe44d"
+        };
+
+        const finalColor = themes[themeColor] || themeColor;
+        root.style.setProperty("--accent", finalColor);
+        root.style.setProperty("--matrix-color", finalColor);
+      }
+    }
+
+    /* =========================================
+       Matrix Animation 
+       ========================================= */
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
     let matrixInterval = null;
@@ -242,9 +319,24 @@
 
     function startMatrix() { if (!matrixInterval) matrixInterval = setInterval(drawMatrix, 35); }
     function stopMatrix() { clearInterval(matrixInterval); matrixInterval = null; }
-
     startMatrix();
-    document.addEventListener("visibilitychange", () => document.hidden ? stopMatrix() : startMatrix());
+
+    /* =========================================
+       Profile Panel Logic
+       ========================================= */
+    const iframePanel = document.getElementById("iframePanel");
+    const topBtn = document.getElementById("topLink");
+
+    topBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      iframePanel.classList.toggle("open");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!iframePanel.contains(e.target) && !topBtn.contains(e.target)) {
+        iframePanel.classList.remove("open");
+      }
+    });
 
     function loadGame(url) {
       if (!url) return;
@@ -253,7 +345,8 @@
       document.getElementById('gameFrame').src = url;
       document.getElementById('menu').style.display = 'none';
       document.getElementById('stage').style.display = 'flex';
-      document.querySelector('.top-btn').style.display = 'none';
+      topBtn.style.display = 'none';
+      iframePanel.classList.remove("open");
       matrixEnabled = false;
     }
 
@@ -261,7 +354,7 @@
       document.getElementById('gameFrame').src = 'about:blank';
       document.getElementById('menu').style.display = 'flex';
       document.getElementById('stage').style.display = 'none';
-      document.querySelector('.top-btn').style.display = 'flex';
+      topBtn.style.display = 'inline-flex';
       matrixEnabled = true;
     }
 
@@ -274,19 +367,18 @@
     function addCustomGame() {
       const name = prompt("Enter Game Name:");
       if (!name) return;
-      
       const url = prompt("Enter Game URL:");
       if (!url) return;
 
       const newCard = document.createElement("div");
       newCard.className = "game-card";
       newCard.textContent = name;
-      newCard.setAttribute("onclick", "loadGame('" + url + "')");
+      newCard.setAttribute("onclick", `loadGame('${url}')`);
 
       const list = document.getElementById("gameList");
       list.insertBefore(newCard, list.querySelector(".add-btn"));
     }
-    
+
     const customMenu = document.getElementById('custom-menu');
     let currentTargetUrl = '';
 
@@ -308,7 +400,11 @@
     });
 
     customMenu.onclick = () => { loadGame(currentTargetUrl); customMenu.style.display = 'none'; };
-    document.addEventListener('click', () => customMenu.style.display = 'none');
+
+    document.addEventListener("DOMContentLoaded", () => {
+      applyThemeFromCookie();
+      setInterval(applyThemeFromCookie, 2000);
+    });
   </script>
 </body>
 </html>
