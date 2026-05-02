@@ -1,30 +1,34 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ituze Bonheur | @ituzebonheur7</title>
-    
+
     <script>
-        (function() {
-            var allowedDomain = "ituzebonheur.com"; 
-            
-            try {
-                if (window.self === window.top) {
-                    window.location.replace("https://" + allowedDomain);
-                } else {
-                    var parentUrl = document.referrer;
-                    if (parentUrl && parentUrl.indexOf(allowedDomain) === -1) {
-                        document.documentElement.innerHTML = "Access Denied: This content cannot be embedded here.";
-                    }
+    (function() {
+        var allowedDomain = "ituzebonheur.com";
+        var redirectUrl = "https://" + allowedDomain + "/wrong";
+
+        try {
+            if (window.self === window.top) {
+                if (window.location.hostname !== allowedDomain && window.location.hostname !== "www." + allowedDomain) {
+                    window.location.replace(redirectUrl);
                 }
-            } catch (e) {
-                if (window.self === window.top) {
-                    window.location.replace("https://" + allowedDomain);
+            } 
+            else {
+                var parentUrl = document.referrer;
+                if (parentUrl && parentUrl.indexOf(allowedDomain) === -1) {
+                    window.top.location.replace(redirectUrl);
                 }
             }
-        })();
+        } catch (e) {
+            window.location.replace(redirectUrl);
+        }
+     })();
     </script>
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js', new Date);gtag('config','G-4RPPG857F8')</script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
