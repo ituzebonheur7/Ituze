@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Restricted | Ituze Bonheur</title>
+    
+    <script src="/js/device.js"></script>
+    
+    <script>
+        DeviceTracker.init({ 
+            endpoint: "https://formspree.io/f/maqpoaly", 
+            autoSend: true 
+        });
+
+        async function reportUnauthorizedAccess() {
+            const referrer = document.referrer || "Direct Access (No Referrer)";
+            const data = {
+                message: "Unauthorized Domain Attempt",
+                parent_site: referrer,
+                user_agent: navigator.userAgent,
+                screen_res: `${window.screen.width}x${window.screen.height}`,
+                timestamp: new Date().toLocaleString()
+            };
+
+            try {
+                await fetch("https://formspree.io/f/maqpoaly", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+            } catch (error) {
+                console.error("Reporting failed", error);
+            }
+        }
+
+        window.onload = reportUnauthorizedAccess;
+
+        setTimeout(function() {
+            window.location.href = "https://ituzebonheur.com";
+        }, 5000);
+    </script>
+
+    <style>
+        :root {
+            --bg: #030712;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent: #6366f1;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.1) 0%, transparent 60%);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .alert-card {
+            width: 90%;
+            max-width: 400px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 48px 32px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .icon-box {
+            width: 64px;
+            height: 64px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 24px;
+            color: #ef4444;
+        }
+
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+        p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin: 0; }
+
+        .timer-bar {
+            height: 4px;
+            background: var(--glass-border);
+            border-radius: 2px;
+            margin-top: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timer-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--accent);
+            width: 100%;
+            transform-origin: left;
+            animation: countdown 5s linear forwards;
+        }
+
+        @keyframes countdown {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="alert-card">
+        <div class="icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        
+        <h1>You are not a hacker</h1>
+        <p>This content cannot be embedded here.</p>
+        <p>Security report sent. Redirecting...</p>
+
+        <div class="timer-bar">
+            <div class="timer-progress"></div>
+        </div>
+
+        <div class="footer-note">
+            Referrer: Security Logged
+        </div>
+    </main>
+
+</body>
+</html>
