@@ -3,16 +3,15 @@
 <head>
   <link rel="manifest" href="/manifest.json">
   <meta charset="utf-8" />
+  <script src="/js/sync.js"></script>
+  <script src="/sw.js"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
   <meta name="description" content="A Cyber-inspired dashboard featuring a dynamic Matrix-rain backdrop and real-time utility tracking. @ituzebonheur7">
   <link rel="icon" href="images/ituze.png" type="image/png">
   <title>Home Tab - Ituze</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <script src="/js/router.js"></script>
-      <script src="/sw.js"></script>
-      <script src="/js/screen.js"></script>
-      <script src="/js/theme-sync.js"></script>
-
+  <meta name="viewport" content="width=device-width,initial-scale=1" /> 
+  <script src="/js/router.js"></script>
+    
   <style>
    :root {
      --text-main: #cbd5e1;
@@ -143,7 +142,6 @@
       box-shadow: 0 0 18px var(--accent);
     }
 
-    /* Settings panel: now scrollable and constrained to viewport */
     #settingsPanel {
       position: fixed;
       top: 70px;
@@ -157,7 +155,6 @@
       transition: 0.3s ease;
       z-index: 2000;
 
-      /* Make the panel scrollable if content exceeds viewport */
       max-height: calc(100vh - 100px);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -403,7 +400,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Battery placed behind panels (lower z-index) */
     #battery {
       position: fixed;
       bottom: 20px;
@@ -463,14 +459,6 @@
       }
     }
 
-    .glass-launcher {
-      position: fixed;
-      bottom: 80px;
-      left: 20px;
-      width: 360px;
-      max-height: 520px;
-      padding: 18px 18px 14px;
-
       background: rgba(15,23,42,var(--launcher-opacity));
       backdrop-filter: blur(28px) saturate(180%);
       -webkit-backdrop-filter: blur(28px) saturate(180%);
@@ -488,13 +476,7 @@
       opacity: 0;
       transform: translateY(20px) scale(0.96);
       transition: opacity .28s ease, transform .28s ease;
-    }
-
-    .glass-launcher.open {
-      display: block;
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+     }
 
     .launcher-header {
       display: flex;
@@ -740,11 +722,7 @@
       .shortcuts-row {
         grid-template-columns: repeat(2, 1fr);
       }
-      .glass-launcher {
-        left: 10px;
-        right: 10px;
-        width: auto;
-      }
+
       #weatherWedge { display: none; }
       #iframePanel {
         width: calc(100vw - 20px);
@@ -757,6 +735,8 @@
   </style>
 </head>
 <body>
+
+  <script src="/js/screen.js"></script>
 
   <canvas id="matrix"></canvas>
 
@@ -775,7 +755,6 @@
   <div id="settingsPanel" class="glass" role="dialog" aria-modal="false" aria-hidden="true">
     <h3>Settings</h3>
 
-    <!-- Display name must be first setting and editable -->
     <div class="settings-group">
       <label>Display name</label>
       <input id="displayNameInput" type="text" placeholder="Ituze" aria-label="Display name">
@@ -846,19 +825,18 @@
         <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data & reset</button>
       </div>
     </div>
-
+ 
   </div>
 
   <div id="battery" class="glass" aria-hidden="false">
     <div id="battery-icon">
       <div id="battery-level-bar"></div>
     </div>
-    <span id="battery-text">Battery: --%</span>
+    <span id="battery-text">Battery: loading... %</span>
   </div>
 
   <div id="weatherWedge" class="glass" aria-hidden="true" title="Current weather (click to refresh)">
-    <div id="weatherIcon">☀️</div>
-    <div id="weatherText">Weather: --</div>
+    <div id="weatherText">Weather: loading...</div>
   </div>
 
   <div class="container">
@@ -1455,7 +1433,6 @@
     const customColorHex = document.getElementById("customColorHex");
     const weatherWedge = document.getElementById("weatherWedge");
     const weatherText = document.getElementById("weatherText");
-    const weatherIcon = document.getElementById("weatherIcon");
     const shortcutsContainer = document.getElementById("shortcutsContainer");
 
     function showToast(msg, ms = 1100) {
@@ -1577,14 +1554,13 @@
         if (themeSelect.value === "custom") {
           const hex = (customColorHex.value || customColorInput.value || "#00ff9c").trim();
           localStorage.setItem("customAccent", hex);
-          // Broadcast to games.html and other pages
-          if (window.ThemeSync) window.ThemeSync.saveSharedTheme("custom", hex);
+          if (window.Sync) window.Sync.saveTheme("custom", hex);
         } else {
-          // Broadcast to games.html and other pages
-          if (window.ThemeSync) window.ThemeSync.saveSharedTheme(themeSelect.value);
+          if (window.Sync) window.Sync.saveTheme(themeSelect.value);
         }
         const dn = (displayNameInput.value || "").trim();
         localStorage.setItem("displayName", dn || "Ituze");
+        if (window.Sync) window.Sync.saveName(dn || "Ituze");
       } catch (e) {}
     }
 
@@ -1690,8 +1666,8 @@
       const dn = displayNameInput.value.trim();
       const resolved = dn || "Ituze";
       localStorage.setItem("displayName", resolved);
+      if (window.Sync) window.Sync.saveName(resolved);
       updateGreeting();
-      // If field is blank, show placeholder effect but keep greeting as Ituze
       if (!dn) displayNameInput.value = "";
     });
 
@@ -1700,6 +1676,7 @@
       const dn = displayNameInput.value.trim();
       if (!dn) {
         localStorage.setItem("displayName", "Ituze");
+        if (window.Sync) window.Sync.saveName("Ituze");
         updateGreeting();
       }
     });
@@ -1882,7 +1859,7 @@
       { label: "Google", url: "https://google.com" },
       { label: "Games", url: "/games" },
       { label: "Hunter", url: "/hunter" },
-      { label: "YouTube", url: "https://youtube.com" },
+      { label: "YouTube", url: "https://www.youtube.com" },
       { label: "Code Viewer", url: "/codeviewer" },
       
       { label: "QR Code", url: "/qrcode" },
