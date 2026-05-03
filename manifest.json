@@ -1,0 +1,30 @@
+{
+  "name": "Ituze – Home Dashboard",
+  "short_name": "Ituze",
+  "description": "A cyber-inspired dashboard featuring a dynamic Matrix-rain backdrop and real-time utility tracking.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#020617",
+  "theme_color": "#00ff9c",
+  "lang": "en",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/images/ituze.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Game Lab",
+      "short_name": "Games",
+      "description": "Open the Ituze Game Lab",
+      "url": "/games",
+      "icons": [{ "src": "/images/ituze.png", "sizes": "any" }]
+    }
+  ]
+}
