@@ -2,17 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="/">
   <title>Game Lab - Ituze</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/js/sync.js"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
   <script src="/js/router.js"></script>
-  <script src="/js/screen.js"></script>
-  <script src="/js/theme-sync.js"></script>
   <style>
     :root {
-      /* accent / matrix-color are injected by theme-sync.js from home.html's saved preference */
       --glass-bg: rgba(0, 0, 0, 0.25);
       --glass-border: rgba(255, 255, 255, 0.15);
       --text-main: #e5e7eb;
@@ -189,7 +186,7 @@
     </div>
     <iframe id="gameFrame" src="" allow="fullscreen; autoplay; microphone; clipboard-write"></iframe>
   </div>
-
+  <script src="/js/screen.js"></script>
   <script>
     const iframePanel = document.getElementById("iframePanel");
     const topBtn = document.getElementById("topLink");
@@ -214,6 +211,18 @@
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
     let matrixEnabled = true;
+
+    // Apply synced name to greeting on load
+    (function () {
+      const name = (window.Sync && window.Sync.resolveName()) ||
+                   (localStorage.getItem("displayName") || "Ituze");
+      const hour = new Date().getHours();
+      const salutation =
+        hour < 5  ? "Good night"   :
+        hour < 12 ? "Good morning" :
+        hour < 17 ? "Good afternoon" : "Good evening";
+      document.getElementById("greeting").textContent = `${salutation}, ${name}`;
+    })();
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener("resize", resize);
     resize();
