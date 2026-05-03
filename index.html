@@ -11,6 +11,7 @@
       <script src="/js/router.js"></script>
       <script src="/sw.js"></script>
       <script src="/js/screen.js"></script>
+      <script src="/js/theme-sync.js"></script>
 
   <style>
    :root {
@@ -57,28 +58,67 @@
       position: fixed;
       top: 20px;
       left: 20px;
-      padding: 10px 26px;
+      width: 100px;
+      height: 42px;
       font-size: 16px;
       font-weight: 600;
       color: var(--accent);
-      border-radius: 25px;
-      text-decoration: none;
-      transition: 0.3s;
-      z-index: 1200;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: none;
       background: var(--glass-bg);
       backdrop-filter: blur(26px);
       -webkit-backdrop-filter: blur(26px);
       border: 1px solid var(--glass-border);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+      border-radius: 25px;
+      cursor: pointer;
+      z-index: 1200;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .top-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 18px 50px rgba(0,0,0,0.7);
+    .top-btn.hidden {
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+    }
+
+    #iframePanel {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 100px;
+      height: 42px;
+      border-radius: 25px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 2000;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #iframePanel.open {
+      opacity: 1;
+      width: 400px;
+      height: 600px;
+      border-radius: 24px;
+      pointer-events: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    }
+    #iframePanelContent {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #iframePanel.open #iframePanelContent {
+      opacity: 1;
+    }
+    #iframePanelContent iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
     #settingsToggle {
@@ -681,43 +721,6 @@
     }
     #weatherWedge:hover { transform: scale(1.03); }
 
-    #iframePanel {
-      position: fixed;
-      top: 70px;
-      left: 20px;
-      width: 400px;
-      height: 500px;
-      border-radius: 32px;
-      opacity: 0;
-      transform: translateY(-16px);
-      pointer-events: none;
-      transition: 0.3s ease;
-      z-index: 2000;
-      overflow: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-
-    #iframePanel.open {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    #iframePanelContent {
-      flex: 1;
-      overflow: hidden;
-      border-radius: 16px;
-      width: 100%;
-      height: 100%;
-    }
-
-    #iframePanelContent iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 16px;
-    }
-
     @media (max-width: 900px) {
       .shortcuts-row {
         grid-template-columns: repeat(3, 1fr);
@@ -757,13 +760,13 @@
 
   <canvas id="matrix"></canvas>
 
-  <button id="topLink" class="top-btn glass" aria-label="Open Ituze Bonheur profile">
-    Ituze Bonheur
+  <button id="topLink" class="top-btn" aria-label="Open Ituze profile">
+    Ituze
   </button>
 
   <div id="iframePanel">
     <div id="iframePanelContent">
-      <iframe src="https://ituzebonheur.com/me" title="Ituze Bonheur Profile"></iframe>
+      <iframe id="profileIframe" src="https://ituzebonheur.com/me" title="Ituze"></iframe>
     </div>
   </div>
 
@@ -891,16 +894,20 @@
        ========================================= */
     const iframePanel = document.getElementById("iframePanel");
     const topBtn = document.getElementById("topLink");
+    const profileIframe = document.getElementById("profileIframe");
     let isPanelOpen = false;
 
     function openIframePanel() {
       closeAllPanels([iframePanel]);
+      profileIframe.src = profileIframe.src; // Force Refresh
+      topBtn.classList.add("hidden");
       iframePanel.classList.add("open");
       isPanelOpen = true;
     }
 
     function closeIframePanel() {
       iframePanel.classList.remove("open");
+      topBtn.classList.remove("hidden");
       isPanelOpen = false;
     }
 
@@ -914,7 +921,7 @@
 
     topBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      toggleIframePanel();
+      openIframePanel();
     });
 
     /* =========================================
@@ -932,6 +939,13 @@
 
     const GOOGLE_AI_MODE_URL = (q) => `https://www.google.com/aimode?q=${encodeURIComponent(q)}`;
     const GOOGLE_AIMODE_LANDING = "https://www.google.com/aimode";
+
+    // Wire AI Mode button
+    document.getElementById("aiModeBtn").addEventListener("click", () => {
+      const q = (searchInput.value || "").trim();
+      const url = q ? GOOGLE_AI_MODE_URL(q) : GOOGLE_AIMODE_LANDING;
+      openLink(url);
+    });
 
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
@@ -1080,14 +1094,13 @@
     const engineSelect = document.getElementById("engineSelect");
     const toggleKeyboardEl = document.getElementById("toggleKeyboard");
     let activeSuggestionIndex = -1;
-    let openInNewTabSetting = true;
 
     function saveToHistory(q) { /* no-op */ }
     function readHistory(limit = 8) { return []; }
 
     function getEngineUrl() {
-      const key = localStorage.getItem("searchEngine") || "google";
-      return SEARCH_ENGINES[key] || SEARCH_ENGINES.google;
+      const key = localStorage.getItem("searchEngine") || "ituze";
+      return SEARCH_ENGINES[key] || SEARCH_ENGINES.ituze;
     }
 
     function clearSearchImmediate() {
@@ -1101,15 +1114,26 @@
       } catch (e) { }
     }
 
-    function openLink(url, opts = { background: undefined }) {
-      clearSearchImmediate();
-      const preferBackground = opts.background !== undefined ? opts.background : openInNewTabSetting;
-      if (preferBackground) {
-        const newWin = window.open(url, "_blank", "noopener,noreferrer");
-        try { newWin.blur(); window.focus(); } catch (e) { }
-      } else {
-        window.location.href = url;
+    const UTM_SOURCE = "ItuzeBonheur";
+
+    function appendUtm(url) {
+      try {
+        // Don't append UTM to internal/relative paths or anchor-only links
+        if (!url || url.startsWith("#") || url.startsWith("javascript:")) return url;
+        // For relative paths (starting with / but not //)
+        if (url.startsWith("/") && !url.startsWith("//")) return url;
+        const u = new URL(url);
+        u.searchParams.set("utm_source", UTM_SOURCE);
+        return u.toString();
+      } catch (e) {
+        // If URL parsing fails (e.g. relative URL), return as-is
+        return url;
       }
+    }
+
+    function openLink(url, opts = {}) {
+      clearSearchImmediate();
+      window.location.href = appendUtm(url);
     }
 
     function performSearch(query) {
@@ -1188,6 +1212,17 @@
       if (/[a-zA-Z]/.test(trimmed)) return false;
       return /^[0-9\s\+\-\*\/\.\%\(\)]+$/.test(trimmed) && /[0-9]/.test(trimmed);
     }
+
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.trim();
+      if (!q) { hideSuggestions(); return; }
+      fetchSuggestions(q);
+    });
+
+    searchInput.addEventListener("focus", () => {
+      const q = searchInput.value.trim();
+      if (q && q.length >= 2) fetchSuggestions(q);
+    });
 
     searchInput.addEventListener("keydown", e => {
       const items = Array.from(suggestionsBox.querySelectorAll(".suggestion-item"));
@@ -1324,6 +1359,14 @@
       activeSuggestionIndex = -1;
     }
 
+    // Hide suggestions when clicking anywhere outside the search wrapper
+    document.addEventListener("click", (e) => {
+      const wrapper = document.querySelector(".chrome-search-wrapper");
+      if (wrapper && !wrapper.contains(e.target)) {
+        hideSuggestions();
+      }
+    }, true);
+
     /* =========================================
        Voice integration
        ========================================= */
@@ -1435,6 +1478,7 @@
       }
       if (!exEls.includes(iframePanel)) {
         iframePanel.classList.remove("open");
+        topBtn.classList.remove("hidden");
         isPanelOpen = false;
       }
       hideContextMenu();
@@ -1535,22 +1579,27 @@
         if (themeSelect.value === "custom") {
           const hex = (customColorHex.value || customColorInput.value || "#00ff9c").trim();
           localStorage.setItem("customAccent", hex);
+          // Broadcast to games.html and other pages
+          if (window.ThemeSync) window.ThemeSync.saveSharedTheme("custom", hex);
+        } else {
+          // Broadcast to games.html and other pages
+          if (window.ThemeSync) window.ThemeSync.saveSharedTheme(themeSelect.value);
         }
         const dn = (displayNameInput.value || "").trim();
-        if (dn) localStorage.setItem("displayName", dn);
+        localStorage.setItem("displayName", dn || "Ituze");
       } catch (e) {}
     }
 
     const autoSave = debounce(saveSettings, 280);
 
     function applySettings() {
-      const engineKey = localStorage.getItem("searchEngine") || "google";
+      const engineKey = localStorage.getItem("searchEngine") || "ituze";
       engineSelect.value = engineKey;
 
-      const showSuggestions = localStorage.getItem("showSuggestions") === "1";
+      const showSuggestions = localStorage.getItem("showSuggestions") !== "0";
       toggleSuggestionsEl.checked = showSuggestions;
 
-      const voiceAuto = localStorage.getItem("voiceAuto") === "1";
+      const voiceAuto = localStorage.getItem("voiceAuto") !== "0";
       toggleVoiceAutoEl.checked = voiceAuto;
 
       const matrixStored = localStorage.getItem("matrixEnabled");
@@ -1580,18 +1629,6 @@
         customColorPicker.style.display = "none";
         applyThemeKeyed(savedTheme);
       }
-
-      openInNewTabSetting = localStorage.getItem("openInNewTab") !== "0";
-      try {
-        const savedMic = localStorage.getItem("voiceActive");
-        if (savedMic === "1") {
-          voiceBtn.classList.add("listening");
-          voiceBtn.setAttribute("aria-pressed", "false");
-        } else {
-          voiceBtn.classList.remove("listening");
-          voiceBtn.setAttribute("aria-pressed", "false");
-        }
-      } catch (e) {}
 
       const localOnly = localStorage.getItem("localOnlySuggestions") === "1";
       toggleLocalOnlyEl.checked = localOnly;
@@ -1648,6 +1685,25 @@
       if (!el) return;
       const ev = (el.tagName === "INPUT" && el.type === "text") || el.tagName === "TEXTAREA" || el.type === "password" ? "input" : "change";
       el.addEventListener(ev, () => autoSave());
+    });
+
+    // Live greeting update when display name is typed
+    displayNameInput.addEventListener("input", () => {
+      const dn = displayNameInput.value.trim();
+      const resolved = dn || "Ituze";
+      localStorage.setItem("displayName", resolved);
+      updateGreeting();
+      // If field is blank, show placeholder effect but keep greeting as Ituze
+      if (!dn) displayNameInput.value = "";
+    });
+
+    // Also restore on blur so if user clears and leaves, input shows empty but greeting stays Ituze
+    displayNameInput.addEventListener("blur", () => {
+      const dn = displayNameInput.value.trim();
+      if (!dn) {
+        localStorage.setItem("displayName", "Ituze");
+        updateGreeting();
+      }
     });
 
     document.addEventListener("keydown", (e) => {
@@ -1717,8 +1773,10 @@
         const cw = data.current_weather;
         if (cw) {
           const c = Math.round(cw.temperature);
-          const f = Math.round((c * 9/5) + 32);
-          return `${c}°C / ${f}°F, wind ${cw.windspeed} km/h`;
+          const f = Math.round((c * 9 / 5) + 32);
+          const kmh = parseFloat(cw.windspeed).toFixed(1);
+          const mph = (parseFloat(cw.windspeed) * 0.621371).toFixed(1);
+          return `${c}°C / ${f}°F wind ${kmh} km/h / ${mph} mph`;
         }
       } catch (e) {
         return null;
@@ -1801,18 +1859,14 @@
         showContextMenuAt(x, y, [
           {
             label: "Open",
-            onClick: () => { openLink(href, { background: false }); }
-          },
-          {
-            label: "Open in New Tab",
-            onClick: () => { openLink(href, { background: true }); }
+            onClick: () => { openLink(href); }
           }
         ]);
       } else {
         showContextMenuAt(x, y, [
           {
             label: "Learn More",
-            onClick: () => { window.open("https://github.com/ituzebonheur7/Matrix-Homepage", "_blank", "noopener,noreferrer"); }
+            onClick: () => { window.location.href = "https://github.com/ituzebonheur7/Matrix-Homepage"; }
           }
         ]);
       }
@@ -1946,6 +2000,7 @@
       applySettings();
       renderShortcuts();
       enforceShortcutLimits();
+      refreshWeatherWidget();
     });
 
     /* =========================================
@@ -2013,11 +2068,8 @@
     }
 
     function openLinkWithPrefs(url) {
-      if (openInNewTabSetting) openLink(url, { background: true });
-      else openLink(url, { background: false });
+      openLink(url);
     }
-
-    try { localStorage.removeItem("linkOpenPrefsV1"); } catch (e) {}
 
   </script>
 
