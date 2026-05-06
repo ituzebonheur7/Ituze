@@ -3,10 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
-<title>Redirecting…</title>
-<script src="/js/router.js"></script>
-<script src="/sw.js"></script>
+    <script src="/sw.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
 
 <style>
 :root {
@@ -16,9 +14,7 @@
     --border: rgba(255,255,255,0.08);
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -37,39 +33,19 @@ body {
     border: 1px solid var(--border);
     backdrop-filter: blur(12px);
     border-radius: 12px;
-    padding: 40px 35px;
-    width: 320px;
+    padding: 35px;
+    width: 340px;
     text-align: center;
-    animation: fadeIn 0.6s ease forwards;
+    display: none; /* Hidden by default to prevent flicker during fast redirect */
+    animation: fadeIn 0.4s ease forwards;
 }
 
 .loading-text {
     font-size: 0.9rem;
-    letter-spacing: 4px;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    opacity: 0.8;
-    margin-bottom: 25px;
-}
-
-.loader {
-    height: 3px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 3px;
-    overflow: hidden;
-    position: relative;
-}
-
-.loader::before {
-    content: "";
-    position: absolute;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, var(--accent), #fff, var(--accent), transparent);
-    animation: slide 1s infinite linear;
-}
-
-#setup-ui {
-    display: none;
+    opacity: 0.9;
+    margin-bottom: 10px;
 }
 
 select {
@@ -82,6 +58,25 @@ select {
     border-radius: 6px;
     font-size: 0.95rem;
     outline: none;
+    cursor: pointer;
+}
+
+.checkbox-container {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
 }
 
 button {
@@ -109,11 +104,6 @@ small {
     font-size: 0.75rem;
 }
 
-@keyframes slide {
-    from { left: -40%; }
-    to { left: 100%; }
-}
-
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -122,14 +112,8 @@ small {
 </head>
 <body>
 
-<div class="panel" id="redirect-ui">
-    <div class="loading-text">Redirecting</div>
-    <div class="loader"></div>
-</div>
-
 <div class="panel" id="setup-ui">
-    <div class="loading-text">Select Search Engine</div>
-    <small>Choose your default engine for Ituze searches.</small>
+    <div class="loading-text">Choose Search Engine</div>
     <select id="engine-selector">
         <option value="google">Google</option>
         <option value="googleai">Google AI</option>
@@ -138,11 +122,18 @@ small {
         <option value="brave">Brave</option>
         <option value="startpage">Startpage</option>
         <option value="you">You.com</option>
+        <option value="perplexity">Perplexity</option>
+        <option value="ecosia">Ecosia</option>
         <option value="yahoo">Yahoo</option>
         <option value="yandex">Yandex</option>
-        <option value="perplexity">Perplexity</option>
     </select>
-    <button onclick="saveAndRedirect()">Save & Search</button>
+    
+    <label class="checkbox-container">
+        <input type="checkbox" id="set-default" checked>
+        Set as default (Don't ask again)
+    </label>
+
+    <button onclick="saveAndRedirect()">Search Now</button>
 </div>
 
 <script>
@@ -160,32 +151,28 @@ const searchEngines = {
     perplexity: "https://www.perplexity.ai/search?q=",
 };
 
-const utmSource = "ituzebonheur.com";
-    
+const utmSource = "ItuzeBonheur";
+
 (function() {
     const params = new URLSearchParams(window.location.search);
     const query = params.get("q");
-    const savedEngine = localStorage.getItem("defaultSearchEngine");
 
     if (!query || !query.trim()) {
         window.location.replace("https://ituzebonheur.com");
         return;
     }
 
-    if (savedEngine && searchEngines[savedEngine]) {
-        const destination = searchEngines[savedEngine] + encodeURIComponent(query) + "&utm_source=" + encodeURIComponent(utmSource);
-        
-        setTimeout(() => {
-            window.location.replace(destination);
-        }, 1000);
-    } else {
-        document.getElementById("redirect-ui").style.display = "none";
-        document.getElementById("setup-ui").style.display = "block";
-    }
+    const savedEngine = localStorage.getItem("defaultSearchEngine");
+    const skipSelection = localStorage.getItem("skipSelection") === "true";
 
-    if (savedEngine) {
-        const selector = document.getElementById("engine-selector");
-        if (selector) selector.value = savedEngine;
+    if (savedEngine && searchEngines[savedEngine] && skipSelection) {
+        const destination = searchEngines[savedEngine] + encodeURIComponent(query) + "&utm_source=" + encodeURIComponent(utmSource);
+        window.location.replace(destination);
+    } else {
+        document.getElementById("setup-ui").style.display = "block";
+        if (savedEngine) {
+            document.getElementById("engine-selector").value = savedEngine;
+        }
     }
 })();
 
@@ -193,10 +180,18 @@ function saveAndRedirect() {
     const params = new URLSearchParams(window.location.search);
     const query = params.get("q");
     const selection = document.getElementById("engine-selector").value;
+    const isDefault = document.getElementById("set-default").checked;
 
     if (!selection || !query) return;
+
+    // Save preferences
     localStorage.setItem("defaultSearchEngine", selection);
+    localStorage.setItem("skipSelection", isDefault);
+
     const destination = searchEngines[selection] + encodeURIComponent(query) + "&utm_source=" + encodeURIComponent(utmSource);
     window.location.replace(destination);
 }
 </script>
+
+</body>
+</html>
