@@ -680,8 +680,121 @@
       color: var(--text-main);
       cursor: pointer;
       border-radius: 6px;
+      transition: background 0.18s ease, transform 0.15s cubic-bezier(0.4,0,0.2,1), box-shadow 0.18s ease;
     }
-    .context-menu button:hover { background: rgba(255,255,255,0.03); }
+    .context-menu button:hover {
+      background: rgba(255,255,255,0.06);
+      transform: scale(1.03);
+    }
+    .context-menu button:active {
+      transform: scale(0.97);
+    }
+
+    /* ── Universal button transition polish ── */
+    button, .top-btn, .icon-btn, .ai-mode-btn, .launcher-close,
+    #settingsToggle, #resetStorage, #weatherRefreshBtn, .save-btn {
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+                  box-shadow 0.22s ease, transform 0.18s cubic-bezier(0.4,0,0.2,1),
+                  opacity 0.2s ease !important;
+    }
+    button:active, .top-btn:active, .icon-btn:active,
+    .ai-mode-btn:active, .launcher-close:active, #resetStorage:active,
+    #weatherRefreshBtn:active, .save-btn:active {
+      transform: scale(0.94) !important;
+      opacity: 0.85 !important;
+    }
+    #resetStorage, .save-btn {
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    #resetStorage:hover, .save-btn:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 0 18px rgba(239,68,68,0.5);
+      transform: scale(1.04) !important;
+    }
+
+    /* ── Weather Detail Card ── */
+    #weatherDetailCard {
+      position: fixed;
+      bottom: 70px;
+      left: 80px;
+      width: 240px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(5,8,15,0.92);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+      z-index: 2060;
+      opacity: 0;
+      transform: translateY(10px) scale(0.97);
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      color: var(--text-main);
+      font-size: 13px;
+    }
+    #weatherDetailCard.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .weather-detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .weather-detail-row:last-child { border-bottom: none; }
+    .weather-detail-label { opacity: 0.6; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .weather-detail-value { font-weight: 600; color: var(--accent); }
+    .weather-forecast-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      gap: 4px;
+    }
+    .forecast-day {
+      flex: 1;
+      text-align: center;
+      font-size: 11px;
+    }
+    .forecast-day .fd-label { opacity: 0.55; margin-bottom: 2px; }
+    .forecast-day .fd-temp { font-weight: 600; color: var(--accent); font-size: 12px; }
+    .forecast-day .fd-icon { font-size: 16px; }
+    #weatherDetailCard .wd-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      opacity: 0.85;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    #weatherRefreshBtn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-main);
+      font-size: 11px;
+      cursor: pointer;
+    }
+    #weatherRefreshBtn:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 35%, transparent);
+      transform: scale(1.03) !important;
+    }
 
     /* Weather wedge (bottom-left, next to apps) */
     #weatherWedge {
@@ -862,6 +975,15 @@
   <!-- Context menu (used for shortcuts & empty space) -->
   <div id="contextMenu" class="context-menu" role="menu" aria-hidden="true">
     <!-- Buttons are added dynamically depending on context -->
+  </div>
+
+  <!-- Weather Detail Card -->
+  <div id="weatherDetailCard" aria-hidden="true">
+    <div class="wd-title">📍 Current Conditions</div>
+    <div id="weatherDetailBody">
+      <div style="opacity:0.45;font-size:12px;">Loading weather details…</div>
+    </div>
+    <button id="weatherRefreshBtn">↺ Refresh</button>
   </div>
 
   <script>
@@ -1739,51 +1861,156 @@
       batteryText.textContent = "Battery: N/A";
     }
 
-    async function fetchWeatherByCoordsSimple(lat, lon, units = "auto") {
+    /* =========================================
+       Weather – GPS-first, IP fallback only on denial
+       ========================================= */
+
+    // WMO weather code → emoji + label
+    const WMO_CODES = {
+      0:"☀️ Clear",1:"🌤 Mainly Clear",2:"⛅ Partly Cloudy",3:"☁️ Overcast",
+      45:"🌫 Foggy",48:"🌫 Icy Fog",
+      51:"🌦 Light Drizzle",53:"🌦 Drizzle",55:"🌧 Heavy Drizzle",
+      61:"🌧 Light Rain",63:"🌧 Rain",65:"🌧 Heavy Rain",
+      71:"🌨 Light Snow",73:"🌨 Snow",75:"❄️ Heavy Snow",77:"🌨 Snow Grains",
+      80:"🌦 Showers",81:"🌧 Heavy Showers",82:"⛈ Violent Showers",
+      85:"🌨 Snow Showers",86:"❄️ Heavy Snow Showers",
+      95:"⛈ Thunderstorm",96:"⛈ Thunderstorm+Hail",99:"⛈ Heavy Thunderstorm"
+    };
+
+    function wmoLabel(code) {
+      return WMO_CODES[code] || `Code ${code}`;
+    }
+
+    async function fetchWeatherByCoords(lat, lon) {
       try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&timezone=auto`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&hourly=relativehumidity_2m,apparent_temperature,precipitation_probability,visibility&daily=weathercode,temperature_m_max,temperature_2m_min&timezone=auto&forecast_days=4`;
         const res = await fetch(url);
         if (!res.ok) throw new Error("weather failed");
         const data = await res.json();
         const cw = data.current_weather;
-        if (cw) {
-          const c = Math.round(cw.temperature);
-          const f = Math.round((c * 9 / 5) + 32);
-          const kmh = parseFloat(cw.windspeed).toFixed(1);
-          const mph = (parseFloat(cw.windspeed) * 0.621371).toFixed(1);
-          return `${c}°C / ${f}°F wind ${kmh} km/h / ${mph} mph`;
+        if (!cw) return null;
+
+        const c = Math.round(cw.temperature);
+        const f = Math.round((c * 9 / 5) + 32);
+        const kmh = parseFloat(cw.windspeed).toFixed(1);
+        const mph = (parseFloat(cw.windspeed) * 0.621371).toFixed(1);
+        const summary = `${wmoLabel(cw.weathercode)}  ${c}°C / ${f}°F  💨 ${kmh} km/h`;
+
+        // Build detail card
+        const hourly = data.hourly || {};
+        const daily  = data.daily  || {};
+
+        // Pick the current hour index from the hourly time array
+        const nowISO = new Date().toISOString().slice(0,13);
+        const hIdx   = (hourly.time || []).findIndex(t => t.startsWith(nowISO));
+        const humidity  = hIdx >= 0 ? (hourly.relativehumidity_2m || [])[hIdx] : null;
+        const feelsLikeC = hIdx >= 0 ? (hourly.apparent_temperature || [])[hIdx] : null;
+        const precProb  = hIdx >= 0 ? (hourly.precipitation_probability || [])[hIdx] : null;
+        const visKm    = hIdx >= 0 ? ((hourly.visibility || [])[hIdx] / 1000).toFixed(1) : null;
+
+        // 3-day forecast (skip today, index 1-3)
+        const forecastDays = [];
+        const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+        for (let i = 1; i <= 3; i++) {
+          const dt = (daily.time || [])[i];
+          if (!dt) continue;
+          const dow  = dayNames[new Date(dt + "T12:00:00").getDay()];
+          const hi   = Math.round((daily.temperature_2m_max || [])[i]);
+          const lo   = Math.round((daily.temperature_2m_min || [])[i]);
+          const code = (daily.weathercode || [])[i];
+          forecastDays.push({ dow, hi, lo, icon: (wmoLabel(code) || "").split(" ")[0] });
         }
+
+        renderWeatherDetailCard({
+          summary, c, f, kmh, mph,
+          humidity, feelsLikeC,
+          feelsLikeF: feelsLikeC != null ? Math.round((feelsLikeC*9/5)+32) : null,
+          precProb, visKm,
+          code: cw.weathercode,
+          forecastDays
+        });
+
+        return summary;
       } catch (e) {
         return null;
       }
-      return null;
+    }
+
+    function renderWeatherDetailCard(d) {
+      const body = document.getElementById("weatherDetailBody");
+      if (!body) return;
+
+      const row = (label, val) => val != null
+        ? `<div class="weather-detail-row">
+             <span class="weather-detail-label">${label}</span>
+             <span class="weather-detail-value">${val}</span>
+           </div>` : "";
+
+      const feelsC = d.feelsLikeC != null ? `${Math.round(d.feelsLikeC)}°C / ${d.feelsLikeF}°F` : null;
+
+      let html = `
+        ${row("Condition", wmoLabel(d.code))}
+        ${row("Temp", `${d.c}°C / ${d.f}°F`)}
+        ${row("Feels Like", feelsC)}
+        ${row("Humidity", d.humidity != null ? `${d.humidity}%` : null)}
+        ${row("Wind", `${d.kmh} km/h / ${d.mph} mph`)}
+        ${row("Precip. chance", d.precProb != null ? `${d.precProb}%` : null)}
+        ${row("Visibility", d.visKm != null ? `${d.visKm} km` : null)}
+      `;
+
+      if (d.forecastDays && d.forecastDays.length > 0) {
+        html += `<div class="weather-forecast-row">`;
+        d.forecastDays.forEach(fd => {
+          html += `<div class="forecast-day">
+            <div class="fd-label">${fd.dow}</div>
+            <div class="fd-icon">${fd.icon}</div>
+            <div class="fd-temp">${fd.hi}° / ${fd.lo}°</div>
+          </div>`;
+        });
+        html += `</div>`;
+      }
+
+      body.innerHTML = html;
+    }
+
+    let _geoPermissionDenied = false;
+
+    async function getGPSCoords() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) { reject(new Error("no geo")); return; }
+        const t = setTimeout(() => reject(new Error("geo timeout")), 10000);
+        navigator.geolocation.getCurrentPosition(
+          pos => { clearTimeout(t); resolve(pos); },
+          err => {
+            clearTimeout(t);
+            if (err && err.code === 1) _geoPermissionDenied = true;
+            reject(err);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+        );
+      });
     }
 
     async function refreshWeatherWidget() {
       let summary = null;
 
-      if (navigator.geolocation) {
-        try {
-          const pos = await new Promise((res, rej) => {
-            const t = setTimeout(() => rej(new Error("geo timeout")), 8000);
-            navigator.geolocation.getCurrentPosition(p => { clearTimeout(t); res(p); }, err => { clearTimeout(t); rej(err); }, { timeout: 8000 });
-          });
-          if (pos && pos.coords) {
-            summary = await fetchWeatherByCoordsSimple(pos.coords.latitude, pos.coords.longitude);
-          }
-        } catch (e) { }
-      }
+      try {
+        const pos = await getGPSCoords();
+        if (pos && pos.coords) {
+          summary = await fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
+        }
+      } catch (e) { /* falls through */ }
 
-      if (!summary) {
+      if (!summary && _geoPermissionDenied) {
         try {
           const ipr = await fetch("https://ipapi.co/json/");
           if (ipr.ok) {
             const ipd = await ipr.json();
             if (ipd && ipd.latitude && ipd.longitude) {
-              summary = await fetchWeatherByCoordsSimple(ipd.latitude, ipd.longitude);
+              summary = await fetchWeatherByCoords(ipd.latitude, ipd.longitude);
             }
           }
-        } catch (e) { }
+        } catch (e) { /* silently fail */ }
       }
 
       if (summary) {
@@ -1794,6 +2021,33 @@
         weatherWedge.setAttribute("aria-hidden", "true");
       }
     }
+
+    /* Weather detail card toggle */
+    const weatherDetailCard = document.getElementById("weatherDetailCard");
+
+    weatherWedge.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = weatherDetailCard.classList.contains("open");
+      weatherDetailCard.classList.toggle("open", !isOpen);
+      weatherDetailCard.setAttribute("aria-hidden", isOpen ? "true" : "false");
+    });
+
+    document.getElementById("weatherRefreshBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.getElementById("weatherDetailBody").innerHTML =
+        `<div style="opacity:0.45;font-size:12px;">Refreshing…</div>`;
+      refreshWeatherWidget();
+    });
+
+    // Close detail card when clicking outside
+    document.addEventListener("click", (e) => {
+      if (weatherDetailCard && weatherDetailCard.classList.contains("open")) {
+        if (!weatherDetailCard.contains(e.target) && !weatherWedge.contains(e.target)) {
+          weatherDetailCard.classList.remove("open");
+          weatherDetailCard.setAttribute("aria-hidden", "true");
+        }
+      }
+    });
 
     /* =========================================
        Right-Click Behavior
@@ -2035,9 +2289,6 @@
       } catch (e) {}
     })();
 
-    /* =========================================
-       Utilities
-       ========================================= */
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
     }
