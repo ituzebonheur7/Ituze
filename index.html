@@ -872,7 +872,7 @@
       <label>Display name</label>
       <input id="displayNameInput" type="text" placeholder="Ituze" aria-label="Display name">
       <div style="font-size:12px;opacity:0.85;margin-top:8px;">
-        Name used in greetings (Default: Ituze)
+        Name used in greetings (default: Ituze)
       </div>
     </div>
 
@@ -1883,7 +1883,7 @@
 
     async function fetchWeatherByCoords(lat, lon) {
       try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&hourly=relativehumidity_2m,apparent_temperature,precipitation_probability,visibility&daily=weathercode,temperature_m_max,temperature_2m_min&timezone=auto&forecast_days=4`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&hourly=relativehumidity_2m,apparent_temperature,precipitation_probability,visibility&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4`;
         const res = await fetch(url);
         if (!res.ok) throw new Error("weather failed");
         const data = await res.json();
@@ -1973,6 +1973,7 @@
       body.innerHTML = html;
     }
 
+    /* GPS permission tracking — only fall back to IP when user explicitly denied */
     let _geoPermissionDenied = false;
 
     async function getGPSCoords() {
@@ -1983,6 +1984,7 @@
           pos => { clearTimeout(t); resolve(pos); },
           err => {
             clearTimeout(t);
+            // err.code 1 = PERMISSION_DENIED
             if (err && err.code === 1) _geoPermissionDenied = true;
             reject(err);
           },
@@ -1994,6 +1996,7 @@
     async function refreshWeatherWidget() {
       let summary = null;
 
+      // 1️⃣ Try GPS first (high accuracy)
       try {
         const pos = await getGPSCoords();
         if (pos && pos.coords) {
@@ -2001,6 +2004,7 @@
         }
       } catch (e) { /* falls through */ }
 
+      // 2️⃣ Only use IP geolocation if the user explicitly denied location access
       if (!summary && _geoPermissionDenied) {
         try {
           const ipr = await fetch("https://ipapi.co/json/");
@@ -2289,6 +2293,9 @@
       } catch (e) {}
     })();
 
+    /* =========================================
+       Utilities
+       ========================================= */
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
     }
