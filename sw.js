@@ -6,7 +6,6 @@ workbox.core.clientsClaim();
 const OFFLINE_HTML = '/offline.html';
 const FALLBACK_IMAGE = '/images/ituze.png';
 
-// Precache all the important files
 workbox.precaching.precacheAndRoute([
   { url: '/', revision: null },
   { url: '/codeviewer.html', revision: null },
