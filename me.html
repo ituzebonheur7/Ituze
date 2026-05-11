@@ -4,44 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ituze Bonheur | @ituzebonheur7</title>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js', new Date);gtag('config','G-4RPPG857F8')</script>
-
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script>
     <script>
-    (function() {
-        var allowedDomain = "ituzebonheur.com";
-        var redirectUrl = "https://" + allowedDomain + "/wrong";
-
-        try {
-            if (window.self === window.top) {
-                if (window.location.hostname !== allowedDomain && window.location.hostname !== "www." + allowedDomain) {
-                    window.location.replace(redirectUrl);
-                }
-            } 
-            else {
-                var parentUrl = document.referrer;
-                if (parentUrl && parentUrl.indexOf(allowedDomain) === -1) {
-                    window.top.location.replace(redirectUrl);
-                }
-            }
-        } catch (e) {
-            window.location.replace(redirectUrl);
-        }
-     })();
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments) }
+        gtag('js', new Date);
+        gtag('config', 'G-4RPPG857F8')
     </script>
-
+    <script>
+        (function() {
+            var allowedDomain = "ituzebonheur.com";
+            var redirectUrl = "https://" + allowedDomain + "/wrong";
+            try {
+                if (window.self === window.top) {
+                    if (window.location.hostname !== allowedDomain && window.location.hostname !== "www." + allowedDomain) {
+                        window.location.replace(redirectUrl);
+                    }
+                } else {
+                    var parentUrl = document.referrer;
+                    if (parentUrl && parentUrl.indexOf(allowedDomain) === -1) {
+                    }
+                }
+            } catch (e) {}
+        })();
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-    
     <style>
-       * {
-         -ms-overflow-style: none !important;
-         scrollbar-width: none !important;
-    }
-         *::-webkit-scrollbar {
-         display: none !important;
-    }
+        * {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        *::-webkit-scrollbar {
+            display: none !important;
+        }
+
         :root {
-            --bg: #030712;
             --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.08);
             --accent: #6366f1;
@@ -50,23 +52,14 @@
             --text-secondary: #94a3b8;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;}
-
         body {
-            background-color: var(--bg);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 40%);
+            background: transparent;
             color: var(--text-primary);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            overflow: hidden;
         }
 
         .profile-card {
@@ -79,7 +72,7 @@
             border-radius: 32px;
             padding: 40px 24px;
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: none; 
             animation: cardEntrance 1s ease-out forwards;
         }
 
@@ -156,16 +149,26 @@
             color: var(--accent);
         }
 
-        .link-card span { flex: 1; text-align: left; margin-left: 8px; }
-        .link-card .chevron { font-size: 0.8rem; opacity: 0.3; }
+        .link-card span {
+            flex: 1;
+            text-align: left;
+            margin-left: 8px;
+        }
+
+        .link-card .chevron {
+            font-size: 0.8rem;
+            opacity: 0.3;
+        }
 
         @keyframes cardEntrance {
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
+
         @keyframes slideUp {
             to { opacity: 1; transform: translateY(0); }
         }
+
         @keyframes float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
@@ -178,9 +181,6 @@
         .link-card:nth-child(5) { animation-delay: 0.8s; }
         .link-card:nth-child(6) { animation-delay: 1.0s; }
         .link-card:nth-child(7) { animation-delay: 1.2s; }
-        .link-card:nth-child(8) { animation-delay: 1.4s; }
-
-
 
         footer {
             margin-top: 32px;
@@ -192,11 +192,11 @@
 </head>
 <body>
     <main class="profile-card">
-      <div class="profile-image-wrapper">
-        <a href="https://ituzebonheur.com" aria-label="Go to Homepage">
-         <img src="https://ituzebonheur.com/images/ituze.png" alt="Ituze Bonheur" class="profile-image">
-        </a>
-      </div>
+        <div class="profile-image-wrapper">
+            <a href="https://ituzebonheur.com" aria-label="Go to Homepage">
+                <img src="https://ituzebonheur.com/images/ituze.png" alt="Ituze Bonheur" class="profile-image">
+            </a>
+        </div>
 
         <h1>Ituze Bonheur</h1>
         <span class="handle">@ituzebonheur7</span>
@@ -212,14 +212,13 @@
                 <i class="fas fa-chevron-right chevron"></i>
             </a>
 
-            <a href="https://g.dev/ituzebonheur7"
-            class="link-card" target="_blank">
+            <a href="https://g.dev/ituzebonheur7" class="link-card" target="_blank">
                 <i class="fa-brands fa-google"></i>
                 <span>Google Dev</span>
                 <i class="fas fa-chevron-right chevron"></i>
             </a>
 
-             <a href="https://www.instagram.com/ituzebonheur7" class="link-card" target="_blank">
+            <a href="https://www.instagram.com/ituzebonheur7" class="link-card" target="_blank">
                 <i class="fa-brands fa-instagram"></i>
                 <span>Instagram</span>
                 <i class="fas fa-chevron-right chevron"></i>
@@ -255,7 +254,7 @@
                 <i class="fas fa-chevron-right chevron" style="color: white;"></i>
             </a>
         </nav>
-        
+
         <footer>
             &copy; 2026 • ituzebonheur7 • Quiet Progress
         </footer>
