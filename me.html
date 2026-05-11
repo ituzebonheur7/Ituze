@@ -4,30 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ituze Bonheur | @ituzebonheur7</title>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments) }
-        gtag('js', new Date);
-        gtag('config', 'G-4RPPG857F8')
-    </script>
-    <script>
-        (function() {
-            var allowedDomain = "ituzebonheur.com";
-            var redirectUrl = "https://" + allowedDomain + "/wrong";
-            try {
-                if (window.self === window.top) {
-                    if (window.location.hostname !== allowedDomain && window.location.hostname !== "www." + allowedDomain) {
-                        window.location.replace(redirectUrl);
-                    }
-                } else {
-                    var parentUrl = document.referrer;
-                    if (parentUrl && parentUrl.indexOf(allowedDomain) === -1) {
-                    }
-                }
-            } catch (e) {}
-        })();
-    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
+    <script> (function() { const allowedDomain = "ituzebonheur.com"; const homeUrl = "https://" + allowedDomain; const errorUrl = homeUrl + "/wrong"; try { if (window.self === window.top) { const hostname = window.location.hostname; if (hostname !== allowedDomain && hostname !== "www." + allowedDomain) { window.location.replace(homeUrl); } } else { const parentUrl = document.referrer; if (!parentUrl || !parentUrl.includes(allowedDomain)) { window.top.location.replace(errorUrl); } } } catch (e) { window.location.replace(errorUrl); } })(); </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <style>
         * {
@@ -57,9 +35,10 @@
             color: var(--text-primary);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
-            overflow: hidden;
+            padding: 20px 10px;
+            overflow-y: auto;
         }
 
         .profile-card {
@@ -72,8 +51,9 @@
             border-radius: 32px;
             padding: 40px 24px;
             text-align: center;
-            box-shadow: none; 
+            box-shadow: none;
             animation: cardEntrance 1s ease-out forwards;
+            margin: auto;
         }
 
         .profile-image-wrapper {
@@ -193,7 +173,7 @@
 <body>
     <main class="profile-card">
         <div class="profile-image-wrapper">
-            <a href="https://ituzebonheur.com" aria-label="Go to Homepage">
+            <a href="https://ituzebonheur.com" aria-label="Go to Homepage" target="_top">
                 <img src="https://ituzebonheur.com/images/ituze.png" alt="Ituze Bonheur" class="profile-image">
             </a>
         </div>
