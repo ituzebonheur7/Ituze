@@ -8,7 +8,6 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9271533798664162"
      crossorigin="anonymous"></script>
-  <!-- AD -->
   <ins class="adsbygoogle"
      style="display:inline-block;width:728px;height:90px"
      data-ad-client="ca-pub-9271533798664162"
@@ -19,9 +18,9 @@
   <meta name="description" content="A Cyber-inspired dashboard featuring a dynamic Matrix-rain backdrop and real-time utility tracking. @ituzebonheur7">
   <link rel="icon" href="images/ituze.png" type="image/png">
   <title>Home Tab - Ituze</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" /> 
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <script src="/js/router.js"></script>
-    
+
   <style>
    :root {
      --text-main: #cbd5e1;
@@ -30,10 +29,9 @@
     * { box-sizing: border-box; }
     html, body, * {
       -ms-overflow-style: none;
-      scrollbar-width: none;   
+      scrollbar-width: none;
     }
     *::-webkit-scrollbar { display: none !important; width: 0; height: 0; }
-    
 
     body {
       margin: 0;
@@ -63,6 +61,7 @@
       box-shadow: 0 12px 40px rgba(0,0,0,0.55);
     }
 
+    /* ── Top Button ── */
     .top-btn {
       position: fixed;
       top: 20px;
@@ -90,6 +89,7 @@
       pointer-events: none;
     }
 
+    /* ── Profile Iframe Panel (top-left) ── */
     #iframePanel {
       position: fixed;
       top: 20px;
@@ -112,7 +112,7 @@
       height: 600px;
       border-radius: 24px;
       pointer-events: auto;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
     }
     #iframePanelContent {
       width: 100%;
@@ -125,11 +125,14 @@
       opacity: 1;
     }
     #iframePanelContent iframe {
+      position: absolute;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
       border: none;
     }
 
+    /* ── Settings Toggle ── */
     #settingsToggle {
       position: fixed;
       top: 20px;
@@ -152,6 +155,7 @@
       box-shadow: 0 0 18px var(--accent);
     }
 
+    /* ── Settings Panel ── */
     #settingsPanel {
       position: fixed;
       top: 70px;
@@ -164,7 +168,6 @@
       pointer-events: none;
       transition: 0.3s ease;
       z-index: 2000;
-
       max-height: calc(100vh - 100px);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -175,51 +178,27 @@
       transform: translateY(0);
       pointer-events: auto;
     }
-
-    #settingsPanel h3 {
-      margin: 0 0 12px;
-      font-size: 17px;
-      font-weight: 600;
-    }
-
-    .settings-group {
-      margin-bottom: 16px;
-    }
-
+    #settingsPanel h3 { margin: 0 0 12px; font-size: 17px; font-weight: 600; }
+    .settings-group { margin-bottom: 16px; }
     .settings-group label {
-      display: block;
-      font-size: 11px;
-      margin-bottom: 6px;
-      color: #93c5fd;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
+      display: block; font-size: 11px; margin-bottom: 6px;
+      color: #93c5fd; text-transform: uppercase; letter-spacing: 0.12em;
     }
-
-    .settings-group select, .settings-group input[type="text"], .settings-group input[type="password"] {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 10px;
+    .settings-group select,
+    .settings-group input[type="text"],
+    .settings-group input[type="password"] {
+      width: 100%; padding: 8px 10px; border-radius: 10px;
       border: 1px solid var(--glass-border);
-      background: rgba(0,0,0,0.35);
-      color: #e5e7eb;
-      outline: none;
-      appearance: none;
+      background: rgba(0,0,0,0.35); color: #e5e7eb;
+      outline: none; appearance: none;
     }
-
     .settings-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      margin-bottom: 6px;
+      display: flex; justify-content: space-between;
+      align-items: center; font-size: 13px; margin-bottom: 6px;
     }
+    .settings-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
 
-    .settings-row input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--accent);
-    }
-
+    /* ── Main Container ── */
     .container {
       position: absolute;
       top: 43%;
@@ -231,661 +210,489 @@
 
     .date { font-size: 15px; opacity: 0.8; margin-bottom: 4px; }
     .clock { font-size: 40px; font-weight: 600; margin-bottom: 4px; }
-    .greeting {
-      font-size: 46px;
-      font-weight: 800;
-      margin-bottom: 12px;
-      text-shadow: 0 0 22px var(--accent);
-    }
+    .greeting { font-size: 46px; font-weight: 800; margin-bottom: 12px; text-shadow: 0 0 22px var(--accent); }
     .tz { font-size: 13px; opacity: 0.8; margin-bottom: 16px; }
 
+    /* ── Search ── */
     .chrome-search-wrapper {
-      width: 100%;
-      max-width: 820px;
-      margin: 0 auto 25px;
-      position: relative;
+      width: 100%; max-width: 820px; margin: 0 auto 25px; position: relative;
     }
-
     .chrome-search {
-      display: flex;
-      align-items: center;
-      height: 52px;
-      padding: 0 16px;
-      border-radius: 32px;
+      display: flex; align-items: center;
+      height: 52px; padding: 0 16px; border-radius: 32px;
     }
-
     .chrome-search input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      font-size: 17px;
-      color: #fff;
-      outline: none;
+      flex: 1; border: none; background: transparent;
+      font-size: 17px; color: #fff; outline: none;
     }
-
-    .chrome-search input::placeholder {
-      color: rgba(255,255,255,0.75);
-    }
-
-    .chrome-icons {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
+    .chrome-search input::placeholder { color: rgba(255,255,255,0.75); }
+    .chrome-icons { display: flex; align-items: center; gap: 12px; }
     .icon-btn {
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      opacity: 0.75;
-      color: #fff;
-      transition: 0.2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      border-radius: 999px;
-      transform-origin: center;
+      background: transparent; border: none; font-size: 20px;
+      cursor: pointer; opacity: 0.75; color: #fff; transition: 0.2s;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px; border-radius: 999px; transform-origin: center;
     }
-    .icon-btn:hover {
-      opacity: 1;
-      text-shadow: 0 0 12px var(--accent);
-      transform: scale(1.06);
-    }
-
+    .icon-btn:hover { opacity: 1; text-shadow: 0 0 12px var(--accent); transform: scale(1.06); }
     .icon-btn.listening {
       box-shadow: 0 0 18px var(--accent), 0 0 42px color-mix(in srgb, var(--accent) 30%, rgba(0,0,0,0));
       transform: scale(1.04);
     }
-
     .ai-mode-btn {
-      padding: 6px 16px;
-      border-radius: 20px;
-      border: 1px solid var(--glass-border);
-      background: rgba(0,0,0,0.25);
-      color: #fff;
-      font-size: 13px;
-      cursor: pointer;
-      transition: 0.2s;
-      transform-origin: center;
+      padding: 6px 16px; border-radius: 20px;
+      border: 1px solid var(--glass-border); background: rgba(0,0,0,0.25);
+      color: #fff; font-size: 13px; cursor: pointer; transition: 0.2s; transform-origin: center;
     }
-    .ai-mode-btn:hover {
-      border-color: var(--accent);
-      box-shadow: 0 0 18px var(--accent);
-      transform: scale(1.04);
-    }
+    .ai-mode-btn:hover { border-color: var(--accent); box-shadow: 0 0 18px var(--accent); transform: scale(1.04); }
 
+    /* ── Suggestions ── */
     .suggestions {
-      position: absolute;
-      top: 58px;
-      left: 0;
-      width: 100%;
-      border-radius: 18px;
-      display: none;
-      overflow: hidden;
-      z-index: 1000;
-      text-align: left;
-      max-height: 320px;
-      overflow-y: auto;
-      padding: 6px 0;
+      position: absolute; top: 58px; left: 0; width: 100%;
+      border-radius: 18px; display: none; overflow: hidden; z-index: 1000;
+      text-align: left; max-height: 320px; overflow-y: auto; padding: 6px 0;
     }
-
     .suggestion-item {
-      padding: 12px 18px;
-      font-size: 14px;
-      cursor: pointer;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      color: #fff;
-      text-align: left;
-      background: transparent;
-      user-select: none;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      transform-origin: left center;
-      transition: 0.12s ease;
+      padding: 12px 18px; font-size: 14px; cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.06); color: #fff;
+      text-align: left; background: transparent; user-select: none;
+      display: flex; justify-content: space-between; gap: 12px; align-items: center;
+      transform-origin: left center; transition: 0.12s ease;
     }
-    .suggestion-item:hover,
-    .suggestion-item.active {
-      background: rgba(255,255,255,0.04);
-      transform: scale(1.01);
-    }
-    .suggestion-meta {
-      opacity: 0.7;
-      font-size: 12px;
-      color: #cbd5e1;
-    }
+    .suggestion-item:hover, .suggestion-item.active { background: rgba(255,255,255,0.04); transform: scale(1.01); }
+    .suggestion-meta { opacity: 0.7; font-size: 12px; color: #cbd5e1; }
 
-    .shortcuts {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .shortcuts-row {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(5, 1fr);
-    }
-
+    /* ── Shortcuts ── */
+    .shortcuts { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+    .shortcuts-row { display: grid; gap: 10px; grid-template-columns: repeat(5, 1fr); }
     .shortcut {
-      padding: 12px;
-      border-radius: 14px;
-      text-decoration: none;
-      color: #fff;
-      font-size: 14px;
-      transition: 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-weight: 500;
-      transform-origin: center;
+      padding: 12px; border-radius: 14px; text-decoration: none;
+      color: #fff; font-size: 14px; transition: 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; font-weight: 500; transform-origin: center;
     }
-    .shortcut:hover {
-      transform: scale(1.06);
-      box-shadow: 0 18px 50px rgba(0,0,0,0.7);
-      border-color: var(--accent);
-    }
+    .shortcut:hover { transform: scale(1.06); box-shadow: 0 18px 50px rgba(0,0,0,0.7); border-color: var(--accent); }
 
+    /* ── Toast ── */
     #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
+      position: fixed; bottom: 20px; left: 50%;
       transform: translateX(-50%) translateY(20px);
-      padding: 10px 18px;
-      border-radius: 999px;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transition: 0.25s;
-      z-index: 2500;
+      padding: 10px 18px; border-radius: 999px; font-size: 13px;
+      opacity: 0; pointer-events: none; transition: 0.25s; z-index: 2500;
     }
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    /* ── Battery ── */
     #battery {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      z-index: 50;
+      position: fixed; bottom: 20px; right: 20px;
+      padding: 8px 14px; border-radius: 999px; font-size: 12px;
+      display: flex; align-items: center; gap: 6px; z-index: 50;
     }
-
     #battery-icon {
-      width: 18px;
-      height: 10px;
-      border-radius: 3px;
-      border: 2px solid #e5e7eb;
-      position: relative;
+      width: 18px; height: 10px; border-radius: 3px;
+      border: 2px solid #e5e7eb; position: relative;
     }
-
     #battery-icon::after {
-      content: "";
-      position: absolute;
-      right: -4px;
-      top: 2px;
-      width: 3px;
-      height: 6px;
-      border-radius: 1px;
-      background: #e5e7eb;
+      content: ""; position: absolute; right: -4px; top: 2px;
+      width: 3px; height: 6px; border-radius: 1px; background: #e5e7eb;
     }
-
     #battery-level-bar {
-      position: absolute;
-      left: 1px;
-      top: 1px;
-      bottom: 1px;
-      border-radius: 2px;
-      background: var(--accent);
-      width: 50%;
+      position: absolute; left: 1px; top: 1px; bottom: 1px;
+      border-radius: 2px; background: var(--accent); width: 50%;
     }
 
+    /* ── Ripple ── */
     .ripple {
-      position: absolute;
-      border-radius: 999px;
-      transform: scale(0);
-      animation: ripple 0.5s ease-out;
+      position: absolute; border-radius: 999px;
+      transform: scale(0); animation: ripple 0.5s ease-out;
       pointer-events: none;
-      background: color-mix(in srgb, var(--accent) 35%, white);
-      opacity: 0.4;
+      background: color-mix(in srgb, var(--accent) 35%, white); opacity: 0.4;
     }
+    @keyframes ripple { to { transform: scale(3.5); opacity: 0; } }
 
-    @keyframes ripple {
-      to {
-        transform: scale(3.5);
-        opacity: 0;
-      }
-    }
-
-      background: rgba(15,23,42,var(--launcher-opacity));
-      backdrop-filter: blur(28px) saturate(180%);
-      -webkit-backdrop-filter: blur(28px) saturate(180%);
-      border: 1px solid var(--launcher-border-color);
-
-      border-radius: 26px;
-      box-shadow:
-        0 18px 45px rgba(0,0,0,0.75),
-        0 0 40px var(--accent);
-
-      display: none;
-      z-index: 2100;
-      overflow: hidden;
-
-      opacity: 0;
-      transform: translateY(20px) scale(0.96);
-      transition: opacity .28s ease, transform .28s ease;
-     }
-
-    .launcher-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      gap: 10px;
-    }
-
-    .launcher-title {
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: color-mix(in srgb, var(--accent) 70%, #e5e7eb);
-    }
-
-    .launcher-close {
-      border: none;
-      background: transparent;
-      color: #e5e7eb;
-      cursor: pointer;
-      font-size: 16px;
-      opacity: 0.7;
-      transition: 0.2s;
-      position: relative;
-      overflow: hidden;
-      border-radius: 999px;
-      padding: 4px 8px;
-      transform-origin: center;
-    }
-    .launcher-close:hover {
-      opacity: 1;
-      transform: scale(1.08);
-    }
-
-    .launcher-search {
-      margin-bottom: 10px;
-    }
-
-    .launcher-search-input {
-      width: 100%;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      background: rgba(15,23,42,0.6);
-      color: #e5e7eb;
-      font-size: 13px;
-      outline: none;
-    }
-
-    .launcher-scroll {
-      max-height: 440px;
-      overflow-y: scroll;
-      padding-right: 4px;
-      scrollbar-width: none;
-    }
-    .launcher-scroll::-webkit-scrollbar {
-      display: none;
-    }
-
-    .launcher-section {
-      margin-bottom: 14px;
-      border-radius: 16px;
-      background: var(--launcher-section-bg);
-      border: 1px solid var(--launcher-section-border);
-      overflow: hidden;
-    }
-
-    .launcher-section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .launcher-section-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--accent);
-      opacity: 0.9;
-    }
-
-    .launcher-section-toggle {
-      font-size: 14px;
-      color: #9ca3af;
-      transition: transform 0.2s ease;
-    }
-
-    .launcher-section.collapsed .launcher-section-toggle {
-      transform: rotate(-90deg);
-    }
-
-    .launcher-list-wrapper {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.25s ease;
-    }
-
-    .launcher-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .launcher-item {
-      border-top: 1px solid rgba(31,41,55,0.9);
-    }
-
-    .launcher-link {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 10px;
-      font-size: 13px;
-      text-decoration: none;
-      color: #e5e7eb;
-      transition: background 0.18s ease, transform 0.12s ease;
-      position: relative;
-      overflow: hidden;
-      border-radius: 0;
-    }
-
-    .launcher-link span {
-      opacity: 0.95;
-    }
-
-    .launcher-link small {
-      font-size: 11px;
-      color: #9ca3af;
-      opacity: 0.85;
-      margin-left: 8px;
-    }
-
-    .launcher-link:hover {
-      background: linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--accent) 25%, transparent),
-        rgba(15,23,42,0.9)
-      );
-      transform: scale(1.02);
-    }
-
-    .launcher-empty {
-      font-size: 12px;
-      color: #9ca3af;
-      padding: 6px 10px 2px;
-      font-style: italic;
-    }
-
-    /* Custom color UI inside settings */
-    .custom-color-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-top: 8px;
-    }
-    .custom-color-row input[type="color"] {
-      width: 40px;
-      height: 34px;
-      padding: 0;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-    }
+    /* ── Custom Color ── */
+    .custom-color-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+    .custom-color-row input[type="color"] { width: 40px; height: 34px; padding: 0; border: none; background: transparent; cursor: pointer; }
     .custom-color-row input[type="text"] {
-      flex: 1;
-      padding: 8px 10px;
-      border-radius: 8px;
+      flex: 1; padding: 8px 10px; border-radius: 8px;
       border: 1px solid var(--glass-border);
-      background: rgba(0,0,0,0.35);
-      color: #e5e7eb;
-      outline: none;
-      font-family: monospace;
+      background: rgba(0,0,0,0.35); color: #e5e7eb;
+      outline: none; font-family: monospace;
     }
 
-    /* custom context menu for shortcuts / empty space */
+    /* ── Context Menu ── */
     .context-menu {
-      position: fixed;
-      background: rgba(5,7,10,0.98);
-      border: 1px solid var(--glass-border);
-      border-radius: 8px;
-      padding: 8px;
-      z-index: 5000;
-      display: none;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-      min-width: 160px;
+      position: fixed; background: rgba(5,7,10,0.98);
+      border: 1px solid var(--glass-border); border-radius: 8px;
+      padding: 8px; z-index: 9999; display: none;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7); min-width: 170px;
     }
     .context-menu button {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 8px;
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      cursor: pointer;
-      border-radius: 6px;
-      transition: background 0.18s ease, transform 0.15s cubic-bezier(0.4,0,0.2,1), box-shadow 0.18s ease;
+      display: block; width: 100%; text-align: left; padding: 8px 10px;
+      background: transparent; border: none; color: var(--text-main);
+      cursor: pointer; border-radius: 6px;
+      transition: background 0.18s ease, transform 0.15s cubic-bezier(0.4,0,0.2,1);
+      font-size: 13px;
     }
-    .context-menu button:hover {
-      background: rgba(255,255,255,0.06);
-      transform: scale(1.03);
-    }
-    .context-menu button:active {
-      transform: scale(0.97);
+    .context-menu button:hover { background: rgba(255,255,255,0.06); transform: scale(1.02); }
+    .context-menu button:active { transform: scale(0.97); }
+    .context-menu-sep {
+      height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0;
     }
 
-    /* ── Universal button transition polish ── */
-    button, .top-btn, .icon-btn, .ai-mode-btn, .launcher-close,
+    /* ── Button transitions ── */
+    button, .top-btn, .icon-btn, .ai-mode-btn,
     #settingsToggle, #resetStorage, #weatherRefreshBtn, .save-btn {
       transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease,
                   box-shadow 0.22s ease, transform 0.18s cubic-bezier(0.4,0,0.2,1),
                   opacity 0.2s ease !important;
     }
     button:active, .top-btn:active, .icon-btn:active,
-    .ai-mode-btn:active, .launcher-close:active, #resetStorage:active,
-    #weatherRefreshBtn:active, .save-btn:active {
-      transform: scale(0.94) !important;
-      opacity: 0.85 !important;
+    .ai-mode-btn:active, #resetStorage:active, #weatherRefreshBtn:active, .save-btn:active {
+      transform: scale(0.94) !important; opacity: 0.85 !important;
     }
     #resetStorage, .save-btn {
-      cursor: pointer;
-      border-radius: 10px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      border: 1px solid transparent;
+      cursor: pointer; border-radius: 10px; padding: 8px 14px;
+      font-size: 13px; font-weight: 600; border: 1px solid transparent;
     }
     #resetStorage:hover, .save-btn:hover {
-      filter: brightness(1.15);
-      box-shadow: 0 0 18px rgba(239,68,68,0.5);
+      filter: brightness(1.15); box-shadow: 0 0 18px rgba(239,68,68,0.5);
       transform: scale(1.04) !important;
     }
 
     /* ── Weather Detail Card ── */
     #weatherDetailCard {
-      position: fixed;
-      bottom: 70px;
-      left: 80px;
-      width: 240px;
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: rgba(5,8,15,0.92);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
-      z-index: 2060;
-      opacity: 0;
-      transform: translateY(10px) scale(0.97);
+      position: fixed; bottom: 70px; left: 80px;
+      width: 240px; padding: 14px 16px; border-radius: 16px;
+      background: rgba(5,8,15,0.92); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7); z-index: 2060;
+      opacity: 0; transform: translateY(10px) scale(0.97);
       pointer-events: none;
       transition: opacity 0.22s ease, transform 0.22s ease;
-      color: var(--text-main);
-      font-size: 13px;
+      color: var(--text-main); font-size: 13px;
     }
-    #weatherDetailCard.open {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
+    #weatherDetailCard.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
     .weather-detail-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 5px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .weather-detail-row:last-child { border-bottom: none; }
     .weather-detail-label { opacity: 0.6; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
     .weather-detail-value { font-weight: 600; color: var(--accent); }
     .weather-forecast-row {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding-top: 8px;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      gap: 4px;
+      display: flex; justify-content: space-between;
+      margin-top: 10px; padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.07); gap: 4px;
     }
-    .forecast-day {
-      flex: 1;
-      text-align: center;
-      font-size: 11px;
-    }
+    .forecast-day { flex: 1; text-align: center; font-size: 11px; }
     .forecast-day .fd-label { opacity: 0.55; margin-bottom: 2px; }
     .forecast-day .fd-temp { font-weight: 600; color: var(--accent); font-size: 12px; }
     .forecast-day .fd-icon { font-size: 16px; }
     #weatherDetailCard .wd-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      opacity: 0.85;
-      margin-bottom: 8px;
-      font-weight: 600;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--accent); opacity: 0.85; margin-bottom: 8px; font-weight: 600;
     }
     #weatherRefreshBtn {
-      margin-top: 10px;
-      width: 100%;
-      padding: 6px;
-      border-radius: 8px;
+      margin-top: 10px; width: 100%; padding: 6px; border-radius: 8px;
       border: 1px solid var(--glass-border);
-      background: rgba(255,255,255,0.04);
-      color: var(--text-main);
-      font-size: 11px;
-      cursor: pointer;
+      background: rgba(255,255,255,0.04); color: var(--text-main); font-size: 11px; cursor: pointer;
     }
     #weatherRefreshBtn:hover {
-      background: rgba(255,255,255,0.09);
-      border-color: var(--accent);
+      background: rgba(255,255,255,0.09); border-color: var(--accent);
       box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 35%, transparent);
       transform: scale(1.03) !important;
     }
 
-    /* Weather wedge (bottom-left, next to apps) */
+    /* ── Weather Wedge ── */
     #weatherWedge {
-      position: fixed;
-      bottom: 20px;
-      left: 80px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(10,12,15,0.6);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      font-size: 13px;
-      z-index: 2050;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      cursor: default;
-      transition: transform 0.18s ease;
+      position: fixed; bottom: 20px; left: 80px;
+      padding: 10px 12px; border-radius: 12px;
+      background: rgba(10,12,15,0.6); border: 1px solid var(--glass-border);
+      color: var(--text-main); font-size: 13px; z-index: 2050;
+      display: flex; gap: 8px; align-items: center;
+      cursor: default; transition: transform 0.18s ease;
     }
     #weatherWedge:hover { transform: scale(1.03); }
 
-    @media (max-width: 900px) {
-      .shortcuts-row {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      #settingsPanel { width: 340px; right: 12px; }
-      #weatherWedge { left: 76px; }
-      #iframePanel {
-        width: 90vw;
-        height: auto;
-        max-height: 70vh;
-        left: 5vw;
-        right: 5vw;
-      }
+    /* ══════════════════════════════════════════
+       GOOGLE IFRAME PANEL (centered, full-screen-ish)
+    ══════════════════════════════════════════ */
+    #googleIframePanel {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
+      width: min(900px, 95vw);
+      height: min(620px, 88vh);
+      border-radius: 20px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+      z-index: 3000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    #googleIframePanel.open {
+      opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto;
+    }
+    #googleIframePanel iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+    }
+    #googleIframePanelClose {
+      position: absolute; top: 10px; right: 12px; z-index: 10;
+      background: rgba(0,0,0,0.55); color: #fff; border: none;
+      border-radius: 50%; width: 28px; height: 28px; font-size: 14px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: 0.2s;
+    }
+    #googleIframePanelClose:hover { background: rgba(0,0,0,0.85); transform: scale(1.1) !important; }
+
+    /* ══════════════════════════════════════════
+       GAMES IFRAME PANEL (centered)
+    ══════════════════════════════════════════ */
+    #gamesIframePanel {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
+      width: min(960px, 97vw);
+      height: min(650px, 90vh);
+      border-radius: 20px;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+      z-index: 3000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    #gamesIframePanel.open {
+      opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto;
+    }
+    #gamesIframePanel iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+    }
+    #gamesIframePanelClose {
+      position: absolute; top: 10px; right: 12px; z-index: 10;
+      background: rgba(0,0,0,0.65); color: #fff; border: none;
+      border-radius: 50%; width: 28px; height: 28px; font-size: 14px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: 0.2s;
+    }
+    #gamesIframePanelClose:hover { background: rgba(255,60,60,0.8); transform: scale(1.1) !important; }
+
+    /* ══════════════════════════════════════════
+       QR CODE IFRAME PANEL (centered, compact)
+    ══════════════════════════════════════════ */
+    #qrIframePanel {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
+      width: min(480px, 96vw);
+      height: min(520px, 85vh);
+      border-radius: 20px;
+      overflow: hidden;
+      background: #0f172a;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.85);
+      z-index: 3000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    #qrIframePanel.open {
+      opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto;
+    }
+    #qrIframePanel iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+    }
+    #qrIframePanelClose {
+      position: absolute; top: 10px; right: 12px; z-index: 10;
+      background: rgba(0,0,0,0.55); color: #fff; border: none;
+      border-radius: 50%; width: 28px; height: 28px; font-size: 14px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: 0.2s;
+    }
+    #qrIframePanelClose:hover { background: rgba(0,0,0,0.85); transform: scale(1.1) !important; }
+
+    /* ══════════════════════════════════════════
+       FEEDBACK IFRAME PANEL (bottom-right)
+    ══════════════════════════════════════════ */
+    #feedbackIframePanel {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 400px;
+      height: 600px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #0f172a;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.85);
+      z-index: 3000;
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    #feedbackIframePanel.open {
+      opacity: 1; transform: translateY(0) scale(1); pointer-events: auto;
+    }
+    #feedbackIframePanel iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+    }
+    #feedbackIframePanelClose {
+      position: absolute; top: 10px; right: 12px; z-index: 10;
+      background: rgba(0,0,0,0.55); color: #fff; border: none;
+      border-radius: 50%; width: 28px; height: 28px; font-size: 14px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: 0.2s;
+    }
+    #feedbackIframePanelClose:hover { background: rgba(239,68,68,0.8); transform: scale(1.1) !important; }
+
+    /* ══════════════════════════════════════════
+       CODE VIEWER — Draggable Window (centered)
+    ══════════════════════════════════════════ */
+    #codeViewerWindow {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(860px, 95vw);
+      height: min(580px, 88vh);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0a0f1e;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+      z-index: 3100;
+      display: none;
+      flex-direction: column;
+      opacity: 0;
+      transition: opacity 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+    #codeViewerWindow.open {
+      display: flex; opacity: 1;
+    }
+    #codeViewerWindow.minimized {
+      height: 44px !important;
+      overflow: hidden;
+    }
+    /* Title bar */
+    #codeViewerTitleBar {
+      display: flex; align-items: center;
+      height: 44px; min-height: 44px;
+      background: rgba(15,23,42,0.95);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 0 12px; cursor: grab; gap: 8px;
+      user-select: none;
+    }
+    #codeViewerTitleBar:active { cursor: grabbing; }
+    .cv-dot {
+      width: 12px; height: 12px; border-radius: 50%; cursor: pointer;
+      transition: filter 0.2s, transform 0.15s;
+      flex-shrink: 0;
+    }
+    .cv-dot:hover { filter: brightness(1.3); transform: scale(1.15); }
+    #cvDotClose { background: #ff5f57; }
+    #cvDotMin   { background: #febc2e; }
+    .cv-title {
+      flex: 1; text-align: center; font-size: 13px; font-weight: 600;
+      color: #94a3b8; letter-spacing: 0.05em; pointer-events: none;
+    }
+    #codeViewerBody {
+      flex: 1; position: relative; overflow: hidden;
+    }
+    #codeViewerBody iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
     }
 
-    @media (max-width: 600px) {
-      .shortcuts-row {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    /* ── Overlay for closing panels by clicking outside ── */
+    #panelOverlay {
+      position: fixed; inset: 0; z-index: 2900;
+      display: none;
+      background: rgba(0,0,0,0.01); /* nearly invisible, just catches clicks */
+    }
+    #panelOverlay.active { display: block; }
 
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .shortcuts-row { grid-template-columns: repeat(3, 1fr); }
+      #settingsPanel { width: 340px; right: 12px; }
+      #weatherWedge { left: 76px; }
+      #feedbackIframePanel { width: 95vw; right: 10px; height: 500px; }
+      #codeViewerWindow { width: 98vw; }
+    }
+    @media (max-width: 600px) {
+      .shortcuts-row { grid-template-columns: repeat(2, 1fr); }
       #weatherWedge { display: none; }
-      #iframePanel {
-        width: calc(100vw - 20px);
-        height: auto;
-        max-height: 80vh;
-        left: 10px;
-        right: 10px;
-      }
+      #feedbackIframePanel { width: calc(100vw - 20px); right: 10px; bottom: 10px; height: 450px; }
     }
   </style>
 </head>
 <body>
 
   <script src="/js/screen.js"></script>
-
   <canvas id="matrix"></canvas>
 
-  <button id="topLink" class="top-btn" aria-label="Open Ituze profile">
-    Ituze
-  </button>
+  <button id="topLink" class="top-btn" aria-label="Open Ituze profile">Ituze</button>
 
+  <!-- Profile Iframe Panel (top-left) — src only set on open -->
   <div id="iframePanel">
     <div id="iframePanelContent">
-      <iframe id="profileIframe" src="https://ituzebonheur.com/me" title="Ituze"></iframe>
+      <!-- iframe injected dynamically -->
     </div>
   </div>
+
+  <!-- Google Iframe Panel -->
+  <div id="googleIframePanel">
+    <button id="googleIframePanelClose" aria-label="Close Google">✕</button>
+    <!-- iframe injected dynamically -->
+  </div>
+
+  <!-- Games Iframe Panel -->
+  <div id="gamesIframePanel">
+    <button id="gamesIframePanelClose" aria-label="Close Games">✕</button>
+    <!-- iframe injected dynamically -->
+  </div>
+
+  <!-- QR Code Iframe Panel -->
+  <div id="qrIframePanel">
+    <button id="qrIframePanelClose" aria-label="Close QR Code">✕</button>
+    <!-- iframe injected dynamically -->
+  </div>
+
+  <!-- Feedback Iframe Panel (bottom-right) -->
+  <div id="feedbackIframePanel">
+    <button id="feedbackIframePanelClose" aria-label="Close Feedback">✕</button>
+    <!-- iframe injected dynamically -->
+  </div>
+
+  <!-- Code Viewer Draggable Window -->
+  <div id="codeViewerWindow" role="dialog" aria-label="Code Viewer">
+    <div id="codeViewerTitleBar">
+      <div class="cv-dot" id="cvDotClose" title="Close (restarts)"></div>
+      <div class="cv-dot" id="cvDotMin" title="Minimize (saves state)"></div>
+      <div class="cv-title">Code Viewer</div>
+    </div>
+    <div id="codeViewerBody">
+      <!-- iframe injected dynamically -->
+    </div>
+  </div>
+
+  <!-- Click-outside overlay -->
+  <div id="panelOverlay"></div>
 
   <div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
 
   <div id="settingsPanel" class="glass" role="dialog" aria-modal="false" aria-hidden="true">
     <h3>Settings</h3>
-
     <div class="settings-group">
       <label>Display name</label>
       <input id="displayNameInput" type="text" placeholder="Ituze" aria-label="Display name">
-      <div style="font-size:12px;opacity:0.85;margin-top:8px;">
-        Name used in greetings (default: Ituze)
-      </div>
+      <div style="font-size:12px;opacity:0.85;margin-top:8px;">Name used in greetings (default: Ituze)</div>
     </div>
-
     <div class="settings-group">
       <label>Default Search Engine</label>
       <select id="engineSelect" aria-label="Default search engine">
@@ -897,7 +704,6 @@
         <option value="startpage">Startpage</option>
       </select>
     </div>
-
     <div class="settings-group">
       <label>Theme Color</label>
       <select id="themeSelect" aria-label="Theme color">
@@ -907,13 +713,11 @@
         <option value="yellow">Yellow</option>
         <option value="custom">Custom</option>
       </select>
-
       <div id="customColorPicker" class="custom-color-row" style="display:none;">
         <input id="customColorInput" type="color" aria-label="Custom accent color picker" value="#00ff9c">
         <input id="customColorHex" type="text" aria-label="Custom accent hex value" placeholder="#00ff9c">
       </div>
     </div>
-
     <div class="settings-group">
       <label>Search Options</label>
       <div class="settings-row">
@@ -933,7 +737,6 @@
         <input type="checkbox" id="toggleLocalOnly" aria-label="Local-only suggestions">
       </div>
     </div>
-
     <div class="settings-group">
       <label>Visuals</label>
       <div class="settings-row">
@@ -941,24 +744,20 @@
         <input type="checkbox" id="toggleMatrix" aria-label="Disable matrix">
       </div>
     </div>
-
     <div class="settings-group">
       <label>Storage</label>
       <div style="margin-top:8px;">
-        <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data & reset</button>
+        <button id="resetStorage" class="save-btn" style="background:linear-gradient(135deg,#ef4444,#f43f5e);">Clear data &amp; reset</button>
       </div>
     </div>
- 
   </div>
 
   <div id="battery" class="glass" aria-hidden="false">
-    <div id="battery-icon">
-      <div id="battery-level-bar"></div>
-    </div>
+    <div id="battery-icon"><div id="battery-level-bar"></div></div>
     <span id="battery-text">Battery: loading... %</span>
   </div>
 
-  <div id="weatherWedge" class="glass" aria-hidden="true" title="Current weather (click to refresh)">
+  <div id="weatherWedge" class="glass" aria-hidden="true" title="Current weather (click for details)">
     <div id="weatherText">Weather: loading...</div>
   </div>
 
@@ -982,10 +781,8 @@
     <div class="shortcuts" id="shortcutsContainer" aria-live="polite"></div>
   </div>
 
-  <!-- Context menu (used for shortcuts & empty space) -->
-  <div id="contextMenu" class="context-menu" role="menu" aria-hidden="true">
-    <!-- Buttons are added dynamically depending on context -->
-  </div>
+  <!-- Context Menu -->
+  <div id="contextMenu" class="context-menu" role="menu" aria-hidden="true"></div>
 
   <!-- Weather Detail Card -->
   <div id="weatherDetailCard" aria-hidden="true">
@@ -996,1324 +793,1331 @@
     <button id="weatherRefreshBtn">↺ Refresh</button>
   </div>
 
+  <!-- Toast -->
+  <div id="toast" class="glass"></div>
+
   <script>
-    /* =========================================
-       Iframe Panel Management
-       ========================================= */
-    const iframePanel = document.getElementById("iframePanel");
-    const topBtn = document.getElementById("topLink");
-    const profileIframe = document.getElementById("profileIframe");
-    let isPanelOpen = false;
+  /* ═══════════════════════════════════════════════════════
+     PANEL MANAGER — Only one panel open at a time
+  ═══════════════════════════════════════════════════════ */
 
-    function openIframePanel() {
-      closeAllPanels([iframePanel]);
-      profileIframe.src = profileIframe.src; // Force Refresh
-      topBtn.classList.add("hidden");
-      iframePanel.classList.add("open");
-      isPanelOpen = true;
+  // All registered panels. Each entry: { id, openFn, closeFn }
+  const PANELS = {};
+  let _activePanelId = null;
+
+  function registerPanel(id, openFn, closeFn) {
+    PANELS[id] = { id, openFn, closeFn };
+  }
+
+  function openPanel(id) {
+    // Close current panel if different
+    if (_activePanelId && _activePanelId !== id) {
+      const cur = PANELS[_activePanelId];
+      if (cur) cur.closeFn(true /* silent */);
     }
+    _activePanelId = id;
+    const p = PANELS[id];
+    if (p) p.openFn();
+    // Show overlay to catch outside clicks
+    document.getElementById('panelOverlay').classList.add('active');
+  }
 
-    function closeIframePanel() {
-      iframePanel.classList.remove("open");
-      topBtn.classList.remove("hidden");
-      isPanelOpen = false;
+  function closePanel(id, silent) {
+    if (_activePanelId === id) _activePanelId = null;
+    const p = PANELS[id];
+    if (p) p.closeFn(silent);
+    // Only hide overlay if no panel is open
+    if (!_activePanelId) {
+      document.getElementById('panelOverlay').classList.remove('active');
     }
+  }
 
-    function toggleIframePanel() {
-      if (iframePanel.classList.contains("open")) {
-        closeIframePanel();
-      } else {
-        openIframePanel();
-      }
-    }
-
-    topBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openIframePanel();
+  function closeAllPanels() {
+    Object.keys(PANELS).forEach(id => {
+      const p = PANELS[id];
+      if (p) p.closeFn(true);
     });
+    _activePanelId = null;
+    document.getElementById('panelOverlay').classList.remove('active');
+  }
 
-    /* =========================================
-       Constants & basic UI wiring
-       ========================================= */
-    const SEARCH_ENGINES = {
-      ituze: "https://ituzebonheur.com/search?q=",
-      google: "https://google.com/search?q=",
-      bing: "https://bing.com/search?q=",
-      duckduckgo: "https://duckduckgo.com/?q=",
-      brave: "https://search.brave.com/search?q=",
-      startpage: "https://www.startpage.com/do/search?q=",
-      you: "https://you.com/search?q="
-    };
+  // Overlay click → close active panel
+  document.getElementById('panelOverlay').addEventListener('click', () => {
+    if (_activePanelId) closePanel(_activePanelId);
+    // also close settings
+    closeSettings();
+  });
 
-    const GOOGLE_AI_MODE_URL = (q) => `https://www.google.com/aimode?q=${encodeURIComponent(q)}`;
-    const GOOGLE_AIMODE_LANDING = "https://www.google.com/aimode";
+  /* ═══════════════════════════════════════════════════════
+     PROFILE IFRAME PANEL (top-left)
+     Lazy: src only set on open, cleared on close
+  ═══════════════════════════════════════════════════════ */
+  const iframePanel = document.getElementById('iframePanel');
+  const iframePanelContent = document.getElementById('iframePanelContent');
+  const topBtn = document.getElementById('topLink');
+  let profileIframeEl = null;
 
-    // Wire AI Mode button
-    document.getElementById("aiModeBtn").addEventListener("click", () => {
-      const q = (searchInput.value || "").trim();
-      const url = q ? GOOGLE_AI_MODE_URL(q) : GOOGLE_AIMODE_LANDING;
-      openLink(url);
-    });
+  function openProfilePanel() {
+    // Create iframe fresh every time (no src until now)
+    iframePanelContent.innerHTML = '';
+    profileIframeEl = document.createElement('iframe');
+    profileIframeEl.src = 'https://ituzebonheur.com/me';
+    profileIframeEl.title = 'Ituze';
+    iframePanelContent.appendChild(profileIframeEl);
 
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    let matrixInterval = null;
-    let matrixEnabled = true;
+    topBtn.classList.add('hidden');
+    iframePanel.classList.add('open');
+  }
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+  function closeProfilePanel(silent) {
+    iframePanel.classList.remove('open');
+    topBtn.classList.remove('hidden');
+    // Fully clear iframe to stop any loading/media
+    setTimeout(() => {
+      iframePanelContent.innerHTML = '';
+      profileIframeEl = null;
+    }, 500);
+  }
+
+  registerPanel('profile', openProfilePanel, closeProfilePanel);
+
+  topBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (_activePanelId === 'profile') {
+      closePanel('profile');
+    } else {
+      openPanel('profile');
     }
-    resizeCanvas();
-    window.addEventListener("resize", () => {
-      resizeCanvas();
-      initDrops();
-    });
+  });
 
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    const fontSize = 16;
-    let columns = canvas.width / fontSize;
-    let drops = [];
+  /* ═══════════════════════════════════════════════════════
+     GOOGLE IFRAME PANEL
+  ═══════════════════════════════════════════════════════ */
+  const googleIframePanel = document.getElementById('googleIframePanel');
 
-    function initDrops() {
-      columns = Math.floor(canvas.width / fontSize);
-      drops = Array.from({ length: columns }, () => 1);
+  function openGooglePanel() {
+    // Inject iframe fresh
+    const existing = googleIframePanel.querySelector('iframe');
+    if (!existing) {
+      const ifr = document.createElement('iframe');
+      ifr.src = 'https://www.google.com/webhp?igu=1';
+      ifr.title = 'Google';
+      ifr.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+      googleIframePanel.appendChild(ifr);
     }
-    initDrops();
+    googleIframePanel.classList.add('open');
+  }
 
-    function drawMatrix() {
-      if (!matrixEnabled) return;
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  function closeGooglePanel(silent) {
+    googleIframePanel.classList.remove('open');
+    setTimeout(() => {
+      const ifr = googleIframePanel.querySelector('iframe');
+      if (ifr) ifr.remove();
+    }, 400);
+  }
 
-      ctx.fillStyle = getComputedStyle(document.documentElement)
-        .getPropertyValue("--matrix-color") || "#00ff9c";
+  registerPanel('google', openGooglePanel, closeGooglePanel);
+  document.getElementById('googleIframePanelClose').addEventListener('click', e => {
+    e.stopPropagation();
+    closePanel('google');
+  });
 
-      ctx.font = fontSize + "px monospace";
+  /* ═══════════════════════════════════════════════════════
+     GAMES IFRAME PANEL
+  ═══════════════════════════════════════════════════════ */
+  const gamesIframePanel = document.getElementById('gamesIframePanel');
 
-      for (let i = 0; i < drops.length; i++) {
-        const text = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
+  function openGamesPanel() {
+    const existing = gamesIframePanel.querySelector('iframe');
+    if (!existing) {
+      const ifr = document.createElement('iframe');
+      ifr.src = '/games';
+      ifr.title = 'Games';
+      ifr.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+      gamesIframePanel.appendChild(ifr);
     }
+    gamesIframePanel.classList.add('open');
+  }
 
-    function startMatrix() {
-      if (!matrixInterval) {
-        matrixInterval = setInterval(drawMatrix, 35);
-      }
+  function closeGamesPanel(silent) {
+    gamesIframePanel.classList.remove('open');
+    setTimeout(() => {
+      const ifr = gamesIframePanel.querySelector('iframe');
+      if (ifr) ifr.remove();
+    }, 400);
+  }
+
+  registerPanel('games', openGamesPanel, closeGamesPanel);
+  document.getElementById('gamesIframePanelClose').addEventListener('click', e => {
+    e.stopPropagation();
+    closePanel('games');
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     QR CODE IFRAME PANEL
+  ═══════════════════════════════════════════════════════ */
+  const qrIframePanel = document.getElementById('qrIframePanel');
+
+  function openQrPanel() {
+    const existing = qrIframePanel.querySelector('iframe');
+    if (!existing) {
+      const ifr = document.createElement('iframe');
+      ifr.src = '/qrcode';
+      ifr.title = 'QR Code';
+      qrIframePanel.appendChild(ifr);
     }
+    qrIframePanel.classList.add('open');
+  }
 
-    function stopMatrix() {
-      clearInterval(matrixInterval);
-      matrixInterval = null;
+  function closeQrPanel(silent) {
+    qrIframePanel.classList.remove('open');
+    setTimeout(() => {
+      const ifr = qrIframePanel.querySelector('iframe');
+      if (ifr) ifr.remove();
+    }, 400);
+  }
+
+  registerPanel('qr', openQrPanel, closeQrPanel);
+  document.getElementById('qrIframePanelClose').addEventListener('click', e => {
+    e.stopPropagation();
+    closePanel('qr');
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     FEEDBACK IFRAME PANEL (bottom-right)
+  ═══════════════════════════════════════════════════════ */
+  const feedbackIframePanel = document.getElementById('feedbackIframePanel');
+
+  function openFeedbackPanel() {
+    const existing = feedbackIframePanel.querySelector('iframe');
+    if (!existing) {
+      const ifr = document.createElement('iframe');
+      ifr.src = '/feedback';
+      ifr.title = 'Feedback';
+      feedbackIframePanel.appendChild(ifr);
     }
+    feedbackIframePanel.classList.add('open');
+  }
 
-    startMatrix();
+  function closeFeedbackPanel(silent) {
+    feedbackIframePanel.classList.remove('open');
+    setTimeout(() => {
+      const ifr = feedbackIframePanel.querySelector('iframe');
+      if (ifr) ifr.remove();
+    }, 400);
+  }
 
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) stopMatrix();
-      else startMatrix();
-    });
+  registerPanel('feedback', openFeedbackPanel, closeFeedbackPanel);
+  document.getElementById('feedbackIframePanelClose').addEventListener('click', e => {
+    e.stopPropagation();
+    closePanel('feedback');
+  });
 
-    /* =========================================
-       Time, Timezone & Locale
-       ========================================= */
-    const clockEl = document.getElementById("clock");
-    const dateEl = document.getElementById("date");
-    const tzEl = document.getElementById("timezoneDisplay");
-    const displayNameInput = document.getElementById("displayNameInput");
+  /* ═══════════════════════════════════════════════════════
+     CODE VIEWER — Draggable window with minimize/close
+     minimize = saves state (keeps iframe loaded)
+     close = restarts (removes iframe)
+  ═══════════════════════════════════════════════════════ */
+  const codeViewerWindow = document.getElementById('codeViewerWindow');
+  const codeViewerTitleBar = document.getElementById('codeViewerTitleBar');
+  const codeViewerBody = document.getElementById('codeViewerBody');
+  let cvIframe = null;
+  let cvMinimized = false;
 
-    function getTimeZoneName() {
-      try {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (tz) return tz;
-      } catch (e) {}
-      return "UTC";
+  // Dragging state
+  let cvDragging = false;
+  let cvDragOffsetX = 0, cvDragOffsetY = 0;
+
+  function openCodeViewer() {
+    // If was minimized, just restore
+    if (cvMinimized) {
+      codeViewerWindow.classList.remove('minimized');
+      cvMinimized = false;
+      codeViewerWindow.classList.add('open');
+      return;
     }
-
-    function prefers12HourInUS() {
-      try {
-        const lg = (navigator.language || "").toLowerCase();
-        if (lg.includes("en-us") || lg.includes("us")) return true;
-        const tz = getTimeZoneName().toLowerCase();
-        if (tz.startsWith("america/")) return true;
-      } catch (e) {}
-      return false;
-    }
-
-    let FORCE_12_HOUR = prefers12HourInUS();
-    const TIMEZONE_NAME = getTimeZoneName();
-
-    function updateClock() {
-      const now = new Date();
-      const hour12 = FORCE_12_HOUR;
-      const timeOptions = {
-        hour: "2-digit", minute: "2-digit", second: "2-digit",
-        hour12,
-        timeZone: TIMEZONE_NAME
-      };
-      const dateOptions = { weekday: "long", month: "long", day: "numeric", timeZone: TIMEZONE_NAME };
-
-      try {
-        clockEl.textContent = new Intl.DateTimeFormat(undefined, timeOptions).format(now);
-        dateEl.textContent = new Intl.DateTimeFormat(undefined, dateOptions).format(now);
-      } catch (e) {
-        clockEl.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-        dateEl.textContent = now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
-      }
-
-      try {
-        const offsetMin = -now.getTimezoneOffset();
-        const sign = offsetMin >= 0 ? "+" : "-";
-        const hh = String(Math.floor(Math.abs(offsetMin) / 60)).padStart(2, "0");
-        const mm = String(Math.abs(offsetMin) % 60).padStart(2, "0");
-        tzEl.textContent = `${TIMEZONE_NAME} (UTC${sign}${hh}:${mm})`;
-      } catch (e) {
-        tzEl.textContent = TIMEZONE_NAME;
-      }
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    function updateGreeting() {
-      const hour = new Date().getHours();
-      const name = (localStorage.getItem("displayName") || "Ituze");
-      let text = `Welcome, ${name}`;
-      if (hour < 12) text = `Good morning, ${name}`;
-      else if (hour < 18) text = `Good afternoon, ${name}`;
-      else text = `Good evening, ${name}`;
-      document.getElementById("greeting").textContent = text;
-    }
-    updateGreeting();
-
-    /* =========================================
-       Search / suggestions + omnibox commands
-       ========================================= */
-
-    const searchInput = document.getElementById("searchInput");
-    const suggestionsBox = document.getElementById("suggestions");
-    const toggleSuggestionsEl = document.getElementById("toggleSuggestions");
-    const toggleLocalOnlyEl = document.getElementById("toggleLocalOnly");
-    const engineSelect = document.getElementById("engineSelect");
-    const toggleKeyboardEl = document.getElementById("toggleKeyboard");
-    let activeSuggestionIndex = -1;
-
-    function saveToHistory(q) { /* no-op */ }
-    function readHistory(limit = 8) { return []; }
-
-    function getEngineUrl() {
-      const key = localStorage.getItem("searchEngine") || "ituze";
-      return SEARCH_ENGINES[key] || SEARCH_ENGINES.ituze;
-    }
-
-    function clearSearchImmediate() {
-      try {
-        searchInput.value = "";
-        hideSuggestions();
-        searchInput.blur();
-      } catch (e) { }
-      try {
-        localStorage.setItem("clearSearchOnReturn", "1");
-      } catch (e) { }
-    }
-
-    const UTM_SOURCE = "ItuzeBonheur";
-
-    function appendUtm(url) {
-      try {
-        // Don't append UTM to internal/relative paths or anchor-only links
-        if (!url || url.startsWith("#") || url.startsWith("javascript:")) return url;
-        // For relative paths (starting with / but not //)
-        if (url.startsWith("/") && !url.startsWith("//")) return url;
-        const u = new URL(url);
-        u.searchParams.set("utm_source", UTM_SOURCE);
-        return u.toString();
-      } catch (e) {
-        // If URL parsing fails (e.g. relative URL), return as-is
-        return url;
-      }
-    }
-
-    function openLink(url, opts = {}) {
-      clearSearchImmediate();
-      window.location.href = appendUtm(url);
-    }
-
-    function performSearch(query) {
-      if (!query || !query.trim()) return;
-      const trimmed = query.trim();
-
-      if (trimmed.startsWith(":")) {
-        const cmd = trimmed.slice(1).trim();
-        const m = cmd.match(/^calc\s+(.+)$/i);
-        if (m) {
-          const expr = m[1];
-          const result = safeCalc(expr);
-          showInlineSuggestion(`${expr} = ${result}`, `calc result`, expr);
-          return;
-        }
-        showInlineSuggestion(`Unknown command`, `command`);
-        return;
-      }
-
-      if (/^wiki:/i.test(trimmed)) {
-        const term = trimmed.replace(/^wiki:/i, "").trim();
-        if (!term) return;
-        openLink("https://en.wikipedia.org/w/index.php?search=" + encodeURIComponent(term));
-        return;
-      }
-
-      if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-        openLink(trimmed);
-        return;
-      } else if (trimmed.includes(".") && !trimmed.includes(" ")) {
-        openLink("https://" + trimmed);
-        return;
-      } else {
-        const engineUrl = getEngineUrl();
-        openLink(engineUrl + encodeURIComponent(trimmed));
-      }
-    }
-
-    function showInlineSuggestion(text, meta, originalQuery) {
-      suggestionsBox.innerHTML = "";
-      const div = document.createElement("div");
-      div.className = "suggestion-item";
-      div.setAttribute("role", "option");
-      div.dataset.query = originalQuery || text;
-      div.innerHTML = `<span>${escapeHtml(text)}</span><span class="suggestion-meta">${escapeHtml(meta || "")}</span>`;
-      const handler = (e) => {
-        e.preventDefault();
-        const q = div.dataset.query || text;
-        hideSuggestions();
-        performSearch(q);
-      };
-      div.addEventListener("pointerdown", handler);
-      div.addEventListener("mousedown", handler);
-      div.addEventListener("click", handler);
-      suggestionsBox.appendChild(div);
-      suggestionsBox.style.display = "block";
-      suggestionsBox.setAttribute("aria-expanded", "true");
-      activeSuggestionIndex = -1;
-    }
-
-    function safeCalc(expr) {
-      try {
-        const sanitized = expr.replace(/[^0-9+\-*/().%\s]/g, "");
-        if (!/^[0-9+\-*/().%\s]+$/.test(sanitized) || sanitized.trim().length === 0) return "invalid";
-        const res = Function('"use strict";return (' + sanitized + ')')();
-        if (typeof res === "number" && isFinite(res)) return res;
-        return String(res);
-      } catch (e) {
-        return "error";
-      }
-    }
-
-    function isMathExpression(q) {
-      if (!q || typeof q !== "string") return false;
-      const trimmed = q.trim();
-      if (/[a-zA-Z]/.test(trimmed)) return false;
-      return /^[0-9\s\+\-\*\/\.\%\(\)]+$/.test(trimmed) && /[0-9]/.test(trimmed);
-    }
-
-    searchInput.addEventListener("input", () => {
-      const q = searchInput.value.trim();
-      if (!q) { hideSuggestions(); return; }
-      fetchSuggestions(q);
-    });
-
-    searchInput.addEventListener("focus", () => {
-      const q = searchInput.value.trim();
-      if (q && q.length >= 2) fetchSuggestions(q);
-    });
-
-    searchInput.addEventListener("keydown", e => {
-      const items = Array.from(suggestionsBox.querySelectorAll(".suggestion-item"));
-      if (e.key === "ArrowDown" && items.length > 0) {
-        e.preventDefault();
-        activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
-        updateActiveSuggestion(items);
-      } else if (e.key === "ArrowUp" && items.length > 0) {
-        e.preventDefault();
-        activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
-        updateActiveSuggestion(items);
-      } else if (e.key === "Enter") {
-        if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
-          e.preventDefault();
-          const text = items[activeSuggestionIndex].dataset.query || items[activeSuggestionIndex].textContent;
-          searchInput.value = text;
-          hideSuggestions();
-          performSearch(text);
-        } else {
-          performSearch(searchInput.value);
-        }
-      } else if (e.key === "Escape") {
-        if (searchInput.value) searchInput.value = "";
-        hideSuggestions();
-      }
-    });
-
-    function updateActiveSuggestion(items) {
-      items.forEach((el, idx) => {
-        el.classList.toggle("active", idx === activeSuggestionIndex);
+    // Fresh start: reset position to center
+    codeViewerWindow.style.left = '';
+    codeViewerWindow.style.top = '';
+    codeViewerWindow.style.transform = 'translate(-50%, -50%)';
+    // Inject iframe
+    codeViewerBody.innerHTML = '';
+    cvIframe = document.createElement('iframe');
+    cvIframe.src = '/codeviewer';
+    cvIframe.title = 'Code Viewer';
+    cvIframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+    codeViewerBody.appendChild(cvIframe);
+    codeViewerWindow.style.display = 'flex';
+    // Force reflow then open
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        codeViewerWindow.classList.add('open');
       });
+    });
+  }
+
+  function minimizeCodeViewer() {
+    cvMinimized = true;
+    codeViewerWindow.classList.add('minimized');
+    // Keep iframe alive (state preserved)
+  }
+
+  function closeCodeViewerCompletely() {
+    codeViewerWindow.classList.remove('open', 'minimized');
+    cvMinimized = false;
+    setTimeout(() => {
+      codeViewerWindow.style.display = 'none';
+      // Destroy iframe (restart)
+      codeViewerBody.innerHTML = '';
+      cvIframe = null;
+    }, 320);
+    if (_activePanelId === 'codeviewer') {
+      _activePanelId = null;
+      document.getElementById('panelOverlay').classList.remove('active');
     }
+  }
 
-    function debounce(fn, wait) {
-      let t;
-      return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), wait);
-      };
+  function openCodeViewerPanel() {
+    openCodeViewer();
+  }
+  function closeCodeViewerPanel(silent) {
+    closeCodeViewerCompletely();
+  }
+
+  registerPanel('codeviewer', openCodeViewerPanel, closeCodeViewerPanel);
+
+  document.getElementById('cvDotClose').addEventListener('click', e => {
+    e.stopPropagation();
+    closeCodeViewerCompletely();
+  });
+
+  document.getElementById('cvDotMin').addEventListener('click', e => {
+    e.stopPropagation();
+    if (cvMinimized) {
+      // Restore
+      codeViewerWindow.classList.remove('minimized');
+      cvMinimized = false;
+    } else {
+      minimizeCodeViewer();
     }
+  });
 
-    let suggestionAbortController = null;
+  // Drag logic
+  function cvGetPos() {
+    const rect = codeViewerWindow.getBoundingClientRect();
+    return { x: rect.left, y: rect.top };
+  }
 
-    const fetchSuggestions = debounce(async (query) => {
-      if (!toggleSuggestionsEl.checked || !query || query.length < 2 || toggleLocalOnlyEl.checked) {
-        populateHistorySuggestions(query);
-        return;
+  codeViewerTitleBar.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('cv-dot')) return;
+    cvDragging = true;
+    // Switch from transform-based centering to absolute position
+    const rect = codeViewerWindow.getBoundingClientRect();
+    codeViewerWindow.style.transform = 'none';
+    codeViewerWindow.style.left = rect.left + 'px';
+    codeViewerWindow.style.top = rect.top + 'px';
+    cvDragOffsetX = e.clientX - rect.left;
+    cvDragOffsetY = e.clientY - rect.top;
+    codeViewerWindow.style.transition = 'opacity 0.3s ease, box-shadow 0.3s ease';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!cvDragging) return;
+    let nx = e.clientX - cvDragOffsetX;
+    let ny = e.clientY - cvDragOffsetY;
+    // Keep within viewport
+    const w = codeViewerWindow.offsetWidth;
+    const h = codeViewerWindow.offsetHeight;
+    nx = Math.max(0, Math.min(window.innerWidth - w, nx));
+    ny = Math.max(0, Math.min(window.innerHeight - 44, ny));
+    codeViewerWindow.style.left = nx + 'px';
+    codeViewerWindow.style.top = ny + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (cvDragging) {
+      cvDragging = false;
+      document.body.style.userSelect = '';
+    }
+  });
+
+  // Touch drag
+  codeViewerTitleBar.addEventListener('touchstart', e => {
+    if (e.target.classList.contains('cv-dot')) return;
+    const t = e.touches[0];
+    cvDragging = true;
+    const rect = codeViewerWindow.getBoundingClientRect();
+    codeViewerWindow.style.transform = 'none';
+    codeViewerWindow.style.left = rect.left + 'px';
+    codeViewerWindow.style.top = rect.top + 'px';
+    cvDragOffsetX = t.clientX - rect.left;
+    cvDragOffsetY = t.clientY - rect.top;
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('touchmove', e => {
+    if (!cvDragging) return;
+    const t = e.touches[0];
+    let nx = t.clientX - cvDragOffsetX;
+    let ny = t.clientY - cvDragOffsetY;
+    nx = Math.max(0, Math.min(window.innerWidth - codeViewerWindow.offsetWidth, nx));
+    ny = Math.max(0, Math.min(window.innerHeight - 44, ny));
+    codeViewerWindow.style.left = nx + 'px';
+    codeViewerWindow.style.top = ny + 'px';
+  }, { passive: false });
+
+  document.addEventListener('touchend', () => { cvDragging = false; });
+
+  /* ═══════════════════════════════════════════════════════
+     MATRIX CANVAS
+  ═══════════════════════════════════════════════════════ */
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+  let matrixInterval = null;
+  let matrixEnabled = true;
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', () => { resizeCanvas(); initDrops(); });
+
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const fontSize = 16;
+  let columns = canvas.width / fontSize;
+  let drops = [];
+
+  function initDrops() {
+    columns = Math.floor(canvas.width / fontSize);
+    drops = Array.from({ length: columns }, () => 1);
+  }
+  initDrops();
+
+  function drawMatrix() {
+    if (!matrixEnabled) return;
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--matrix-color') || '#00ff9c';
+    ctx.font = fontSize + 'px monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  function startMatrix() { if (!matrixInterval) matrixInterval = setInterval(drawMatrix, 35); }
+  function stopMatrix() { clearInterval(matrixInterval); matrixInterval = null; }
+  startMatrix();
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopMatrix(); else startMatrix();
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     TIME, TIMEZONE & LOCALE
+  ═══════════════════════════════════════════════════════ */
+  const clockEl = document.getElementById('clock');
+  const dateEl  = document.getElementById('date');
+  const tzEl    = document.getElementById('timezoneDisplay');
+  const displayNameInput = document.getElementById('displayNameInput');
+
+  function getTimeZoneName() {
+    try { const tz = Intl.DateTimeFormat().resolvedOptions().timeZone; if (tz) return tz; } catch(e) {}
+    return 'UTC';
+  }
+  function prefers12HourInUS() {
+    try {
+      const lg = (navigator.language || '').toLowerCase();
+      if (lg.includes('en-us') || lg.includes('us')) return true;
+      if (getTimeZoneName().toLowerCase().startsWith('america/')) return true;
+    } catch(e) {}
+    return false;
+  }
+
+  let FORCE_12_HOUR = prefers12HourInUS();
+  const TIMEZONE_NAME = getTimeZoneName();
+
+  function updateClock() {
+    const now = new Date();
+    const timeOptions = { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12: FORCE_12_HOUR, timeZone: TIMEZONE_NAME };
+    const dateOptions = { weekday:'long', month:'long', day:'numeric', timeZone: TIMEZONE_NAME };
+    try {
+      clockEl.textContent = new Intl.DateTimeFormat(undefined, timeOptions).format(now);
+      dateEl.textContent  = new Intl.DateTimeFormat(undefined, dateOptions).format(now);
+    } catch(e) {
+      clockEl.textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      dateEl.textContent  = now.toLocaleDateString([], { weekday:'long', month:'long', day:'numeric' });
+    }
+    try {
+      const offsetMin = -now.getTimezoneOffset();
+      const sign = offsetMin >= 0 ? '+' : '-';
+      const hh = String(Math.floor(Math.abs(offsetMin)/60)).padStart(2,'0');
+      const mm = String(Math.abs(offsetMin)%60).padStart(2,'0');
+      tzEl.textContent = `${TIMEZONE_NAME} (UTC${sign}${hh}:${mm})`;
+    } catch(e) { tzEl.textContent = TIMEZONE_NAME; }
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  function updateGreeting() {
+    const hour = new Date().getHours();
+    const name = localStorage.getItem('displayName') || 'Ituze';
+    let text = `Welcome, ${name}`;
+    if (hour < 12) text = `Good morning, ${name}`;
+    else if (hour < 18) text = `Good afternoon, ${name}`;
+    else text = `Good evening, ${name}`;
+    document.getElementById('greeting').textContent = text;
+  }
+  updateGreeting();
+
+  /* ═══════════════════════════════════════════════════════
+     SEARCH / SUGGESTIONS / OMNIBOX
+  ═══════════════════════════════════════════════════════ */
+  const searchInput       = document.getElementById('searchInput');
+  const suggestionsBox    = document.getElementById('suggestions');
+  const toggleSuggestionsEl = document.getElementById('toggleSuggestions');
+  const toggleLocalOnlyEl   = document.getElementById('toggleLocalOnly');
+  const engineSelect        = document.getElementById('engineSelect');
+  const toggleKeyboardEl    = document.getElementById('toggleKeyboard');
+  let activeSuggestionIndex = -1;
+
+  const SEARCH_ENGINES = {
+    ituze:      'https://ituzebonheur.com/search?q=',
+    google:     'https://google.com/search?q=',
+    bing:       'https://bing.com/search?q=',
+    duckduckgo: 'https://duckduckgo.com/?q=',
+    brave:      'https://search.brave.com/search?q=',
+    startpage:  'https://www.startpage.com/do/search?q=',
+  };
+
+  const GOOGLE_AI_MODE_URL = q => `https://www.google.com/aimode?q=${encodeURIComponent(q)}`;
+  const GOOGLE_AIMODE_LANDING = 'https://www.google.com/aimode';
+
+  document.getElementById('aiModeBtn').addEventListener('click', () => {
+    const q = (searchInput.value || '').trim();
+    openLink(q ? GOOGLE_AI_MODE_URL(q) : GOOGLE_AIMODE_LANDING);
+  });
+
+  function getEngineUrl() {
+    const key = localStorage.getItem('searchEngine') || 'ituze';
+    return SEARCH_ENGINES[key] || SEARCH_ENGINES.ituze;
+  }
+
+  const UTM_SOURCE = 'ItuzeBonheur';
+  function appendUtm(url) {
+    try {
+      if (!url || url.startsWith('#') || url.startsWith('javascript:')) return url;
+      if (url.startsWith('/') && !url.startsWith('//')) return url;
+      const u = new URL(url);
+      u.searchParams.set('utm_source', UTM_SOURCE);
+      return u.toString();
+    } catch(e) { return url; }
+  }
+
+  function clearSearchImmediate() {
+    try { searchInput.value = ''; hideSuggestions(); searchInput.blur(); } catch(e) {}
+    try { localStorage.setItem('clearSearchOnReturn', '1'); } catch(e) {}
+  }
+
+  function openLink(url, opts = {}) {
+    clearSearchImmediate();
+    window.location.href = appendUtm(url);
+  }
+
+  function openLinkNewTab(url) {
+    window.open(appendUtm(url), '_blank', 'noopener,noreferrer');
+  }
+
+  function performSearch(query) {
+    if (!query || !query.trim()) return;
+    const trimmed = query.trim();
+    if (trimmed.startsWith(':')) {
+      const cmd = trimmed.slice(1).trim();
+      const m = cmd.match(/^calc\s+(.+)$/i);
+      if (m) { showInlineSuggestion(`${m[1]} = ${safeCalc(m[1])}`, 'calc result', m[1]); return; }
+      showInlineSuggestion('Unknown command', 'command'); return;
+    }
+    if (/^wiki:/i.test(trimmed)) {
+      const term = trimmed.replace(/^wiki:/i,'').trim();
+      if (!term) return;
+      openLink('https://en.wikipedia.org/w/index.php?search=' + encodeURIComponent(term)); return;
+    }
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) { openLink(trimmed); return; }
+    if (trimmed.includes('.') && !trimmed.includes(' ')) { openLink('https://' + trimmed); return; }
+    openLink(getEngineUrl() + encodeURIComponent(trimmed));
+  }
+
+  function showInlineSuggestion(text, meta, originalQuery) {
+    suggestionsBox.innerHTML = '';
+    const div = document.createElement('div');
+    div.className = 'suggestion-item';
+    div.setAttribute('role', 'option');
+    div.dataset.query = originalQuery || text;
+    div.innerHTML = `<span>${escapeHtml(text)}</span><span class="suggestion-meta">${escapeHtml(meta||'')}</span>`;
+    const handler = e => { e.preventDefault(); hideSuggestions(); performSearch(div.dataset.query || text); };
+    div.addEventListener('pointerdown', handler);
+    div.addEventListener('click', handler);
+    suggestionsBox.appendChild(div);
+    suggestionsBox.style.display = 'block';
+    suggestionsBox.setAttribute('aria-expanded', 'true');
+    activeSuggestionIndex = -1;
+  }
+
+  function safeCalc(expr) {
+    try {
+      const s = expr.replace(/[^0-9+\-*/().%\s]/g,'');
+      if (!/^[0-9+\-*/().%\s]+$/.test(s) || !s.trim()) return 'invalid';
+      const res = Function('"use strict";return (' + s + ')')();
+      return (typeof res === 'number' && isFinite(res)) ? res : String(res);
+    } catch(e) { return 'error'; }
+  }
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim();
+    if (!q) { hideSuggestions(); return; }
+    fetchSuggestions(q);
+  });
+  searchInput.addEventListener('focus', () => {
+    const q = searchInput.value.trim();
+    if (q && q.length >= 2) fetchSuggestions(q);
+  });
+  searchInput.addEventListener('keydown', e => {
+    const items = Array.from(suggestionsBox.querySelectorAll('.suggestion-item'));
+    if (e.key === 'ArrowDown' && items.length > 0) {
+      e.preventDefault();
+      activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
+      updateActiveSuggestion(items);
+    } else if (e.key === 'ArrowUp' && items.length > 0) {
+      e.preventDefault();
+      activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
+      updateActiveSuggestion(items);
+    } else if (e.key === 'Enter') {
+      if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
+        e.preventDefault();
+        const text = items[activeSuggestionIndex].dataset.query || items[activeSuggestionIndex].textContent;
+        searchInput.value = text; hideSuggestions(); performSearch(text);
+      } else { performSearch(searchInput.value); }
+    } else if (e.key === 'Escape') {
+      if (searchInput.value) searchInput.value = '';
+      hideSuggestions();
+    }
+  });
+
+  function updateActiveSuggestion(items) {
+    items.forEach((el, idx) => el.classList.toggle('active', idx === activeSuggestionIndex));
+  }
+
+  function debounce(fn, wait) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+  }
+
+  let suggestionAbortController = null;
+  const fetchSuggestions = debounce(async query => {
+    if (!toggleSuggestionsEl.checked || !query || query.length < 2 || toggleLocalOnlyEl.checked) {
+      hideSuggestions(); return;
+    }
+    if (suggestionAbortController) suggestionAbortController.abort();
+    suggestionAbortController = new AbortController();
+    try {
+      const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`, { signal: suggestionAbortController.signal });
+      if (!res.ok) throw new Error();
+      window.showSuggestionsFromFetch(await res.json());
+    } catch(err) { jsonpFallback(query); }
+  }, 160);
+
+  function jsonpFallback(query) {
+    try {
+      const cbName = 'jsonp_cb_' + Date.now();
+      window[cbName] = data => { try { window.showSuggestionsFromFetch(data); } finally { delete window[cbName]; script.remove(); } };
+      const script = document.createElement('script');
+      script.src = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(query)}&callback=${cbName}`;
+      script.onerror = () => { try { hideSuggestions(); } finally { delete window[cbName]; script.remove(); } };
+      document.body.appendChild(script);
+    } catch(e) { hideSuggestions(); }
+  }
+
+  window.showSuggestionsFromFetch = function(data) {
+    const results = Array.isArray(data) && data.length > 1 ? data[1] : [];
+    suggestionsBox.innerHTML = ''; activeSuggestionIndex = -1;
+    if (results && results.length > 0) {
+      suggestionsBox.style.display = 'block';
+      suggestionsBox.setAttribute('aria-expanded', 'true');
+      results.slice(0,6).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'suggestion-item'; div.setAttribute('role','option'); div.dataset.query = item;
+        div.innerHTML = `<span>${escapeHtml(item)}</span><span class="suggestion-meta">suggest</span>`;
+        const handler = e => { e.preventDefault(); searchInput.value = item; hideSuggestions(); performSearch(item); };
+        div.addEventListener('pointerdown', handler);
+        div.addEventListener('click', handler);
+        suggestionsBox.appendChild(div);
+      });
+    } else { hideSuggestions(); }
+  };
+
+  function hideSuggestions() {
+    suggestionsBox.style.display = 'none';
+    suggestionsBox.setAttribute('aria-expanded','false');
+    suggestionsBox.innerHTML = '';
+    activeSuggestionIndex = -1;
+  }
+
+  document.addEventListener('click', e => {
+    const wrapper = document.querySelector('.chrome-search-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) hideSuggestions();
+  }, true);
+
+  /* ═══════════════════════════════════════════════════════
+     VOICE
+  ═══════════════════════════════════════════════════════ */
+  const voiceBtn = document.getElementById('voiceBtn');
+  const toggleVoiceAutoEl = document.getElementById('toggleVoiceAuto');
+  let recognition = null, isListening = false, supportsSpeech = false;
+
+  function setMicUI(listening) {
+    isListening = !!listening;
+    voiceBtn.classList.toggle('listening', isListening);
+    voiceBtn.setAttribute('aria-pressed', String(isListening));
+    try { localStorage.setItem('voiceActive', isListening ? '1' : '0'); } catch(e) {}
+  }
+
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    supportsSpeech = true;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.lang = 'en-US'; recognition.interimResults = false; recognition.maxAlternatives = 1;
+    recognition.onstart  = () => setMicUI(true);
+    recognition.onend    = () => setMicUI(false);
+    recognition.onerror  = () => setMicUI(false);
+    recognition.onresult = event => {
+      const t = event.results[0][0].transcript;
+      searchInput.value = t;
+      if (toggleVoiceAutoEl.checked) performSearch(t);
+      try { recognition.stop(); } catch(e) {}
+      setMicUI(false);
+    };
+  } else {
+    supportsSpeech = false;
+    voiceBtn.title = 'Voice search not supported in this browser';
+  }
+
+  voiceBtn.addEventListener('click', () => {
+    if (!supportsSpeech) return;
+    if (isListening) { try { recognition.stop(); } catch(e) {} setMicUI(false); }
+    else { try { recognition.start(); setMicUI(true); } catch(e) { setMicUI(false); } }
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     SETTINGS PANEL
+  ═══════════════════════════════════════════════════════ */
+  const settingsToggle = document.getElementById('settingsToggle');
+  const settingsPanel  = document.getElementById('settingsPanel');
+  const toggleMatrixEl = document.getElementById('toggleMatrix');
+  const toast          = document.getElementById('toast');
+  const themeSelect    = document.getElementById('themeSelect');
+  const customColorPicker = document.getElementById('customColorPicker');
+  const customColorInput  = document.getElementById('customColorInput');
+  const customColorHex    = document.getElementById('customColorHex');
+  const weatherWedge  = document.getElementById('weatherWedge');
+  const weatherText   = document.getElementById('weatherText');
+  const shortcutsContainer = document.getElementById('shortcutsContainer');
+
+  function showToast(msg, ms = 1100) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(window._ituze_toast_t);
+    window._ituze_toast_t = setTimeout(() => toast.classList.remove('show'), ms);
+  }
+
+  function openSettings() {
+    closeAllPanels(); // close any open iframe panel first
+    settingsPanel.classList.add('open');
+    settingsPanel.setAttribute('aria-hidden','false');
+  }
+  function closeSettings() {
+    settingsPanel.classList.remove('open');
+    settingsPanel.setAttribute('aria-hidden','true');
+  }
+
+  settingsToggle.addEventListener('click', e => {
+    e.stopPropagation();
+    if (settingsPanel.classList.contains('open')) closeSettings();
+    else openSettings();
+  });
+
+  // Click outside settings panel → close
+  document.addEventListener('click', e => {
+    if (settingsPanel.classList.contains('open')) {
+      if (!settingsPanel.contains(e.target) && !settingsToggle.contains(e.target)) {
+        closeSettings();
       }
+    }
+  });
 
-      if (suggestionAbortController) suggestionAbortController.abort();
-      suggestionAbortController = new AbortController();
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeSettings();
+      if (_activePanelId) closePanel(_activePanelId);
+    }
+    const keyboardEnabled = toggleKeyboardEl.checked;
+    if (!keyboardEnabled) return;
+    if (e.key === '/' && document.activeElement !== searchInput) { e.preventDefault(); searchInput.focus(); }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') { e.preventDefault(); searchInput.focus(); searchInput.select(); }
+  });
 
+  function applyThemeKeyed(themeKeyOrColor) {
+    const root = document.documentElement;
+    const isColor = typeof themeKeyOrColor === 'string' && themeKeyOrColor.startsWith('#');
+    if (isColor) {
+      const ac = themeKeyOrColor;
+      root.style.setProperty('--accent', ac);
+      root.style.setProperty('--matrix-color', ac);
+      root.style.setProperty('--glass-bg', 'rgba(2,6,23,0.55)');
+      root.style.setProperty('--glass-border', `color-mix(in srgb, ${ac} 22%, rgba(255,255,255,0.12))`);
+      root.style.setProperty('--launcher-border-color', `color-mix(in srgb, ${ac} 25%, rgba(255,255,255,0.18))`);
+      root.style.setProperty('--launcher-section-bg', 'rgba(15,23,42,0.6)');
+      root.style.setProperty('--launcher-section-border', `color-mix(in srgb, ${ac} 30%, rgba(148,163,184,0.35))`);
+      return;
+    }
+    const themes = {
+      green:  { accent:'#00ff9c', matrix:'#00ff9c' },
+      blue:   { accent:'#4da3ff', matrix:'#4da3ff' },
+      red:    { accent:'#ff4d4d', matrix:'#ff4d4d' },
+      yellow: { accent:'#ffe44d', matrix:'#ffe44d' },
+    };
+    const t = themes[themeKeyOrColor] || themes.green;
+    root.style.setProperty('--accent', t.accent);
+    root.style.setProperty('--matrix-color', t.matrix);
+    root.style.setProperty('--glass-bg', 'rgba(2,6,23,0.55)');
+    root.style.setProperty('--glass-border', `color-mix(in srgb, ${t.accent} 22%, rgba(255,255,255,0.12))`);
+    root.style.setProperty('--launcher-border-color', `color-mix(in srgb, ${t.accent} 35%, rgba(255,255,255,0.18))`);
+    root.style.setProperty('--launcher-section-bg', 'rgba(15,23,42,0.6)');
+    root.style.setProperty('--launcher-section-border', `color-mix(in srgb, ${t.accent} 30%, rgba(148,163,184,0.35))`);
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem('searchEngine', engineSelect.value);
+      localStorage.setItem('showSuggestions', toggleSuggestionsEl.checked ? '1' : '0');
+      localStorage.setItem('voiceAuto', toggleVoiceAutoEl.checked ? '1' : '0');
+      localStorage.setItem('matrixEnabled', toggleMatrixEl.checked ? '0' : '1');
+      localStorage.setItem('keyboardShortcuts', toggleKeyboardEl.checked ? '1' : '0');
+      localStorage.setItem('themeColor', themeSelect.value);
+      if (themeSelect.value === 'custom') {
+        const hex = (customColorHex.value || customColorInput.value || '#00ff9c').trim();
+        localStorage.setItem('customAccent', hex);
+        if (window.Sync) window.Sync.saveTheme('custom', hex);
+      } else {
+        if (window.Sync) window.Sync.saveTheme(themeSelect.value);
+      }
+      const dn = (displayNameInput.value || '').trim();
+      localStorage.setItem('displayName', dn || 'Ituze');
+      if (window.Sync) window.Sync.saveName(dn || 'Ituze');
+    } catch(e) {}
+  }
+
+  const autoSave = debounce(saveSettings, 280);
+
+  function applySettings() {
+    engineSelect.value = localStorage.getItem('searchEngine') || 'ituze';
+    toggleSuggestionsEl.checked = localStorage.getItem('showSuggestions') !== '0';
+    toggleVoiceAutoEl.checked   = localStorage.getItem('voiceAuto') !== '0';
+
+    const matrixStored = localStorage.getItem('matrixEnabled');
+    matrixEnabled = matrixStored !== '0';
+    toggleMatrixEl.checked = !matrixEnabled;
+    if (!matrixEnabled) { stopMatrix(); ctx.clearRect(0,0,canvas.width,canvas.height); }
+    else startMatrix();
+
+    toggleKeyboardEl.checked = localStorage.getItem('keyboardShortcuts') === '1';
+
+    const savedTheme  = localStorage.getItem('themeColor') || 'green';
+    const savedCustom = localStorage.getItem('customAccent') || '#00ff9c';
+    themeSelect.value = savedTheme;
+    customColorInput.value = savedCustom;
+    customColorHex.value   = savedCustom;
+
+    if (savedTheme === 'custom') {
+      customColorPicker.style.display = '';
+      applyThemeKeyed(savedCustom);
+    } else {
+      customColorPicker.style.display = 'none';
+      applyThemeKeyed(savedTheme);
+    }
+
+    toggleLocalOnlyEl.checked = localStorage.getItem('localOnlySuggestions') === '1';
+    displayNameInput.value = localStorage.getItem('displayName') || 'Ituze';
+    updateGreeting();
+  }
+
+  window.saveSettings = saveSettings;
+  applySettings();
+
+  themeSelect.addEventListener('change', () => {
+    const v = themeSelect.value;
+    if (v === 'custom') {
+      customColorPicker.style.display = '';
+      const custom = localStorage.getItem('customAccent') || customColorInput.value || '#00ff9c';
+      customColorInput.value = custom; customColorHex.value = custom;
+      applyThemeKeyed(custom);
+    } else { customColorPicker.style.display = 'none'; applyThemeKeyed(v); }
+    autoSave();
+  });
+
+  customColorInput.addEventListener('input', () => {
+    customColorHex.value = customColorInput.value;
+    applyThemeKeyed(customColorInput.value); autoSave();
+  });
+  customColorHex.addEventListener('input', () => {
+    const v = customColorHex.value.trim();
+    if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v)) {
+      customColorInput.value = v; applyThemeKeyed(v); autoSave();
+    }
+  });
+
+  [displayNameInput,engineSelect,toggleSuggestionsEl,toggleVoiceAutoEl,
+   toggleKeyboardEl,toggleLocalOnlyEl,toggleMatrixEl,customColorInput,customColorHex]
+  .forEach(el => {
+    if (!el) return;
+    const ev = (el.tagName === 'INPUT' && el.type === 'text') || el.tagName === 'TEXTAREA' ? 'input' : 'change';
+    el.addEventListener(ev, () => autoSave());
+  });
+
+  displayNameInput.addEventListener('input', () => {
+    const dn = displayNameInput.value.trim();
+    localStorage.setItem('displayName', dn || 'Ituze');
+    if (window.Sync) window.Sync.saveName(dn || 'Ituze');
+    updateGreeting();
+  });
+  displayNameInput.addEventListener('blur', () => {
+    if (!displayNameInput.value.trim()) {
+      localStorage.setItem('displayName','Ituze');
+      if (window.Sync) window.Sync.saveName('Ituze');
+      updateGreeting();
+    }
+  });
+
+  toggleMatrixEl.addEventListener('change', () => {
+    matrixEnabled = !toggleMatrixEl.checked;
+    if (!matrixEnabled) { stopMatrix(); ctx.clearRect(0,0,canvas.width,canvas.height); }
+    else startMatrix();
+    autoSave();
+  });
+
+  document.getElementById('resetStorage').addEventListener('click', () => {
+    if (!confirm('Clear all saved settings and customizations? This cannot be undone.')) return;
+    try {
+      ['searchEngine','showSuggestions','voiceAuto','matrixEnabled','keyboardShortcuts',
+       'themeColor','openInNewTab','voiceActive','localOnlySuggestions','customAccent',
+       'clearSearchOnReturn','displayName','shortcutsV2'].forEach(k => localStorage.removeItem(k));
+      showToast('Local data cleared');
+      setTimeout(() => location.reload(), 350);
+    } catch(e) { showToast('Failed to clear data'); }
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     BATTERY
+  ═══════════════════════════════════════════════════════ */
+  const batteryText     = document.getElementById('battery-text');
+  const batteryLevelBar = document.getElementById('battery-level-bar');
+
+  function updateBatteryDisplay(level, charging) {
+    const percent = Math.round(level * 100);
+    batteryText.textContent = `Battery: ${percent}%${charging ? ' ⚡' : ''}`;
+    batteryLevelBar.style.width = Math.max(5, percent) + '%';
+  }
+
+  if (navigator.getBattery) {
+    navigator.getBattery().then(battery => {
+      updateBatteryDisplay(battery.level, battery.charging);
+      battery.addEventListener('levelchange',   () => updateBatteryDisplay(battery.level, battery.charging));
+      battery.addEventListener('chargingchange',() => updateBatteryDisplay(battery.level, battery.charging));
+    }).catch(() => { batteryText.textContent = 'Battery: N/A'; });
+  } else { batteryText.textContent = 'Battery: N/A'; }
+
+  /* ═══════════════════════════════════════════════════════
+     WEATHER — GPS first, IP fallback only on denial
+     Auto-refresh every 30 minutes
+  ═══════════════════════════════════════════════════════ */
+  const WMO_CODES = {
+    0:'☀️ Clear',1:'🌤 Mainly Clear',2:'⛅ Partly Cloudy',3:'☁️ Overcast',
+    45:'🌫 Foggy',48:'🌫 Icy Fog',
+    51:'🌦 Light Drizzle',53:'🌦 Drizzle',55:'🌧 Heavy Drizzle',
+    61:'🌧 Light Rain',63:'🌧 Rain',65:'🌧 Heavy Rain',
+    71:'🌨 Light Snow',73:'🌨 Snow',75:'❄️ Heavy Snow',77:'🌨 Snow Grains',
+    80:'🌦 Showers',81:'🌧 Heavy Showers',82:'⛈ Violent Showers',
+    85:'🌨 Snow Showers',86:'❄️ Heavy Snow Showers',
+    95:'⛈ Thunderstorm',96:'⛈ Thunderstorm+Hail',99:'⛈ Heavy Thunderstorm',
+  };
+  function wmoLabel(code) { return WMO_CODES[code] || `Code ${code}`; }
+
+  async function fetchWeatherByCoords(lat, lon) {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m,apparent_temperature,precipitation_probability,visibility&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const cw = data.current_weather;
+      if (!cw) return null;
+      const c = Math.round(cw.temperature);
+      const f = Math.round(c*9/5+32);
+      const kmh = parseFloat(cw.windspeed).toFixed(1);
+      const mph = (parseFloat(cw.windspeed)*0.621371).toFixed(1);
+      const summary = `${wmoLabel(cw.weathercode)}  ${c}°C / ${f}°F  💨 ${kmh} km/h`;
+      const hourly = data.hourly || {}, daily = data.daily || {};
+      const nowISO = new Date().toISOString().slice(0,13);
+      const hIdx = (hourly.time || []).findIndex(t => t.startsWith(nowISO));
+      const humidity   = hIdx >= 0 ? (hourly.relativehumidity_2m||[])[hIdx] : null;
+      const feelsLikeC = hIdx >= 0 ? (hourly.apparent_temperature||[])[hIdx] : null;
+      const precProb   = hIdx >= 0 ? (hourly.precipitation_probability||[])[hIdx] : null;
+      const visKm      = hIdx >= 0 ? ((hourly.visibility||[])[hIdx]/1000).toFixed(1) : null;
+      const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const forecastDays = [];
+      for (let i = 1; i <= 3; i++) {
+        const dt = (daily.time||[])[i]; if (!dt) continue;
+        const dow  = dayNames[new Date(dt+'T12:00:00').getDay()];
+        const hi   = Math.round((daily.temperature_2m_max||[])[i]);
+        const lo   = Math.round((daily.temperature_2m_min||[])[i]);
+        const code = (daily.weathercode||[])[i];
+        forecastDays.push({ dow, hi, lo, icon: (wmoLabel(code)||'').split(' ')[0] });
+      }
+      renderWeatherDetailCard({ summary,c,f,kmh,mph,humidity,feelsLikeC,
+        feelsLikeF: feelsLikeC!=null?Math.round(feelsLikeC*9/5+32):null,
+        precProb,visKm,code:cw.weathercode,forecastDays });
+      return summary;
+    } catch(e) { return null; }
+  }
+
+  function renderWeatherDetailCard(d) {
+    const body = document.getElementById('weatherDetailBody');
+    if (!body) return;
+    const row = (label,val) => val!=null
+      ? `<div class="weather-detail-row"><span class="weather-detail-label">${label}</span><span class="weather-detail-value">${val}</span></div>` : '';
+    const feelsC = d.feelsLikeC!=null ? `${Math.round(d.feelsLikeC)}°C / ${d.feelsLikeF}°F` : null;
+    let html = `
+      ${row('Condition', wmoLabel(d.code))}
+      ${row('Temp', `${d.c}°C / ${d.f}°F`)}
+      ${row('Feels Like', feelsC)}
+      ${row('Humidity', d.humidity!=null?`${d.humidity}%`:null)}
+      ${row('Wind', `${d.kmh} km/h / ${d.mph} mph`)}
+      ${row('Precip. chance', d.precProb!=null?`${d.precProb}%`:null)}
+      ${row('Visibility', d.visKm!=null?`${d.visKm} km`:null)}
+    `;
+    if (d.forecastDays && d.forecastDays.length > 0) {
+      html += `<div class="weather-forecast-row">`;
+      d.forecastDays.forEach(fd => {
+        html += `<div class="forecast-day">
+          <div class="fd-label">${fd.dow}</div>
+          <div class="fd-icon">${fd.icon}</div>
+          <div class="fd-temp">${fd.hi}° / ${fd.lo}°</div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    body.innerHTML = html;
+  }
+
+  let _geoPermissionDenied = false;
+
+  async function getGPSCoords() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) { reject(new Error('no geo')); return; }
+      const t = setTimeout(() => reject(new Error('timeout')), 10000);
+      navigator.geolocation.getCurrentPosition(
+        pos => { clearTimeout(t); resolve(pos); },
+        err => { clearTimeout(t); if (err && err.code === 1) _geoPermissionDenied = true; reject(err); },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+      );
+    });
+  }
+
+  async function refreshWeatherWidget() {
+    let summary = null;
+    try {
+      const pos = await getGPSCoords();
+      if (pos && pos.coords) summary = await fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
+    } catch(e) {}
+
+    if (!summary && _geoPermissionDenied) {
       try {
-        const url = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`;
-        const res = await fetch(url, { signal: suggestionAbortController.signal });
-        if (!res.ok) throw new Error("suggest fetch failed");
-        const data = await res.json();
-        window.showSuggestionsFromFetch(data);
-      } catch (err) {
-        jsonpFallback(query);
-      }
-    }, 160);
-
-    function jsonpFallback(query) {
-      try {
-        const cbName = "jsonp_cb_" + Date.now();
-        window[cbName] = function(data) {
-          try {
-            window.showSuggestionsFromFetch(data);
-          } finally {
-            delete window[cbName];
-            script.remove();
-          }
-        };
-        const script = document.createElement("script");
-        script.src = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(query)}&callback=${cbName}`;
-        script.onerror = function() {
-          try { populateHistorySuggestions(query); } finally { delete window[cbName]; script.remove(); }
-        };
-        document.body.appendChild(script);
-      } catch (e) {
-        populateHistorySuggestions(query);
-      }
+        const ipr = await fetch('https://ipapi.co/json/');
+        if (ipr.ok) {
+          const ipd = await ipr.json();
+          if (ipd && ipd.latitude && ipd.longitude)
+            summary = await fetchWeatherByCoords(ipd.latitude, ipd.longitude);
+        }
+      } catch(e) {}
     }
 
-    window.showSuggestionsFromFetch = function(data) {
-      const results = Array.isArray(data) && data.length > 1 ? data[1] : [];
-      suggestionsBox.innerHTML = "";
-      activeSuggestionIndex = -1;
+    if (summary) {
+      weatherText.textContent = `Weather: ${summary}`;
+      weatherWedge.setAttribute('aria-hidden','false');
+    } else {
+      weatherText.textContent = 'Weather: N/A';
+      weatherWedge.setAttribute('aria-hidden','true');
+    }
+  }
 
-      if (results && results.length > 0) {
-        suggestionsBox.style.display = "block";
-        suggestionsBox.setAttribute("aria-expanded", "true");
-        results.slice(0, 6).forEach((item) => {
-          const div = document.createElement("div");
-          div.className = "suggestion-item";
-          div.setAttribute("role", "option");
-          div.setAttribute("aria-selected", "false");
-          div.dataset.query = item;
-          div.innerHTML = `<span>${escapeHtml(item)}</span><span class="suggestion-meta">suggest</span>`;
+  refreshWeatherWidget();
+  setInterval(refreshWeatherWidget, 30 * 60 * 1000);
 
-          const handler = (e) => {
+  const weatherDetailCard = document.getElementById('weatherDetailCard');
+  weatherWedge.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = weatherDetailCard.classList.contains('open');
+    weatherDetailCard.classList.toggle('open', !isOpen);
+    weatherDetailCard.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
+  });
+  document.getElementById('weatherRefreshBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('weatherDetailBody').innerHTML = `<div style="opacity:0.45;font-size:12px;">Refreshing…</div>`;
+    refreshWeatherWidget();
+  });
+  document.addEventListener('click', e => {
+    if (weatherDetailCard.classList.contains('open') &&
+        !weatherDetailCard.contains(e.target) && !weatherWedge.contains(e.target)) {
+      weatherDetailCard.classList.remove('open');
+      weatherDetailCard.setAttribute('aria-hidden','true');
+    }
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     SHORTCUTS — Default list & forced-iframe targets
+  ═══════════════════════════════════════════════════════ */
+  const DEFAULT_SHORTCUTS = [
+    { label:'Google',       url:'https://google.com' },
+    { label:'Games',        url:'/games' },
+    { label:'Hunter',       url:'/hunter' },
+    { label:'YouTube',      url:'https://www.youtube.com' },
+    { label:'Code Viewer',  url:'/codeviewer' },
+    { label:'QR Code',      url:'/qrcode' },
+    { label:'Copilot',      url:'https://copilot.microsoft.com/' },
+    { label:'Twitter',      url:'https://x.com' },
+    { label:'Instagram',    url:'https://www.instagram.com' },
+    { label:'Facebook',     url:'https://www.facebook.com' },
+    { label:'TikTok',       url:'https://www.tiktok.com' },
+    { label:'Gemini',       url:'https://gemini.google.com' },
+    { label:'WhatsApp',     url:'https://web.whatsapp.com' },
+    { label:'Performance',  url:'/performance' },
+    { label:'Feedback',     url:'/feedback' },
+  ];
+
+  const FORCE_IFRAME_LABELS = ['Games', 'Code Viewer', 'QR Code', 'Feedback'];
+
+  const GOOGLE_LABEL = 'Google';
+
+  const SHORTCUTS_KEY = 'shortcutsV2';
+
+  function loadShortcuts() {
+    try {
+      const raw = localStorage.getItem(SHORTCUTS_KEY);
+      if (!raw) return DEFAULT_SHORTCUTS.slice(0,15);
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return DEFAULT_SHORTCUTS.slice(0,15);
+      return parsed.slice(0,15);
+    } catch(e) { return DEFAULT_SHORTCUTS.slice(0,15); }
+  }
+
+  function saveShortcuts(arr) {
+    try { localStorage.setItem(SHORTCUTS_KEY, JSON.stringify(arr.slice(0,15))); } catch(e) {}
+  }
+
+  function handleShortcutClick(item) {
+    const label = item.label;
+    if (label === 'Google') {
+      openPanel('google');
+      return;
+    }
+    if (label === 'Games') { openPanel('games'); return; }
+    if (label === 'Code Viewer') { openPanel('codeviewer'); return; }
+    if (label === 'QR Code') { openPanel('qr'); return; }
+    if (label === 'Feedback') { openPanel('feedback'); return; }
+    openLink(item.url);
+  }
+
+  function renderShortcuts() {
+    const shortcuts = loadShortcuts();
+    shortcutsContainer.innerHTML = '';
+    const rows = 3, perRow = 5;
+    for (let r = 0; r < rows; r++) {
+      const row = document.createElement('div');
+      row.className = 'shortcuts-row';
+      for (let c = 0; c < perRow; c++) {
+        const index = r * perRow + c;
+        const item = shortcuts[index];
+        if (item) {
+          const a = document.createElement('a');
+          a.className = 'shortcut glass';
+          a.href = item.url;
+          a.textContent = item.label;
+          a.title = item.url;
+          a.setAttribute('data-index', index);
+          a.setAttribute('data-label', item.label);
+          a.setAttribute('data-url', item.url);
+
+          a.addEventListener('click', e => {
             e.preventDefault();
-            searchInput.value = item;
-            hideSuggestions();
-            performSearch(item);
-          };
-          div.addEventListener("pointerdown", handler);
-          div.addEventListener("mousedown", handler);
-          div.addEventListener("click", (e) => {
-            e.preventDefault();
-            searchInput.value = item;
-            hideSuggestions();
-            performSearch(item);
+            handleShortcutClick(item);
           });
 
-          suggestionsBox.appendChild(div);
-        });
-      } else {
-        populateHistorySuggestions(searchInput.value.trim());
-      }
-    };
-
-    function populateHistorySuggestions(query = "") {
-      suggestionsBox.innerHTML = "";
-      activeSuggestionIndex = -1;
-      hideSuggestions();
-    }
-
-    function hideSuggestions() {
-      suggestionsBox.style.display = "none";
-      suggestionsBox.setAttribute("aria-expanded", "false");
-      suggestionsBox.innerHTML = "";
-      activeSuggestionIndex = -1;
-    }
-
-    // Hide suggestions when clicking anywhere outside the search wrapper
-    document.addEventListener("click", (e) => {
-      const wrapper = document.querySelector(".chrome-search-wrapper");
-      if (wrapper && !wrapper.contains(e.target)) {
-        hideSuggestions();
-      }
-    }, true);
-
-    /* =========================================
-       Voice integration
-       ========================================= */
-
-    const voiceBtn = document.getElementById("voiceBtn");
-    const toggleVoiceAutoEl = document.getElementById("toggleVoiceAuto");
-    let recognition = null;
-    let isListening = false;
-    let supportsSpeech = false;
-
-    function setMicUI(listening) {
-      isListening = !!listening;
-      voiceBtn.classList.toggle("listening", isListening);
-      voiceBtn.setAttribute("aria-pressed", String(isListening));
-      try {
-        localStorage.setItem("voiceActive", isListening ? "1" : "0");
-      } catch (e) { }
-    }
-
-    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
-      supportsSpeech = true;
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.lang = "en-US";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.onstart = () => setMicUI(true);
-      recognition.onend = () => setMicUI(false);
-      recognition.onerror = () => setMicUI(false);
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        searchInput.value = transcript;
-        if (toggleVoiceAutoEl.checked) performSearch(transcript);
-        try { recognition.stop(); } catch (e) {}
-        setMicUI(false);
-      };
-    } else {
-      supportsSpeech = false;
-      voiceBtn.classList.add("disabled");
-      voiceBtn.title = "Voice search not supported in this browser";
-    }
-
-    async function startRecognition() {
-      if (!supportsSpeech || !recognition) return;
-      if (isListening) return;
-      try {
-        recognition.start();
-        setMicUI(true);
-      } catch (e) {
-        setMicUI(false);
-      }
-    }
-
-    function stopRecognition() {
-      if (!supportsSpeech || !recognition) return;
-      try { recognition.stop(); } catch (e) {}
-      finally { setMicUI(false); }
-    }
-
-    voiceBtn.addEventListener("click", (e) => {
-      if (!supportsSpeech) return;
-      if (isListening) stopRecognition();
-      else startRecognition();
-    });
-
-    (function restoreVoiceState() {
-      try {
-        const saved = localStorage.getItem("voiceActive");
-        if (saved === "1") {
-          voiceBtn.classList.add("listening");
-          voiceBtn.setAttribute("aria-pressed", "false");
-        }
-      } catch (e) { }
-    })();
-
-    /* =========================================
-       Settings panel & theme handling
-       ========================================= */
-
-    const settingsToggle = document.getElementById("settingsToggle");
-    const settingsPanel = document.getElementById("settingsPanel");
-    const toggleMatrixEl = document.getElementById("toggleMatrix");
-    const toast = document.getElementById("toast");
-    const themeSelect = document.getElementById("themeSelect");
-    const customColorPicker = document.getElementById("customColorPicker");
-    const customColorInput = document.getElementById("customColorInput");
-    const customColorHex = document.getElementById("customColorHex");
-    const weatherWedge = document.getElementById("weatherWedge");
-    const weatherText = document.getElementById("weatherText");
-    const shortcutsContainer = document.getElementById("shortcutsContainer");
-
-    function showToast(msg, ms = 1100) {
-      toast.textContent = msg;
-      toast.classList.add("show");
-      clearTimeout(window._ituze_toast_t);
-      window._ituze_toast_t = setTimeout(() => {
-        toast.classList.remove("show");
-      }, ms);
-    }
-
-    function closeAllPanels(exclude = []) {
-      const exEls = Array.isArray(exclude) ? exclude.filter(Boolean) : [];
-
-      if (!exEls.includes(settingsPanel)) {
-        settingsPanel.classList.remove("open");
-        settingsPanel.setAttribute("aria-hidden", "true");
-      }
-      if (!exEls.includes(iframePanel)) {
-        iframePanel.classList.remove("open");
-        topBtn.classList.remove("hidden");
-        isPanelOpen = false;
-      }
-      hideContextMenu();
-    }
-
-    function openSettings() {
-      closeAllPanels([settingsPanel]);
-      settingsPanel.classList.add("open");
-      settingsPanel.setAttribute("aria-hidden", "false");
-    }
-
-    function closeSettings() {
-      settingsPanel.classList.remove("open");
-      settingsPanel.setAttribute("aria-hidden", "true");
-    }
-
-    function toggleSettings() {
-      if (settingsPanel.classList.contains("open")) closeSettings();
-      else openSettings();
-    }
-
-    settingsToggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleSettings();
-    });
-
-    // Click anywhere outside panels to close them
-    document.addEventListener("click", (e) => {
-      const target = e.target;
-      
-      // Don't close if clicking inside iframe panel content
-      if (target.closest && target.closest("#iframePanel")) {
-        return;
-      }
-      
-      // Don't close if clicking the top button (it toggles)
-      if (target.closest && target.closest("#topLink")) {
-        return;
-      }
-      
-      // Don't close if clicking inside settings panel or toggle
-      if (target.closest && (target.closest("#settingsPanel") || target.closest("#settingsToggle") || target.closest("#contextMenu"))) {
-        return;
-      }
-      
-      // Close all panels
-      closeAllPanels();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        if (settingsPanel.classList.contains("open")) {
-          closeSettings();
-        }
-        if (iframePanel.classList.contains("open")) {
-          closeIframePanel();
-        }
-      }
-    });
-
-    function applyThemeKeyed(themeKeyOrColor) {
-      const root = document.documentElement;
-      const isExplicitColor = typeof themeKeyOrColor === "string" && themeKeyOrColor.startsWith("#");
-      if (isExplicitColor) {
-        const ac = themeKeyOrColor;
-        document.documentElement.style.setProperty('--accent', ac);
-        document.documentElement.style.setProperty('--matrix-color', ac);
-        document.documentElement.style.setProperty('--launcher-border-color', `color-mix(in srgb, ${ac} 25%, rgba(255,255,255,0.18))`);
-        document.documentElement.style.setProperty('--launcher-section-bg', 'rgba(15,23,42,0.6)');
-        document.documentElement.style.setProperty('--launcher-section-border', `color-mix(in srgb, ${ac} 30%, rgba(148,163,184,0.35))`);
-        return;
-      }
-
-      const themes = {
-        green:  { accent: "#00ff9c", matrix: "#00ff9c" },
-        blue:   { accent: "#4da3ff", matrix: "#4da3ff" },
-        red:    { accent: "#ff4d4d", matrix: "#ff4d4d" },
-        yellow: { accent: "#ffe44d", matrix: "#ffe44d" }
-      };
-      const t = themes[themeKeyOrColor] || themes.green;
-      root.style.setProperty("--accent", t.accent);
-      root.style.setProperty("--matrix-color", t.matrix);
-      root.style.setProperty("--launcher-border-color", `color-mix(in srgb, ${t.accent} 35%, rgba(255,255,255,0.18))`);
-      root.style.setProperty("--launcher-section-bg", "rgba(15,23,42,0.6)");
-      root.style.setProperty("--launcher-section-border", `color-mix(in srgb, ${t.accent} 30%, rgba(148,163,184,0.35))`);
-    }
-
-    function saveSettings() {
-      try {
-        localStorage.setItem("searchEngine", engineSelect.value);
-        localStorage.setItem("showSuggestions", toggleSuggestionsEl.checked ? "1" : "0");
-        localStorage.setItem("voiceAuto", toggleVoiceAutoEl.checked ? "1" : "0");
-        localStorage.setItem("matrixEnabled", toggleMatrixEl.checked ? "0" : "1");
-        localStorage.setItem("keyboardShortcuts", toggleKeyboardEl.checked ? "1" : "0");
-        localStorage.setItem("themeColor", themeSelect.value);
-        localStorage.setItem("voiceActive", isListening ? "1" : (localStorage.getItem("voiceActive") || "0"));
-
-        if (themeSelect.value === "custom") {
-          const hex = (customColorHex.value || customColorInput.value || "#00ff9c").trim();
-          localStorage.setItem("customAccent", hex);
-          if (window.Sync) window.Sync.saveTheme("custom", hex);
-        } else {
-          if (window.Sync) window.Sync.saveTheme(themeSelect.value);
-        }
-        const dn = (displayNameInput.value || "").trim();
-        localStorage.setItem("displayName", dn || "Ituze");
-        if (window.Sync) window.Sync.saveName(dn || "Ituze");
-      } catch (e) {}
-    }
-
-    const autoSave = debounce(saveSettings, 280);
-
-    function applySettings() {
-      const engineKey = localStorage.getItem("searchEngine") || "ituze";
-      engineSelect.value = engineKey;
-
-      const showSuggestions = localStorage.getItem("showSuggestions") !== "0";
-      toggleSuggestionsEl.checked = showSuggestions;
-
-      const voiceAuto = localStorage.getItem("voiceAuto") !== "0";
-      toggleVoiceAutoEl.checked = voiceAuto;
-
-      const matrixStored = localStorage.getItem("matrixEnabled");
-      matrixEnabled = matrixStored !== "0";
-      toggleMatrixEl.checked = !matrixEnabled;
-      if (!matrixEnabled) {
-        stopMatrix();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      } else {
-        startMatrix();
-      }
-
-      const keyboardShortcuts = localStorage.getItem("keyboardShortcuts") === "1";
-      toggleKeyboardEl.checked = keyboardShortcuts;
-
-      const savedTheme = localStorage.getItem("themeColor") || "green";
-      themeSelect.value = savedTheme;
-
-      const savedCustom = localStorage.getItem("customAccent") || "#00ff9c";
-      customColorInput.value = savedCustom;
-      customColorHex.value = savedCustom;
-
-      if (savedTheme === "custom") {
-        customColorPicker.style.display = "";
-        applyThemeKeyed(savedCustom);
-      } else {
-        customColorPicker.style.display = "none";
-        applyThemeKeyed(savedTheme);
-      }
-
-      const localOnly = localStorage.getItem("localOnlySuggestions") === "1";
-      toggleLocalOnlyEl.checked = localOnly;
-
-      const dn = localStorage.getItem("displayName") || "Ituze";
-      displayNameInput.value = dn;
-      updateGreeting();
-    }
-
-    window.saveSettings = saveSettings;
-    applySettings();
-
-    themeSelect.addEventListener("change", () => {
-      const v = themeSelect.value;
-      if (v === "custom") {
-        customColorPicker.style.display = "";
-        const custom = localStorage.getItem("customAccent") || customColorInput.value || "#00ff9c";
-        customColorInput.value = custom;
-        customColorHex.value = custom;
-        applyThemeKeyed(custom);
-      } else {
-        customColorPicker.style.display = "none";
-        applyThemeKeyed(v);
-      }
-      autoSave();
-    });
-
-    customColorInput.addEventListener("input", () => {
-      const val = customColorInput.value;
-      customColorHex.value = val;
-      applyThemeKeyed(val);
-      autoSave();
-    });
-    customColorHex.addEventListener("input", () => {
-      const val = customColorHex.value.trim();
-      if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(val)) {
-        customColorInput.value = val;
-        applyThemeKeyed(val);
-        autoSave();
-      }
-    });
-
-    [
-      displayNameInput,
-      engineSelect,
-      toggleSuggestionsEl,
-      toggleVoiceAutoEl,
-      toggleKeyboardEl,
-      toggleLocalOnlyEl,
-      toggleMatrixEl,
-      customColorInput,
-      customColorHex,
-    ].forEach(el => {
-      if (!el) return;
-      const ev = (el.tagName === "INPUT" && el.type === "text") || el.tagName === "TEXTAREA" || el.type === "password" ? "input" : "change";
-      el.addEventListener(ev, () => autoSave());
-    });
-
-    // Live greeting update when display name is typed
-    displayNameInput.addEventListener("input", () => {
-      const dn = displayNameInput.value.trim();
-      const resolved = dn || "Ituze";
-      localStorage.setItem("displayName", resolved);
-      if (window.Sync) window.Sync.saveName(resolved);
-      updateGreeting();
-      if (!dn) displayNameInput.value = "";
-    });
-
-    // Also restore on blur so if user clears and leaves, input shows empty but greeting stays Ituze
-    displayNameInput.addEventListener("blur", () => {
-      const dn = displayNameInput.value.trim();
-      if (!dn) {
-        localStorage.setItem("displayName", "Ituze");
-        if (window.Sync) window.Sync.saveName("Ituze");
-        updateGreeting();
-      }
-    });
-
-    document.addEventListener("keydown", (e) => {
-      const keyboardEnabled = toggleKeyboardEl.checked;
-      if (!keyboardEnabled) return;
-
-      if (e.key === "/" && document.activeElement !== searchInput) {
-        e.preventDefault();
-        searchInput.focus();
-      }
-
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
-        e.preventDefault();
-        searchInput.focus();
-        searchInput.select();
-      }
-
-      if (e.ctrlKey && e.altKey && e.key === "/") {
-        e.preventDefault();
-      }
-    });
-
-    /* =========================================
-       Clear data / reset
-       ========================================= */
-    document.getElementById("resetStorage").addEventListener("click", () => {
-      if (!confirm("Clear all saved settings and customizations? This cannot be undone.")) return;
-      try {
-        const keys = ["searchEngine","showSuggestions","voiceAuto","matrixEnabled","keyboardShortcuts","themeColor","openInNewTab","voiceActive","localOnlySuggestions","customAccent","clearSearchOnReturn","displayName","shortcutsV2"];
-        keys.forEach(k => localStorage.removeItem(k));
-        showToast("Local data cleared");
-        setTimeout(() => location.reload(), 350);
-      } catch (e) {
-        showToast("Failed to clear data");
-      }
-    });
-
-    /* =========================================
-       Weather widget
-       ========================================= */
-
-    const batteryText = document.getElementById("battery-text");
-    const batteryLevelBar = document.getElementById("battery-level-bar");
-
-    function updateBatteryDisplay(level, charging) {
-      const percent = Math.round(level * 100);
-      batteryText.textContent = `Battery: ${percent}%${charging ? " ⚡" : ""}`;
-      batteryLevelBar.style.width = Math.max(5, percent) + "%";
-    }
-
-    if (navigator.getBattery) {
-      navigator.getBattery().then(battery => {
-        updateBatteryDisplay(battery.level, battery.charging);
-        battery.addEventListener("levelchange", () => updateBatteryDisplay(battery.level, battery.charging));
-        battery.addEventListener("chargingchange", () => updateBatteryDisplay(battery.level, battery.charging));
-      }).catch(() => { batteryText.textContent = "Battery: N/A"; });
-    } else {
-      batteryText.textContent = "Battery: N/A";
-    }
-
-    /* =========================================
-       Weather – GPS-first, IP fallback only on denial
-       ========================================= */
-
-    // WMO weather code → emoji + label
-    const WMO_CODES = {
-      0:"☀️ Clear",1:"🌤 Mainly Clear",2:"⛅ Partly Cloudy",3:"☁️ Overcast",
-      45:"🌫 Foggy",48:"🌫 Icy Fog",
-      51:"🌦 Light Drizzle",53:"🌦 Drizzle",55:"🌧 Heavy Drizzle",
-      61:"🌧 Light Rain",63:"🌧 Rain",65:"🌧 Heavy Rain",
-      71:"🌨 Light Snow",73:"🌨 Snow",75:"❄️ Heavy Snow",77:"🌨 Snow Grains",
-      80:"🌦 Showers",81:"🌧 Heavy Showers",82:"⛈ Violent Showers",
-      85:"🌨 Snow Showers",86:"❄️ Heavy Snow Showers",
-      95:"⛈ Thunderstorm",96:"⛈ Thunderstorm+Hail",99:"⛈ Heavy Thunderstorm"
-    };
-
-    function wmoLabel(code) {
-      return WMO_CODES[code] || `Code ${code}`;
-    }
-
-    async function fetchWeatherByCoords(lat, lon) {
-      try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current_weather=true&hourly=relativehumidity_2m,apparent_temperature,precipitation_probability,visibility&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("weather failed");
-        const data = await res.json();
-        const cw = data.current_weather;
-        if (!cw) return null;
-
-        const c = Math.round(cw.temperature);
-        const f = Math.round((c * 9 / 5) + 32);
-        const kmh = parseFloat(cw.windspeed).toFixed(1);
-        const mph = (parseFloat(cw.windspeed) * 0.621371).toFixed(1);
-        const summary = `${wmoLabel(cw.weathercode)}  ${c}°C / ${f}°F  💨 ${kmh} km/h`;
-
-        // Build detail card
-        const hourly = data.hourly || {};
-        const daily  = data.daily  || {};
-
-        // Pick the current hour index from the hourly time array
-        const nowISO = new Date().toISOString().slice(0,13);
-        const hIdx   = (hourly.time || []).findIndex(t => t.startsWith(nowISO));
-        const humidity  = hIdx >= 0 ? (hourly.relativehumidity_2m || [])[hIdx] : null;
-        const feelsLikeC = hIdx >= 0 ? (hourly.apparent_temperature || [])[hIdx] : null;
-        const precProb  = hIdx >= 0 ? (hourly.precipitation_probability || [])[hIdx] : null;
-        const visKm    = hIdx >= 0 ? ((hourly.visibility || [])[hIdx] / 1000).toFixed(1) : null;
-
-        const forecastDays = [];
-        const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-        for (let i = 1; i <= 3; i++) {
-          const dt = (daily.time || [])[i];
-          if (!dt) continue;
-          const dow  = dayNames[new Date(dt + "T12:00:00").getDay()];
-          const hi   = Math.round((daily.temperature_2m_max || [])[i]);
-          const lo   = Math.round((daily.temperature_2m_min || [])[i]);
-          const code = (daily.weathercode || [])[i];
-          forecastDays.push({ dow, hi, lo, icon: (wmoLabel(code) || "").split(" ")[0] });
-        }
-
-        renderWeatherDetailCard({
-          summary, c, f, kmh, mph,
-          humidity, feelsLikeC,
-          feelsLikeF: feelsLikeC != null ? Math.round((feelsLikeC*9/5)+32) : null,
-          precProb, visKm,
-          code: cw.weathercode,
-          forecastDays
-        });
-
-        return summary;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function renderWeatherDetailCard(d) {
-      const body = document.getElementById("weatherDetailBody");
-      if (!body) return;
-
-      const row = (label, val) => val != null
-        ? `<div class="weather-detail-row">
-             <span class="weather-detail-label">${label}</span>
-             <span class="weather-detail-value">${val}</span>
-           </div>` : "";
-
-      const feelsC = d.feelsLikeC != null ? `${Math.round(d.feelsLikeC)}°C / ${d.feelsLikeF}°F` : null;
-
-      let html = `
-        ${row("Condition", wmoLabel(d.code))}
-        ${row("Temp", `${d.c}°C / ${d.f}°F`)}
-        ${row("Feels Like", feelsC)}
-        ${row("Humidity", d.humidity != null ? `${d.humidity}%` : null)}
-        ${row("Wind", `${d.kmh} km/h / ${d.mph} mph`)}
-        ${row("Precip. chance", d.precProb != null ? `${d.precProb}%` : null)}
-        ${row("Visibility", d.visKm != null ? `${d.visKm} km` : null)}
-      `;
-
-      if (d.forecastDays && d.forecastDays.length > 0) {
-        html += `<div class="weather-forecast-row">`;
-        d.forecastDays.forEach(fd => {
-          html += `<div class="forecast-day">
-            <div class="fd-label">${fd.dow}</div>
-            <div class="fd-icon">${fd.icon}</div>
-            <div class="fd-temp">${fd.hi}° / ${fd.lo}°</div>
-          </div>`;
-        });
-        html += `</div>`;
-      }
-
-      body.innerHTML = html;
-    }
-
-    /* GPS permission tracking — only fall back to IP when user explicitly denied */
-    let _geoPermissionDenied = false;
-
-    async function getGPSCoords() {
-      return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) { reject(new Error("no geo")); return; }
-        const t = setTimeout(() => reject(new Error("geo timeout")), 10000);
-        navigator.geolocation.getCurrentPosition(
-          pos => { clearTimeout(t); resolve(pos); },
-          err => {
-            clearTimeout(t);
-            // err.code 1 = PERMISSION_DENIED
-            if (err && err.code === 1) _geoPermissionDenied = true;
-            reject(err);
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
-        );
-      });
-    }
-
-    async function refreshWeatherWidget() {
-      let summary = null;
-
-      // 1️⃣ Try GPS first (high accuracy)
-      try {
-        const pos = await getGPSCoords();
-        if (pos && pos.coords) {
-          summary = await fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
-        }
-      } catch (e) { /* falls through */ }
-
-      // 2️⃣ Only use IP geolocation if the user explicitly denied location access
-      if (!summary && _geoPermissionDenied) {
-        try {
-          const ipr = await fetch("https://ipapi.co/json/");
-          if (ipr.ok) {
-            const ipd = await ipr.json();
-            if (ipd && ipd.latitude && ipd.longitude) {
-              summary = await fetchWeatherByCoords(ipd.latitude, ipd.longitude);
+          a.addEventListener('dblclick', e => {
+            e.preventDefault();
+            const newLabel = prompt('Edit shortcut label:', item.label);
+            if (newLabel === null) return;
+            let newUrl = prompt('Edit shortcut URL (include https://):', item.url);
+            if (newUrl === null) return;
+            newUrl = newUrl.trim();
+            if (!/^https?:\/\//i.test(newUrl)) {
+              if (newUrl.startsWith('/')) { /* relative ok */ }
+              else if (/^[\w.-]+\.[a-z]{2,}$/i.test(newUrl)) newUrl = 'https://' + newUrl;
+              else { alert('Invalid URL. Changes not saved.'); return; }
             }
-          }
-        } catch (e) { /* silently fail */ }
-      }
+            const sc = loadShortcuts();
+            sc[index] = { label: newLabel.trim() || item.label, url: newUrl };
+            saveShortcuts(sc);
+            renderShortcuts();
+            showToast('Shortcut updated', 900);
+          });
 
-      if (summary) {
-        weatherText.textContent = `Weather: ${summary}`;
-        weatherWedge.setAttribute("aria-hidden", "false");
-      } else {
-        weatherText.textContent = `Weather: N/A`;
-        weatherWedge.setAttribute("aria-hidden", "true");
-      }
-    }
-
-    /* Weather detail card toggle */
-    const weatherDetailCard = document.getElementById("weatherDetailCard");
-
-    weatherWedge.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const isOpen = weatherDetailCard.classList.contains("open");
-      weatherDetailCard.classList.toggle("open", !isOpen);
-      weatherDetailCard.setAttribute("aria-hidden", isOpen ? "true" : "false");
-    });
-
-    document.getElementById("weatherRefreshBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      document.getElementById("weatherDetailBody").innerHTML =
-        `<div style="opacity:0.45;font-size:12px;">Refreshing…</div>`;
-      refreshWeatherWidget();
-    });
-
-    // Close detail card when clicking outside
-    document.addEventListener("click", (e) => {
-      if (weatherDetailCard && weatherDetailCard.classList.contains("open")) {
-        if (!weatherDetailCard.contains(e.target) && !weatherWedge.contains(e.target)) {
-          weatherDetailCard.classList.remove("open");
-          weatherDetailCard.setAttribute("aria-hidden", "true");
+          row.appendChild(a);
+        } else {
+          const placeholder = document.createElement('div');
+          placeholder.className = 'shortcut glass';
+          placeholder.style.opacity = '0.25';
+          row.appendChild(placeholder);
         }
       }
+      shortcutsContainer.appendChild(row);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     CONTEXT MENU — Right-click on shortcuts & empty space
+  ═══════════════════════════════════════════════════════ */
+  const contextMenu = document.getElementById('contextMenu');
+
+  function showContextMenu(x, y, buttons) {
+    contextMenu.innerHTML = '';
+    buttons.forEach((btn, i) => {
+      if (btn === 'sep') {
+        const sep = document.createElement('div');
+        sep.className = 'context-menu-sep';
+        contextMenu.appendChild(sep);
+        return;
+      }
+      const b = document.createElement('button');
+      b.textContent = btn.label;
+      if (btn.icon) b.textContent = btn.icon + ' ' + btn.label;
+      b.addEventListener('click', e => { e.stopPropagation(); hideContextMenu(); btn.onClick(); });
+      contextMenu.appendChild(b);
     });
 
-    /* =========================================
-       Right-Click Behavior
-       ========================================= */
+    contextMenu.style.display = 'block';
+    contextMenu.setAttribute('aria-hidden','false');
+    const cw2 = contextMenu.offsetWidth, ch = contextMenu.offsetHeight;
+    let cx = x, cy = y;
+    if (cx + cw2 > window.innerWidth - 8) cx = window.innerWidth - cw2 - 8;
+    if (cy + ch  > window.innerHeight - 8) cy = window.innerHeight - ch - 8;
+    contextMenu.style.left = cx + 'px';
+    contextMenu.style.top  = cy + 'px';
+  }
 
-    const contextMenu = document.getElementById("contextMenu");
+  function hideContextMenu() {
+    contextMenu.style.display = 'none';
+    contextMenu.setAttribute('aria-hidden','true');
+  }
 
-    function showContextMenuAt(x, y, buttons) {
-      contextMenu.innerHTML = "";
-      buttons.forEach(btn => {
-        const b = document.createElement("button");
-        b.textContent = btn.label;
-        b.addEventListener("click", (e) => {
-          e.stopPropagation();
-          hideContextMenu();
-          btn.onClick();
-        });
-        contextMenu.appendChild(b);
-      });
-      contextMenu.style.left = x + "px";
-      contextMenu.style.top = y + "px";
-      contextMenu.style.display = "block";
-      contextMenu.setAttribute("aria-hidden", "false");
-    }
+  document.addEventListener('contextmenu', evt => {
+    evt.preventDefault();
+    const x = evt.clientX, y = evt.clientY;
+    const shortcutEl = evt.target.closest && evt.target.closest('.shortcut[data-label]');
 
-    function hideContextMenu() {
-      contextMenu.style.display = "none";
-    }
+    if (shortcutEl) {
+      const label = shortcutEl.getAttribute('data-label');
+      const url   = shortcutEl.getAttribute('data-url') || shortcutEl.href;
 
-    document.addEventListener("contextmenu", (evt) => {
-      const shortcut = evt.target.closest && evt.target.closest(".shortcut");
-      evt.preventDefault();
-      const x = evt.clientX;
-      const y = evt.clientY;
-
-      if (shortcut) {
-        const href = shortcut.href;
-        showContextMenuAt(x, y, [
-          {
-            label: "Open",
-            onClick: () => { openLink(href); }
-          }
+      if (label === 'Google') {
+        showContextMenu(x, y, [
+          { label:'Open as iframe', onClick:() => openPanel('google') },
+          { label:'Open in new tab', onClick:() => openLinkNewTab('https://www.google.com') },
+        ]);
+      } else if (FORCE_IFRAME_LABELS.includes(label)) {
+        showContextMenu(x, y, [
+          { label:`Open ${label}`, onClick:() => handleShortcutClick({ label, url }) },
+          { label:'Open in new tab', onClick:() => openLinkNewTab(url) },
         ]);
       } else {
-        showContextMenuAt(x, y, [
-          {
-            label: "Learn More",
-            onClick: () => { window.location.href = "https://github.com/ituzebonheur7/Matrix-Homepage"; }
-          }
+        showContextMenu(x, y, [
+          { label:'Open link', onClick:() => openLink(url) },
+          { label:'Open in new tab', onClick:() => openLinkNewTab(url) },
         ]);
       }
-    });
+    } else {
+      showContextMenu(x, y, [
+        { label:'Learn More', onClick:() => { window.location.href = 'https://github.com/ituzebonheur7/Ituze'; } },
+      ]);
+    }
+  });
 
-    document.addEventListener("click", (e) => {
-      if (!contextMenu.contains(e.target)) hideContextMenu();
-    });
+  document.addEventListener('click', e => {
+    if (!contextMenu.contains(e.target)) hideContextMenu();
+  });
 
-    /* =========================================
-       Shortcuts
-       ========================================= */
+  // ESC key anywhere
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') hideContextMenu();
+  });
 
-    const DEFAULT_SHORTCUTS = [
-      { label: "Google", url: "https://google.com" },
-      { label: "Games", url: "/games" },
-      { label: "Hunter", url: "/hunter" },
-      { label: "YouTube", url: "https://www.youtube.com" },
-      { label: "Code Viewer", url: "/codeviewer" },
-      
-      { label: "QR Code", url: "/qrcode" },
-      { label: "Copilot", url: "https://copilot.microsoft.com/" },
-      { label: "Twitter", url: "https://x.com" },
-      { label: "Instagram", url: "https://www.instagram.com" },
-      { label: "Facebook", url: "https://www.facebook.com" },
-      
-      { label: "TikTok", url: "https://www.tiktok.com" },
-      { label: "Gemini", url: "https://gemini.google.com" },
-      { label: "WhatsApp", url: "https://web.whatsapp.com" },
-      { label: "Performance", url: "/performance" },
-      { label: "Feedback", url: "/feedback" },
-    ];
+  /* ═══════════════════════════════════════════════════════
+     INIT
+  ═══════════════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', () => {
+    applySettings();
+    renderShortcuts();
+  });
 
-    const SHORTCUTS_KEY = "shortcutsV2";
-
-    function loadShortcuts() {
-      try {
-        const raw = localStorage.getItem(SHORTCUTS_KEY);
-        if (!raw) return DEFAULT_SHORTCUTS.slice(0, 15);
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return DEFAULT_SHORTCUTS.slice(0, 15);
-        return parsed.slice(0, 15);
-      } catch (e) {
-        return DEFAULT_SHORTCUTS.slice(0, 15);
+  window.addEventListener('pageshow', evt => {
+    try {
+      if (localStorage.getItem('clearSearchOnReturn') === '1') {
+        searchInput.value = ''; hideSuggestions();
+        localStorage.removeItem('clearSearchOnReturn');
       }
-    }
-
-    function saveShortcuts(arr) {
-      try {
-        const limited = arr.slice(0, 15);
-        localStorage.setItem(SHORTCUTS_KEY, JSON.stringify(limited));
-      } catch (e) { }
-    }
-
-    function renderShortcuts() {
-      const shortcuts = loadShortcuts();
-      shortcutsContainer.innerHTML = "";
-      const rows = 3;
-      const perRow = 5;
-      for (let r = 0; r < rows; r++) {
-        const row = document.createElement("div");
-        row.className = "shortcuts-row";
-        row.id = `shortcutsRow${r+1}`;
-        for (let c = 0; c < perRow; c++) {
-          const index = r * perRow + c;
-          const item = shortcuts[index];
-          if (item) {
-            const a = document.createElement("a");
-            a.className = "shortcut glass";
-            a.href = item.url;
-            a.textContent = item.label;
-            a.title = item.url;
-            a.setAttribute("data-index", index);
-            a.addEventListener("click", (e) => {
-              e.preventDefault();
-              openLinkWithPrefs(a.href);
-            });
-            a.addEventListener("dblclick", (e) => {
-              e.preventDefault();
-              const curLabel = item.label;
-              const curUrl = item.url;
-              const newLabel = prompt("Edit shortcut label:", curLabel);
-              if (newLabel === null) return;
-              let newUrl = prompt("Edit shortcut URL (include https://):", curUrl);
-              if (newUrl === null) return;
-              newUrl = newUrl.trim();
-              if (!/^https?:\/\//i.test(newUrl)) {
-                if (/^[\w.-]+\.[a-z]{2,}$/i.test(newUrl)) {
-                  newUrl = "https://" + newUrl;
-                } else {
-                  alert("Invalid URL. Changes not saved.");
-                  return;
-                }
-              }
-              const sc = loadShortcuts();
-              sc[index] = { label: (newLabel.trim() || curLabel), url: newUrl };
-              saveShortcuts(sc);
-              renderShortcuts();
-              showToast("Shortcut updated", 900);
-            });
-            row.appendChild(a);
-          } else {
-            const placeholder = document.createElement("div");
-            placeholder.className = "shortcut glass";
-            placeholder.style.opacity = "0.25";
-            placeholder.textContent = "";
-            row.appendChild(placeholder);
-          }
-        }
-        shortcutsContainer.appendChild(row);
+    } catch(e) {}
+    try {
+      if (document.activeElement === document.body || document.activeElement === document.documentElement) {
+        searchInput.focus();
+        const v = searchInput.value;
+        searchInput.setSelectionRange(v.length, v.length);
       }
-      enforceShortcutLimits();
-    }
+    } catch(e) {}
+  });
 
-    function enforceShortcutLimits() {
-      const rows = Array.from(document.querySelectorAll(".shortcuts-row"));
-      rows.forEach((r, idx) => {
-        if (idx >= 3) r.style.display = "none";
-        else r.style.display = "";
-      });
-      const allShortcuts = Array.from(document.querySelectorAll(".shortcuts .shortcut"));
-      allShortcuts.forEach((el, idx) => {
-        if (el.tagName.toLowerCase() === "a") {
-          if (idx >= 15) el.style.display = "none";
-          else el.style.display = "";
-        }
-      });
-    }
+  window.addEventListener('blur', hideSuggestions);
 
-    document.addEventListener("DOMContentLoaded", () => {
-      applySettings();
-      renderShortcuts();
-      enforceShortcutLimits();
-      refreshWeatherWidget();
-    });
-
-    /* =========================================
-       Accessibility / UX tweaks
-       ========================================= */
-
-    window.addEventListener("blur", () => {
-      hideSuggestions();
-    });
-
-    window._ituze_utils = {
-      performSearch,
-      hideSuggestions,
-      startRecognition,
-      stopRecognition,
-      clearSearchImmediate
-    };
-
-    window.addEventListener("pageshow", (evt) => {
-      try {
-        if (localStorage.getItem("clearSearchOnReturn") === "1") {
-          try { searchInput.value = ""; hideSuggestions(); } catch (e) {}
-          try { localStorage.removeItem("clearSearchOnReturn"); } catch (e) {}
-        }
-      } catch (e) {}
-
-      try {
+  (function initOnLoad() {
+    try {
+      setTimeout(() => {
         if (document.activeElement === document.body || document.activeElement === document.documentElement) {
           searchInput.focus();
-          const val = searchInput.value;
-          searchInput.setSelectionRange(val.length, val.length);
+          const v = searchInput.value || '';
+          searchInput.setSelectionRange(v.length, v.length);
         }
-      } catch (e) {}
-    });
+      }, 60);
+    } catch(e) {}
+  })();
 
-    document.addEventListener("click", (evt) => {
-      const anchor = evt.target.closest && evt.target.closest("a");
-      if (!anchor) return;
-      const href = anchor.getAttribute("href");
-      if (!href) return;
-      try { clearSearchImmediate(); } catch (e) {}
-    }, true);
+  /* ═══════════════════════════════════════════════════════
+     UTILITIES
+  ═══════════════════════════════════════════════════════ */
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+  }
 
-    document.querySelectorAll(".launcher-link").forEach(a => {
-      a.addEventListener("click", (ev) => {});
-    });
-
-    (function initOnLoad() {
-      try {
-        setTimeout(() => {
-          if (document.activeElement === document.body || document.activeElement === document.documentElement) {
-            searchInput.focus();
-            const v = searchInput.value || "";
-            searchInput.setSelectionRange(v.length, v.length);
-          }
-        }, 60);
-      } catch (e) {}
-    })();
-
-    /* =========================================
-       Utilities
-       ========================================= */
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
-    }
-
-    function openLinkWithPrefs(url) {
-      openLink(url);
-    }
-
+  window._ituze_utils = { performSearch, hideSuggestions, clearSearchImmediate };
   </script>
-
 </body>
 </html>
