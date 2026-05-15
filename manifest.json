@@ -1,9 +1,7 @@
 {
-  "name": "Ituze – Home Dashboard",
+  "name": "Ituze",
   "short_name": "Ituze",
   "description": "A cyber-inspired dashboard featuring a dynamic Matrix-rain backdrop and real-time utility tracking.",
-  "gcm_sender_id": "15057814354",
-  "gcm_user_visible_only": true,
   "edge_side_panel": {
     "preferred_width": 376
   },
