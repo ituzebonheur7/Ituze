@@ -1,20 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="/manifest.json">
   <meta charset="utf-8" />
   <script src="/js/sync.js"></script>
   <script src="/sw.js"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9271533798664162"
-     crossorigin="anonymous"></script>
-  <ins class="adsbygoogle"
-     style="display:inline-block;width:728px;height:90px"
-     data-ad-client="ca-pub-9271533798664162"
-     data-ad-slot="6088247536"></ins>
-  <script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9271533798664162" crossorigin="anonymous"></script>
+  <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-9271533798664162" data-ad-slot="6088247536"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   <meta name="description" content="A Cyber-inspired dashboard featuring a dynamic Matrix-rain backdrop and real-time utility tracking. @ituzebonheur7">
   <link rel="icon" href="images/ituze.png" type="image/png">
   <title>Home Tab - Ituze</title>
@@ -22,10 +15,10 @@
   <script src="/js/router.js"></script>
 
   <style>
-   :root {
-     --text-main: #cbd5e1;
-     --bg-dark: #020617;
-   }
+    :root {
+      --text-main: #cbd5e1;
+      --bg-dark: #020617;
+    }
     * { box-sizing: border-box; }
     html, body, * {
       -ms-overflow-style: none;
@@ -89,49 +82,6 @@
       pointer-events: none;
     }
 
-    /* ── Profile Iframe Panel (top-left) ── */
-    #iframePanel {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      width: 100px;
-      height: 42px;
-      border-radius: 25px;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 2000;
-      overflow: hidden;
-      background: #000;
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 0 0 rgba(0,0,0,0);
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #iframePanel.open {
-      opacity: 1;
-      width: 400px;
-      height: 600px;
-      border-radius: 24px;
-      pointer-events: auto;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
-    }
-    #iframePanelContent {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    #iframePanel.open #iframePanelContent {
-      opacity: 1;
-    }
-    #iframePanelContent iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
     /* ── Settings Toggle ── */
     #settingsToggle {
       position: fixed;
@@ -155,7 +105,6 @@
       box-shadow: 0 0 18px var(--accent);
     }
 
-    /* ── Settings Panel ── */
     #settingsPanel {
       position: fixed;
       top: 70px;
@@ -198,7 +147,6 @@
     }
     .settings-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
 
-    /* ── Main Container ── */
     .container {
       position: absolute;
       top: 43%;
@@ -272,16 +220,14 @@
     }
     .shortcut:hover { transform: scale(1.06); box-shadow: 0 18px 50px rgba(0,0,0,0.7); border-color: var(--accent); }
 
-    /* ── Toast ── */
     #toast {
       position: fixed; bottom: 20px; left: 50%;
       transform: translateX(-50%) translateY(20px);
       padding: 10px 18px; border-radius: 999px; font-size: 13px;
-      opacity: 0; pointer-events: none; transition: 0.25s; z-index: 2500;
+      opacity: 0; pointer-events: none; transition: 0.25s; z-index: 9999;
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ── Battery ── */
     #battery {
       position: fixed; bottom: 20px; right: 20px;
       padding: 8px 14px; border-radius: 999px; font-size: 12px;
@@ -335,9 +281,7 @@
     }
     .context-menu button:hover { background: rgba(255,255,255,0.06); transform: scale(1.02); }
     .context-menu button:active { transform: scale(0.97); }
-    .context-menu-sep {
-      height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0;
-    }
+    .context-menu-sep { height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
 
     /* ── Button transitions ── */
     button, .top-btn, .icon-btn, .ai-mode-btn,
@@ -415,87 +359,59 @@
     #weatherWedge:hover { transform: scale(1.03); }
 
     /* ══════════════════════════════════════════
-       GOOGLE IFRAME PANEL (centered, full-screen-ish)
+       PROFILE IFRAME PANEL (top-left, small card)
     ══════════════════════════════════════════ */
-    #googleIframePanel {
+    #iframePanel {
       position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%) scale(0.95);
-      width: min(900px, 95vw);
-      height: min(620px, 88vh);
-      border-radius: 20px;
-      overflow: hidden;
-      background: #fff;
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.8);
-      z-index: 3000;
+      top: 20px;
+      left: 20px;
+      width: 100px;
+      height: 42px;
+      border-radius: 25px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1);
-    }
-    #googleIframePanel.open {
-      opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto;
-    }
-    #googleIframePanel iframe {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
-    }
-    #googleIframePanelClose {
-      position: absolute; top: 10px; right: 12px; z-index: 10;
-      background: rgba(0,0,0,0.55); color: #fff; border: none;
-      border-radius: 50%; width: 28px; height: 28px; font-size: 14px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: 0.2s;
-    }
-    #googleIframePanelClose:hover { background: rgba(0,0,0,0.85); transform: scale(1.1) !important; }
-
-    /* ══════════════════════════════════════════
-       GAMES IFRAME PANEL (centered)
-    ══════════════════════════════════════════ */
-    #gamesIframePanel {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%) scale(0.95);
-      width: min(960px, 97vw);
-      height: min(650px, 90vh);
-      border-radius: 20px;
+      z-index: 2000;
       overflow: hidden;
       background: #000;
       border: 1px solid var(--glass-border);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.9);
-      z-index: 3000;
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #iframePanel.open {
+      opacity: 1;
+      width: 400px;
+      height: 600px;
+      border-radius: 24px;
+      pointer-events: auto;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+    }
+    #iframePanelContent {
+      width: 100%;
+      height: 100%;
+      display: flex;
       opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      transition: opacity 0.3s ease;
     }
-    #gamesIframePanel.open {
-      opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto;
+    #iframePanel.open #iframePanelContent { opacity: 1; }
+    #iframePanelContent iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
     }
-    #gamesIframePanel iframe {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
-    }
-    #gamesIframePanelClose {
-      position: absolute; top: 10px; right: 12px; z-index: 10;
-      background: rgba(0,0,0,0.65); color: #fff; border: none;
-      border-radius: 50%; width: 28px; height: 28px; font-size: 14px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: 0.2s;
-    }
-    #gamesIframePanelClose:hover { background: rgba(255,60,60,0.8); transform: scale(1.1) !important; }
 
-    /* ══════════════════════════════════════════
-       QR CODE IFRAME PANEL (centered, compact)
-    ══════════════════════════════════════════ */
     #qrIframePanel {
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%) scale(0.95);
-      width: min(480px, 96vw);
-      height: min(520px, 85vh);
-      border-radius: 20px;
+      width: 400px;
+      height: 600px;
+      border-radius: 24px;
       overflow: hidden;
       background: #0f172a;
       border: 1px solid var(--glass-border);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.85);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.85);
       z-index: 3000;
       opacity: 0;
       pointer-events: none;
@@ -516,9 +432,6 @@
     }
     #qrIframePanelClose:hover { background: rgba(0,0,0,0.85); transform: scale(1.1) !important; }
 
-    /* ══════════════════════════════════════════
-       FEEDBACK IFRAME PANEL (bottom-right)
-    ══════════════════════════════════════════ */
     #feedbackIframePanel {
       position: fixed;
       bottom: 20px;
@@ -551,137 +464,204 @@
     }
     #feedbackIframePanelClose:hover { background: rgba(239,68,68,0.8); transform: scale(1.1) !important; }
 
-    /* ══════════════════════════════════════════
-       CODE VIEWER — Draggable Window (centered)
-    ══════════════════════════════════════════ */
-    #codeViewerWindow {
+    .win-panel {
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: min(860px, 95vw);
-      height: min(580px, 88vh);
-      border-radius: 16px;
+      width: min(960px, 96vw);
+      height: min(640px, 90vh);
+      border-radius: 12px;
       overflow: hidden;
       background: #0a0f1e;
       border: 1px solid var(--glass-border);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.9);
-      z-index: 3100;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.9);
+      z-index: 3000;
       display: none;
       flex-direction: column;
       opacity: 0;
       transition: opacity 0.3s ease, box-shadow 0.3s ease;
       user-select: none;
     }
-    #codeViewerWindow.open {
+    .win-panel.open {
       display: flex; opacity: 1;
     }
-    #codeViewerWindow.minimized {
+    .win-panel.minimized {
       height: 44px !important;
       overflow: hidden;
     }
-    /* Title bar */
-    #codeViewerTitleBar {
-      display: flex; align-items: center;
-      height: 44px; min-height: 44px;
-      background: rgba(15,23,42,0.95);
-      border-bottom: 1px solid var(--glass-border);
-      padding: 0 12px; cursor: grab; gap: 8px;
-      user-select: none;
-    }
-    #codeViewerTitleBar:active { cursor: grabbing; }
-    .cv-dot {
-      width: 12px; height: 12px; border-radius: 50%; cursor: pointer;
-      transition: filter 0.2s, transform 0.15s;
-      flex-shrink: 0;
-    }
-    .cv-dot:hover { filter: brightness(1.3); transform: scale(1.15); }
-    #cvDotClose { background: #ff5f57; }
-    #cvDotMin   { background: #febc2e; }
-    .cv-title {
-      flex: 1; text-align: center; font-size: 13px; font-weight: 600;
-      color: #94a3b8; letter-spacing: 0.05em; pointer-events: none;
-    }
-    #codeViewerBody {
-      flex: 1; position: relative; overflow: hidden;
-    }
-    #codeViewerBody iframe {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+    .win-panel.fullscreen {
+      width: 100vw !important;
+      height: 100vh !important;
+      border-radius: 0 !important;
+      top: 0 !important; left: 0 !important;
+      transform: none !important;
     }
 
-    /* ── Overlay for closing panels by clicking outside ── */
+    .win-titlebar {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      min-height: 44px;
+      background: rgba(15,23,42,0.98);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 0 0 0 12px;
+      cursor: grab;
+      gap: 0;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .win-titlebar:active { cursor: grabbing; }
+
+    .win-title-label {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+      pointer-events: none;
+      padding-left: 8px;
+    }
+
+    .win-controls {
+      display: flex;
+      align-items: stretch;
+      height: 44px;
+      flex-shrink: 0;
+    }
+    .win-ctrl-btn {
+      width: 46px;
+      height: 44px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease, color 0.15s ease;
+      border-radius: 0;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .win-ctrl-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .win-ctrl-btn.close:hover { background: #e81123; color: #fff; }
+    .win-ctrl-btn svg {
+      width: 10px; height: 10px;
+      fill: none; stroke: currentColor; stroke-width: 1.5;
+    }
+    .win-ctrl-btn.close svg { stroke-width: 2; }
+
+    .win-body {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .win-body iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
     #panelOverlay {
       position: fixed; inset: 0; z-index: 2900;
       display: none;
-      background: rgba(0,0,0,0.01); /* nearly invisible, just catches clicks */
+      background: transparent;
     }
     #panelOverlay.active { display: block; }
 
-    /* ── Responsive ── */
     @media (max-width: 900px) {
       .shortcuts-row { grid-template-columns: repeat(3, 1fr); }
       #settingsPanel { width: 340px; right: 12px; }
       #weatherWedge { left: 76px; }
       #feedbackIframePanel { width: 95vw; right: 10px; height: 500px; }
-      #codeViewerWindow { width: 98vw; }
+      .win-panel { width: 98vw; }
     }
     @media (max-width: 600px) {
       .shortcuts-row { grid-template-columns: repeat(2, 1fr); }
       #weatherWedge { display: none; }
       #feedbackIframePanel { width: calc(100vw - 20px); right: 10px; bottom: 10px; height: 450px; }
+      #qrIframePanel { width: calc(100vw - 32px); height: 80vh; }
     }
   </style>
 </head>
 <body>
-
+  
+  <link rel="manifest" href="/manifest.json">
   <script src="/js/screen.js"></script>
   <canvas id="matrix"></canvas>
 
   <button id="topLink" class="top-btn" aria-label="Open Ituze profile">Ituze</button>
 
-  <!-- Profile Iframe Panel (top-left) — src only set on open -->
   <div id="iframePanel">
-    <div id="iframePanelContent">
-      <!-- iframe injected dynamically -->
-    </div>
+    <div id="iframePanelContent"></div>
   </div>
 
-  <!-- Google Iframe Panel -->
-  <div id="googleIframePanel">
-    <button id="googleIframePanelClose" aria-label="Close Google">✕</button>
-    <!-- iframe injected dynamically -->
-  </div>
-
-  <!-- Games Iframe Panel -->
-  <div id="gamesIframePanel">
-    <button id="gamesIframePanelClose" aria-label="Close Games">✕</button>
-    <!-- iframe injected dynamically -->
-  </div>
-
-  <!-- QR Code Iframe Panel -->
   <div id="qrIframePanel">
     <button id="qrIframePanelClose" aria-label="Close QR Code">✕</button>
-    <!-- iframe injected dynamically -->
   </div>
 
-  <!-- Feedback Iframe Panel (bottom-right) -->
   <div id="feedbackIframePanel">
     <button id="feedbackIframePanelClose" aria-label="Close Feedback">✕</button>
-    <!-- iframe injected dynamically -->
   </div>
 
-  <!-- Code Viewer Draggable Window -->
-  <div id="codeViewerWindow" role="dialog" aria-label="Code Viewer">
-    <div id="codeViewerTitleBar">
-      <div class="cv-dot" id="cvDotClose" title="Close (restarts)"></div>
-      <div class="cv-dot" id="cvDotMin" title="Minimize (saves state)"></div>
-      <div class="cv-title">Code Viewer</div>
+  <div id="googlePanel" class="win-panel" role="dialog" aria-label="Google">
+    <div class="win-titlebar" id="googleTitlebar">
+      <span class="win-title-label">Google</span>
+      <div class="win-controls">
+        <button class="win-ctrl-btn minimize" id="googleMin" title="Minimize">
+          <svg viewBox="0 0 10 10"><line x1="0" y1="9" x2="10" y2="9"/></svg>
+        </button>
+        <button class="win-ctrl-btn fullscreen" id="googleFull" title="Fullscreen / Restore">
+          <svg viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9"/></svg>
+        </button>
+        <button class="win-ctrl-btn close" id="googleClose" title="Close">
+          <svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10"/><line x1="10" y1="0" x2="0" y2="10"/></svg>
+        </button>
+      </div>
     </div>
-    <div id="codeViewerBody">
-      <!-- iframe injected dynamically -->
-    </div>
+    <div class="win-body" id="googleBody"></div>
   </div>
 
-  <!-- Click-outside overlay -->
+  <div id="gamesPanel" class="win-panel" role="dialog" aria-label="Games">
+    <div class="win-titlebar" id="gamesTitlebar">
+      <span class="win-title-label">Games</span>
+      <div class="win-controls">
+        <button class="win-ctrl-btn minimize" id="gamesMin" title="Minimize">
+          <svg viewBox="0 0 10 10"><line x1="0" y1="9" x2="10" y2="9"/></svg>
+        </button>
+        <button class="win-ctrl-btn fullscreen" id="gamesFull" title="Fullscreen / Restore">
+          <svg viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9"/></svg>
+        </button>
+        <button class="win-ctrl-btn close" id="gamesClose" title="Close">
+          <svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10"/><line x1="10" y1="0" x2="0" y2="10"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="win-body" id="gamesBody"></div>
+  </div>
+
+  <div id="codePanel" class="win-panel" role="dialog" aria-label="Code Viewer">
+    <div class="win-titlebar" id="codeTitlebar">
+      <span class="win-title-label">Code Viewer</span>
+      <div class="win-controls">
+        <button class="win-ctrl-btn minimize" id="codeMin" title="Minimize">
+          <svg viewBox="0 0 10 10"><line x1="0" y1="9" x2="10" y2="9"/></svg>
+        </button>
+        <button class="win-ctrl-btn fullscreen" id="codeFull" title="Fullscreen / Restore">
+          <svg viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9"/></svg>
+        </button>
+        <button class="win-ctrl-btn close" id="codeClose" title="Close">
+          <svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10"/><line x1="10" y1="0" x2="0" y2="10"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="win-body" id="codeBody"></div>
+  </div>
+
   <div id="panelOverlay"></div>
 
   <div id="settingsToggle" class="glass" aria-label="Open settings">⚙️</div>
@@ -800,8 +780,6 @@
   /* ═══════════════════════════════════════════════════════
      PANEL MANAGER — Only one panel open at a time
   ═══════════════════════════════════════════════════════ */
-
-  // All registered panels. Each entry: { id, openFn, closeFn }
   const PANELS = {};
   let _activePanelId = null;
 
@@ -810,15 +788,13 @@
   }
 
   function openPanel(id) {
-    // Close current panel if different
     if (_activePanelId && _activePanelId !== id) {
       const cur = PANELS[_activePanelId];
-      if (cur) cur.closeFn(true /* silent */);
+      if (cur) cur.closeFn(true);
     }
     _activePanelId = id;
     const p = PANELS[id];
     if (p) p.openFn();
-    // Show overlay to catch outside clicks
     document.getElementById('panelOverlay').classList.add('active');
   }
 
@@ -826,7 +802,6 @@
     if (_activePanelId === id) _activePanelId = null;
     const p = PANELS[id];
     if (p) p.closeFn(silent);
-    // Only hide overlay if no panel is open
     if (!_activePanelId) {
       document.getElementById('panelOverlay').classList.remove('active');
     }
@@ -841,30 +816,56 @@
     document.getElementById('panelOverlay').classList.remove('active');
   }
 
-  // Overlay click → close active panel
   document.getElementById('panelOverlay').addEventListener('click', () => {
     if (_activePanelId) closePanel(_activePanelId);
-    // also close settings
     closeSettings();
   });
 
-  /* ═══════════════════════════════════════════════════════
-     PROFILE IFRAME PANEL (top-left)
-     Lazy: src only set on open, cleared on close
-  ═══════════════════════════════════════════════════════ */
+  document.addEventListener('mousedown', e => {
+    if (!e.target) return;
+    ['iframePanel','qrIframePanel','feedbackIframePanel'].forEach(panelId => {
+      const el = document.getElementById(panelId);
+      if (el && el.classList.contains('open') && !el.contains(e.target)) {
+        const regId = panelId === 'iframePanel' ? 'profile'
+                    : panelId === 'qrIframePanel' ? 'qr'
+                    : 'feedback';
+        if (_activePanelId === regId) closePanel(regId);
+      }
+    });
+    // Close win panels when clicking outside them
+    ['googlePanel','gamesPanel','codePanel'].forEach(panelId => {
+      const el = document.getElementById(panelId);
+      if (el && el.classList.contains('open') && !el.contains(e.target)) {
+        const regId = panelId === 'googlePanel' ? 'google'
+                    : panelId === 'gamesPanel' ? 'games' : 'code';
+        if (_activePanelId === regId) closePanel(regId);
+      }
+    });
+    const sp = document.getElementById('settingsPanel');
+    const st = document.getElementById('settingsToggle');
+    if (sp && sp.classList.contains('open') && !sp.contains(e.target) && !st.contains(e.target)) {
+      closeSettings();
+    }
+    const wdc = document.getElementById('weatherDetailCard');
+    const ww  = document.getElementById('weatherWedge');
+    if (wdc && wdc.classList.contains('open') && !wdc.contains(e.target) && !ww.contains(e.target)) {
+      wdc.classList.remove('open');
+      wdc.setAttribute('aria-hidden','true');
+    }
+    const cm = document.getElementById('contextMenu');
+    if (cm && !cm.contains(e.target)) hideContextMenu();
+  });
+
   const iframePanel = document.getElementById('iframePanel');
   const iframePanelContent = document.getElementById('iframePanelContent');
   const topBtn = document.getElementById('topLink');
-  let profileIframeEl = null;
 
   function openProfilePanel() {
-    // Create iframe fresh every time (no src until now)
     iframePanelContent.innerHTML = '';
-    profileIframeEl = document.createElement('iframe');
-    profileIframeEl.src = 'https://ituzebonheur.com/me';
-    profileIframeEl.title = 'Ituze';
-    iframePanelContent.appendChild(profileIframeEl);
-
+    const ifr = document.createElement('iframe');
+    ifr.src = '/me';
+    ifr.title = 'Ituze';
+    iframePanelContent.appendChild(ifr);
     topBtn.classList.add('hidden');
     iframePanel.classList.add('open');
   }
@@ -872,10 +873,8 @@
   function closeProfilePanel(silent) {
     iframePanel.classList.remove('open');
     topBtn.classList.remove('hidden');
-    // Fully clear iframe to stop any loading/media
     setTimeout(() => {
-      iframePanelContent.innerHTML = '';
-      profileIframeEl = null;
+      iframePanelContent.innerHTML = ''; // fully destroy iframe
     }, 500);
   }
 
@@ -890,77 +889,10 @@
     }
   });
 
-  /* ═══════════════════════════════════════════════════════
-     GOOGLE IFRAME PANEL
-  ═══════════════════════════════════════════════════════ */
-  const googleIframePanel = document.getElementById('googleIframePanel');
-
-  function openGooglePanel() {
-    // Inject iframe fresh
-    const existing = googleIframePanel.querySelector('iframe');
-    if (!existing) {
-      const ifr = document.createElement('iframe');
-      ifr.src = 'https://www.google.com/webhp?igu=1';
-      ifr.title = 'Google';
-      ifr.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
-      googleIframePanel.appendChild(ifr);
-    }
-    googleIframePanel.classList.add('open');
-  }
-
-  function closeGooglePanel(silent) {
-    googleIframePanel.classList.remove('open');
-    setTimeout(() => {
-      const ifr = googleIframePanel.querySelector('iframe');
-      if (ifr) ifr.remove();
-    }, 400);
-  }
-
-  registerPanel('google', openGooglePanel, closeGooglePanel);
-  document.getElementById('googleIframePanelClose').addEventListener('click', e => {
-    e.stopPropagation();
-    closePanel('google');
-  });
-
-  /* ═══════════════════════════════════════════════════════
-     GAMES IFRAME PANEL
-  ═══════════════════════════════════════════════════════ */
-  const gamesIframePanel = document.getElementById('gamesIframePanel');
-
-  function openGamesPanel() {
-    const existing = gamesIframePanel.querySelector('iframe');
-    if (!existing) {
-      const ifr = document.createElement('iframe');
-      ifr.src = '/games';
-      ifr.title = 'Games';
-      ifr.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
-      gamesIframePanel.appendChild(ifr);
-    }
-    gamesIframePanel.classList.add('open');
-  }
-
-  function closeGamesPanel(silent) {
-    gamesIframePanel.classList.remove('open');
-    setTimeout(() => {
-      const ifr = gamesIframePanel.querySelector('iframe');
-      if (ifr) ifr.remove();
-    }, 400);
-  }
-
-  registerPanel('games', openGamesPanel, closeGamesPanel);
-  document.getElementById('gamesIframePanelClose').addEventListener('click', e => {
-    e.stopPropagation();
-    closePanel('games');
-  });
-
-  /* ═══════════════════════════════════════════════════════
-     QR CODE IFRAME PANEL
-  ═══════════════════════════════════════════════════════ */
   const qrIframePanel = document.getElementById('qrIframePanel');
 
   function openQrPanel() {
-    const existing = qrIframePanel.querySelector('iframe');
-    if (!existing) {
+    if (!qrIframePanel.querySelector('iframe')) {
       const ifr = document.createElement('iframe');
       ifr.src = '/qrcode';
       ifr.title = 'QR Code';
@@ -983,14 +915,10 @@
     closePanel('qr');
   });
 
-  /* ═══════════════════════════════════════════════════════
-     FEEDBACK IFRAME PANEL (bottom-right)
-  ═══════════════════════════════════════════════════════ */
   const feedbackIframePanel = document.getElementById('feedbackIframePanel');
 
   function openFeedbackPanel() {
-    const existing = feedbackIframePanel.querySelector('iframe');
-    if (!existing) {
+    if (!feedbackIframePanel.querySelector('iframe')) {
       const ifr = document.createElement('iframe');
       ifr.src = '/feedback';
       ifr.title = 'Feedback';
@@ -1013,162 +941,215 @@
     closePanel('feedback');
   });
 
-  /* ═══════════════════════════════════════════════════════
-     CODE VIEWER — Draggable window with minimize/close
-     minimize = saves state (keeps iframe loaded)
-     close = restarts (removes iframe)
-  ═══════════════════════════════════════════════════════ */
-  const codeViewerWindow = document.getElementById('codeViewerWindow');
-  const codeViewerTitleBar = document.getElementById('codeViewerTitleBar');
-  const codeViewerBody = document.getElementById('codeViewerBody');
-  let cvIframe = null;
-  let cvMinimized = false;
 
-  // Dragging state
-  let cvDragging = false;
-  let cvDragOffsetX = 0, cvDragOffsetY = 0;
+  function makeWinPanel(cfg) {
+    const { panelEl, titlebarEl, bodyEl, minBtn, fullBtn, closeBtn, iframeSrc, regId } = cfg;
 
-  function openCodeViewer() {
-    // If was minimized, just restore
-    if (cvMinimized) {
-      codeViewerWindow.classList.remove('minimized');
-      cvMinimized = false;
-      codeViewerWindow.classList.add('open');
-      return;
+    let minimized = false;
+    let fullscreen = false;
+    let dragging = false, dragOffX = 0, dragOffY = 0;
+    let savedLeft = '', savedTop = '', savedTransform = '';
+
+    function injectIframe() {
+      if (!bodyEl.querySelector('iframe')) {
+        const ifr = document.createElement('iframe');
+        ifr.src = iframeSrc;
+        ifr.title = cfg.title || 'Panel';
+        bodyEl.appendChild(ifr);
+      }
     }
-    // Fresh start: reset position to center
-    codeViewerWindow.style.left = '';
-    codeViewerWindow.style.top = '';
-    codeViewerWindow.style.transform = 'translate(-50%, -50%)';
-    // Inject iframe
-    codeViewerBody.innerHTML = '';
-    cvIframe = document.createElement('iframe');
-    cvIframe.src = '/codeviewer';
-    cvIframe.title = 'Code Viewer';
-    cvIframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
-    codeViewerBody.appendChild(cvIframe);
-    codeViewerWindow.style.display = 'flex';
-    // Force reflow then open
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        codeViewerWindow.classList.add('open');
-      });
+
+    function openWin() {
+      if (minimized) {
+        // Restore from minimized — iframe still alive
+        panelEl.classList.remove('minimized');
+        minimized = false;
+        return;
+      }
+      panelEl.style.left = '';
+      panelEl.style.top = '';
+      panelEl.style.transform = 'translate(-50%, -50%)';
+      panelEl.style.width = '';
+      panelEl.style.height = '';
+      panelEl.classList.remove('fullscreen','minimized');
+      fullscreen = false;
+      minimized  = false;
+      injectIframe();
+      panelEl.style.display = 'flex';
+      requestAnimationFrame(() => requestAnimationFrame(() => panelEl.classList.add('open')));
+    }
+
+    function minimizeWin() {
+      minimized = true;
+      panelEl.classList.add('minimized');
+    }
+
+    function toggleFullscreen() {
+      if (!fullscreen) {
+        savedLeft = panelEl.style.left;
+        savedTop  = panelEl.style.top;
+        savedTransform = panelEl.style.transform;
+        panelEl.style.left = '0';
+        panelEl.style.top  = '0';
+        panelEl.style.transform = 'none';
+        panelEl.style.width = '100vw';
+        panelEl.style.height = '100vh';
+        panelEl.classList.add('fullscreen');
+        fullscreen = true;
+      } else {
+        panelEl.style.left = savedLeft;
+        panelEl.style.top  = savedTop;
+        panelEl.style.transform = savedLeft ? 'none' : 'translate(-50%, -50%)';
+        panelEl.style.width  = '';
+        panelEl.style.height = '';
+        panelEl.classList.remove('fullscreen');
+        fullscreen = false;
+      }
+    }
+
+    function closeWin() {
+      panelEl.classList.remove('open','minimized','fullscreen');
+      minimized  = false;
+      fullscreen = false;
+      panelEl.style.left = '';
+      panelEl.style.top  = '';
+      panelEl.style.transform = '';
+      panelEl.style.width  = '';
+      panelEl.style.height = '';
+      setTimeout(() => {
+        panelEl.style.display = 'none';
+        // Destroy iframe completely (restart on next open)
+        bodyEl.innerHTML = '';
+      }, 320);
+      if (_activePanelId === regId) {
+        _activePanelId = null;
+        document.getElementById('panelOverlay').classList.remove('active');
+      }
+    }
+
+    // Register with panel manager
+    registerPanel(regId, openWin, (silent) => closeWin());
+
+    // Control buttons
+    minBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (minimized) {
+        panelEl.classList.remove('minimized');
+        minimized = false;
+      } else {
+        minimizeWin();
+      }
     });
+
+    fullBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (minimized) {
+        panelEl.classList.remove('minimized');
+        minimized = false;
+      }
+      toggleFullscreen();
+    });
+
+    closeBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      closeWin();
+    });
+
+    titlebarEl.addEventListener('mousedown', e => {
+      if (e.target.closest('.win-controls')) return;
+      if (fullscreen) return;
+      dragging = true;
+      const rect = panelEl.getBoundingClientRect();
+      panelEl.style.transform = 'none';
+      panelEl.style.left = rect.left + 'px';
+      panelEl.style.top  = rect.top  + 'px';
+      dragOffX = e.clientX - rect.left;
+      dragOffY = e.clientY - rect.top;
+      panelEl.style.transition = 'opacity 0.3s ease, box-shadow 0.3s ease';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      let nx = e.clientX - dragOffX;
+      let ny = e.clientY - dragOffY;
+      const pw = panelEl.offsetWidth, ph = panelEl.offsetHeight;
+      nx = Math.max(0, Math.min(window.innerWidth  - pw, nx));
+      ny = Math.max(0, Math.min(window.innerHeight - 44, ny));
+      panelEl.style.left = nx + 'px';
+      panelEl.style.top  = ny + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (dragging) { dragging = false; document.body.style.userSelect = ''; }
+    });
+
+    /* ── Drag (touch) ── */
+    titlebarEl.addEventListener('touchstart', e => {
+      if (e.target.closest('.win-controls')) return;
+      if (fullscreen) return;
+      const t = e.touches[0];
+      dragging = true;
+      const rect = panelEl.getBoundingClientRect();
+      panelEl.style.transform = 'none';
+      panelEl.style.left = rect.left + 'px';
+      panelEl.style.top  = rect.top  + 'px';
+      dragOffX = t.clientX - rect.left;
+      dragOffY = t.clientY - rect.top;
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const t = e.touches[0];
+      let nx = t.clientX - dragOffX;
+      let ny = t.clientY - dragOffY;
+      nx = Math.max(0, Math.min(window.innerWidth  - panelEl.offsetWidth, nx));
+      ny = Math.max(0, Math.min(window.innerHeight - 44, ny));
+      panelEl.style.left = nx + 'px';
+      panelEl.style.top  = ny + 'px';
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => { dragging = false; });
   }
 
-  function minimizeCodeViewer() {
-    cvMinimized = true;
-    codeViewerWindow.classList.add('minimized');
-    // Keep iframe alive (state preserved)
-  }
-
-  function closeCodeViewerCompletely() {
-    codeViewerWindow.classList.remove('open', 'minimized');
-    cvMinimized = false;
-    setTimeout(() => {
-      codeViewerWindow.style.display = 'none';
-      // Destroy iframe (restart)
-      codeViewerBody.innerHTML = '';
-      cvIframe = null;
-    }, 320);
-    if (_activePanelId === 'codeviewer') {
-      _activePanelId = null;
-      document.getElementById('panelOverlay').classList.remove('active');
-    }
-  }
-
-  function openCodeViewerPanel() {
-    openCodeViewer();
-  }
-  function closeCodeViewerPanel(silent) {
-    closeCodeViewerCompletely();
-  }
-
-  registerPanel('codeviewer', openCodeViewerPanel, closeCodeViewerPanel);
-
-  document.getElementById('cvDotClose').addEventListener('click', e => {
-    e.stopPropagation();
-    closeCodeViewerCompletely();
+  /* Create the three windows */
+  makeWinPanel({
+    regId: 'google',
+    panelEl:   document.getElementById('googlePanel'),
+    titlebarEl: document.getElementById('googleTitlebar'),
+    bodyEl:    document.getElementById('googleBody'),
+    minBtn:    document.getElementById('googleMin'),
+    fullBtn:   document.getElementById('googleFull'),
+    closeBtn:  document.getElementById('googleClose'),
+    iframeSrc: 'https://www.google.com/webhp?igu=1',
+    title: 'Google',
   });
 
-  document.getElementById('cvDotMin').addEventListener('click', e => {
-    e.stopPropagation();
-    if (cvMinimized) {
-      // Restore
-      codeViewerWindow.classList.remove('minimized');
-      cvMinimized = false;
-    } else {
-      minimizeCodeViewer();
-    }
+  makeWinPanel({
+    regId: 'games',
+    panelEl:   document.getElementById('gamesPanel'),
+    titlebarEl: document.getElementById('gamesTitlebar'),
+    bodyEl:    document.getElementById('gamesBody'),
+    minBtn:    document.getElementById('gamesMin'),
+    fullBtn:   document.getElementById('gamesFull'),
+    closeBtn:  document.getElementById('gamesClose'),
+    iframeSrc: '/games',
+    title: 'Games',
   });
 
-  // Drag logic
-  function cvGetPos() {
-    const rect = codeViewerWindow.getBoundingClientRect();
-    return { x: rect.left, y: rect.top };
-  }
-
-  codeViewerTitleBar.addEventListener('mousedown', e => {
-    if (e.target.classList.contains('cv-dot')) return;
-    cvDragging = true;
-    // Switch from transform-based centering to absolute position
-    const rect = codeViewerWindow.getBoundingClientRect();
-    codeViewerWindow.style.transform = 'none';
-    codeViewerWindow.style.left = rect.left + 'px';
-    codeViewerWindow.style.top = rect.top + 'px';
-    cvDragOffsetX = e.clientX - rect.left;
-    cvDragOffsetY = e.clientY - rect.top;
-    codeViewerWindow.style.transition = 'opacity 0.3s ease, box-shadow 0.3s ease';
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
+  makeWinPanel({
+    regId: 'code',
+    panelEl:   document.getElementById('codePanel'),
+    titlebarEl: document.getElementById('codeTitlebar'),
+    bodyEl:    document.getElementById('codeBody'),
+    minBtn:    document.getElementById('codeMin'),
+    fullBtn:   document.getElementById('codeFull'),
+    closeBtn:  document.getElementById('codeClose'),
+    iframeSrc: '/codeviewer',
+    title: 'Code Viewer',
   });
-
-  document.addEventListener('mousemove', e => {
-    if (!cvDragging) return;
-    let nx = e.clientX - cvDragOffsetX;
-    let ny = e.clientY - cvDragOffsetY;
-    // Keep within viewport
-    const w = codeViewerWindow.offsetWidth;
-    const h = codeViewerWindow.offsetHeight;
-    nx = Math.max(0, Math.min(window.innerWidth - w, nx));
-    ny = Math.max(0, Math.min(window.innerHeight - 44, ny));
-    codeViewerWindow.style.left = nx + 'px';
-    codeViewerWindow.style.top = ny + 'px';
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (cvDragging) {
-      cvDragging = false;
-      document.body.style.userSelect = '';
-    }
-  });
-
-  // Touch drag
-  codeViewerTitleBar.addEventListener('touchstart', e => {
-    if (e.target.classList.contains('cv-dot')) return;
-    const t = e.touches[0];
-    cvDragging = true;
-    const rect = codeViewerWindow.getBoundingClientRect();
-    codeViewerWindow.style.transform = 'none';
-    codeViewerWindow.style.left = rect.left + 'px';
-    codeViewerWindow.style.top = rect.top + 'px';
-    cvDragOffsetX = t.clientX - rect.left;
-    cvDragOffsetY = t.clientY - rect.top;
-    e.preventDefault();
-  }, { passive: false });
-
-  document.addEventListener('touchmove', e => {
-    if (!cvDragging) return;
-    const t = e.touches[0];
-    let nx = t.clientX - cvDragOffsetX;
-    let ny = t.clientY - cvDragOffsetY;
-    nx = Math.max(0, Math.min(window.innerWidth - codeViewerWindow.offsetWidth, nx));
-    ny = Math.max(0, Math.min(window.innerHeight - 44, ny));
-    codeViewerWindow.style.left = nx + 'px';
-    codeViewerWindow.style.top = ny + 'px';
-  }, { passive: false });
-
-  document.addEventListener('touchend', () => { cvDragging = false; });
 
   /* ═══════════════════════════════════════════════════════
      MATRIX CANVAS
@@ -1211,7 +1192,7 @@
   }
 
   function startMatrix() { if (!matrixInterval) matrixInterval = setInterval(drawMatrix, 35); }
-  function stopMatrix() { clearInterval(matrixInterval); matrixInterval = null; }
+  function stopMatrix()  { clearInterval(matrixInterval); matrixInterval = null; }
   startMatrix();
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stopMatrix(); else startMatrix();
@@ -1323,7 +1304,7 @@
     try { localStorage.setItem('clearSearchOnReturn', '1'); } catch(e) {}
   }
 
-  function openLink(url, opts = {}) {
+  function openLink(url) {
     clearSearchImmediate();
     window.location.href = appendUtm(url);
   }
@@ -1355,7 +1336,7 @@
     suggestionsBox.innerHTML = '';
     const div = document.createElement('div');
     div.className = 'suggestion-item';
-    div.setAttribute('role', 'option');
+    div.setAttribute('role','option');
     div.dataset.query = originalQuery || text;
     div.innerHTML = `<span>${escapeHtml(text)}</span><span class="suggestion-meta">${escapeHtml(meta||'')}</span>`;
     const handler = e => { e.preventDefault(); hideSuggestions(); performSearch(div.dataset.query || text); };
@@ -1363,7 +1344,7 @@
     div.addEventListener('click', handler);
     suggestionsBox.appendChild(div);
     suggestionsBox.style.display = 'block';
-    suggestionsBox.setAttribute('aria-expanded', 'true');
+    suggestionsBox.setAttribute('aria-expanded','true');
     activeSuggestionIndex = -1;
   }
 
@@ -1446,7 +1427,7 @@
     suggestionsBox.innerHTML = ''; activeSuggestionIndex = -1;
     if (results && results.length > 0) {
       suggestionsBox.style.display = 'block';
-      suggestionsBox.setAttribute('aria-expanded', 'true');
+      suggestionsBox.setAttribute('aria-expanded','true');
       results.slice(0,6).forEach(item => {
         const div = document.createElement('div');
         div.className = 'suggestion-item'; div.setAttribute('role','option'); div.dataset.query = item;
@@ -1522,8 +1503,8 @@
   const customColorPicker = document.getElementById('customColorPicker');
   const customColorInput  = document.getElementById('customColorInput');
   const customColorHex    = document.getElementById('customColorHex');
-  const weatherWedge  = document.getElementById('weatherWedge');
-  const weatherText   = document.getElementById('weatherText');
+  const weatherWedge   = document.getElementById('weatherWedge');
+  const weatherText    = document.getElementById('weatherText');
   const shortcutsContainer = document.getElementById('shortcutsContainer');
 
   function showToast(msg, ms = 1100) {
@@ -1534,7 +1515,7 @@
   }
 
   function openSettings() {
-    closeAllPanels(); // close any open iframe panel first
+    closeAllPanels();
     settingsPanel.classList.add('open');
     settingsPanel.setAttribute('aria-hidden','false');
   }
@@ -1549,19 +1530,11 @@
     else openSettings();
   });
 
-  // Click outside settings panel → close
-  document.addEventListener('click', e => {
-    if (settingsPanel.classList.contains('open')) {
-      if (!settingsPanel.contains(e.target) && !settingsToggle.contains(e.target)) {
-        closeSettings();
-      }
-    }
-  });
-
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeSettings();
       if (_activePanelId) closePanel(_activePanelId);
+      hideContextMenu();
     }
     const keyboardEnabled = toggleKeyboardEl.checked;
     if (!keyboardEnabled) return;
@@ -1734,8 +1707,8 @@
   if (navigator.getBattery) {
     navigator.getBattery().then(battery => {
       updateBatteryDisplay(battery.level, battery.charging);
-      battery.addEventListener('levelchange',   () => updateBatteryDisplay(battery.level, battery.charging));
-      battery.addEventListener('chargingchange',() => updateBatteryDisplay(battery.level, battery.charging));
+      battery.addEventListener('levelchange',    () => updateBatteryDisplay(battery.level, battery.charging));
+      battery.addEventListener('chargingchange', () => updateBatteryDisplay(battery.level, battery.charging));
     }).catch(() => { batteryText.textContent = 'Battery: N/A'; });
   } else { batteryText.textContent = 'Battery: N/A'; }
 
@@ -1863,6 +1836,7 @@
   }
 
   refreshWeatherWidget();
+  // Auto-refresh every 30 minutes
   setInterval(refreshWeatherWidget, 30 * 60 * 1000);
 
   const weatherDetailCard = document.getElementById('weatherDetailCard');
@@ -1877,16 +1851,9 @@
     document.getElementById('weatherDetailBody').innerHTML = `<div style="opacity:0.45;font-size:12px;">Refreshing…</div>`;
     refreshWeatherWidget();
   });
-  document.addEventListener('click', e => {
-    if (weatherDetailCard.classList.contains('open') &&
-        !weatherDetailCard.contains(e.target) && !weatherWedge.contains(e.target)) {
-      weatherDetailCard.classList.remove('open');
-      weatherDetailCard.setAttribute('aria-hidden','true');
-    }
-  });
 
   /* ═══════════════════════════════════════════════════════
-     SHORTCUTS — Default list & forced-iframe targets
+     SHORTCUTS
   ═══════════════════════════════════════════════════════ */
   const DEFAULT_SHORTCUTS = [
     { label:'Google',       url:'https://google.com' },
@@ -1906,9 +1873,8 @@
     { label:'Feedback',     url:'/feedback' },
   ];
 
-  const FORCE_IFRAME_LABELS = ['Games', 'Code Viewer', 'QR Code', 'Feedback'];
-
-  const GOOGLE_LABEL = 'Google';
+  // These labels always open as iframe panels — no right-click option
+  const FORCE_IFRAME_LABELS = new Set(['Games', 'Code Viewer', 'QR Code', 'Feedback']);
 
   const SHORTCUTS_KEY = 'shortcutsV2';
 
@@ -1928,14 +1894,11 @@
 
   function handleShortcutClick(item) {
     const label = item.label;
-    if (label === 'Google') {
-      openPanel('google');
-      return;
-    }
-    if (label === 'Games') { openPanel('games'); return; }
-    if (label === 'Code Viewer') { openPanel('codeviewer'); return; }
-    if (label === 'QR Code') { openPanel('qr'); return; }
-    if (label === 'Feedback') { openPanel('feedback'); return; }
+    if (label === 'Google')      { openPanel('google');   return; }
+    if (label === 'Games')       { openPanel('games');    return; }
+    if (label === 'Code Viewer') { openPanel('code');     return; }
+    if (label === 'QR Code')     { openPanel('qr');       return; }
+    if (label === 'Feedback')    { openPanel('feedback'); return; }
     openLink(item.url);
   }
 
@@ -1995,14 +1958,11 @@
     }
   }
 
-  /* ═══════════════════════════════════════════════════════
-     CONTEXT MENU — Right-click on shortcuts & empty space
-  ═══════════════════════════════════════════════════════ */
   const contextMenu = document.getElementById('contextMenu');
 
   function showContextMenu(x, y, buttons) {
     contextMenu.innerHTML = '';
-    buttons.forEach((btn, i) => {
+    buttons.forEach(btn => {
       if (btn === 'sep') {
         const sep = document.createElement('div');
         sep.className = 'context-menu-sep';
@@ -2010,18 +1970,18 @@
         return;
       }
       const b = document.createElement('button');
-      b.textContent = btn.label;
-      if (btn.icon) b.textContent = btn.icon + ' ' + btn.label;
+      b.textContent = (btn.icon ? btn.icon + ' ' : '') + btn.label;
       b.addEventListener('click', e => { e.stopPropagation(); hideContextMenu(); btn.onClick(); });
       contextMenu.appendChild(b);
     });
 
     contextMenu.style.display = 'block';
     contextMenu.setAttribute('aria-hidden','false');
+
     const cw2 = contextMenu.offsetWidth, ch = contextMenu.offsetHeight;
     let cx = x, cy = y;
-    if (cx + cw2 > window.innerWidth - 8) cx = window.innerWidth - cw2 - 8;
-    if (cy + ch  > window.innerHeight - 8) cy = window.innerHeight - ch - 8;
+    if (cx + cw2 > window.innerWidth  - 8) cx = window.innerWidth  - cw2 - 8;
+    if (cy + ch  > window.innerHeight - 8) cy = window.innerHeight - ch  - 8;
     contextMenu.style.left = cx + 'px';
     contextMenu.style.top  = cy + 'px';
   }
@@ -2040,36 +2000,26 @@
       const label = shortcutEl.getAttribute('data-label');
       const url   = shortcutEl.getAttribute('data-url') || shortcutEl.href;
 
+      if (FORCE_IFRAME_LABELS.has(label)) {
+        return;
+      }
+
       if (label === 'Google') {
         showContextMenu(x, y, [
-          { label:'Open as iframe', onClick:() => openPanel('google') },
-          { label:'Open in new tab', onClick:() => openLinkNewTab('https://www.google.com') },
-        ]);
-      } else if (FORCE_IFRAME_LABELS.includes(label)) {
-        showContextMenu(x, y, [
-          { label:`Open ${label}`, onClick:() => handleShortcutClick({ label, url }) },
-          { label:'Open in new tab', onClick:() => openLinkNewTab(url) },
+          { label: 'Open as iframe', onClick: () => openPanel('google') },
+          { label: 'Open in new tab', onClick: () => openLinkNewTab('https://www.google.com') },
         ]);
       } else {
         showContextMenu(x, y, [
-          { label:'Open link', onClick:() => openLink(url) },
-          { label:'Open in new tab', onClick:() => openLinkNewTab(url) },
+          { label: 'Open link',       onClick: () => openLink(url) },
+          { label: 'Open in new tab', onClick: () => openLinkNewTab(url) },
         ]);
       }
     } else {
       showContextMenu(x, y, [
-        { label:'Learn More', onClick:() => { window.location.href = 'https://github.com/ituzebonheur7/Ituze'; } },
+        { label: 'Learn More', onClick: () => { window.location.href = 'https://github.com/ituzebonheur7/Ituze'; } },
       ]);
     }
-  });
-
-  document.addEventListener('click', e => {
-    if (!contextMenu.contains(e.target)) hideContextMenu();
-  });
-
-  // ESC key anywhere
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') hideContextMenu();
   });
 
   /* ═══════════════════════════════════════════════════════
