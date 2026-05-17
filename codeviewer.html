@@ -69,7 +69,7 @@
             display: flex;
             align-items: center;
         }
-        /* Ituze button in header */
+
         #topLink {
             height: 32px;
             padding: 0 16px;
@@ -97,7 +97,6 @@
             pointer-events: none;
         }
 
-        /* Floating iframe panel */
         #iframePanel {
             position: fixed;
             top: 58px;
@@ -142,7 +141,6 @@
 
         main { flex: 1; display: flex; overflow: hidden; }
 
-        /* ── Sidebar ── */
         #sidebar {
             width: var(--sidebar-w);
             background: var(--panel);
@@ -193,7 +191,6 @@
         }
         .folder-indent { margin-left: 19px; border-left: 1px solid var(--border); }
 
-        /* ── VS Code Context Menu ── */
         :root {
             --vs-surface: #252526;
             --vs-border-cm: #454545;
@@ -270,7 +267,6 @@
         }
         .menu-item.danger:hover { background-color: var(--vs-danger-hover); }
 
-        /* ── Editor ── */
         #editor-container { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg); }
         #tab-bar {
             height: var(--tab-h);
@@ -428,10 +424,8 @@
     </div>
 </header>
 
-<!-- Ituze iframe panel (loads only on click) -->
 <div id="iframePanel">
     <div id="iframePanelContent">
-        <!-- iframe injected dynamically on click -->
     </div>
 </div>
 
@@ -577,7 +571,7 @@
     let activeFile = 'index.html';
     let autoRunTimer;
     let clipboard = { action: null, path: null, content: null };
-    let ctxTarget = null; // path of right-clicked file, null if empty area
+    let ctxTarget = null; 
 
     const defaultFiles = {
         'index.html': { type: 'file', content: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Cyber App</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <div class="card">\n    <h1>Ituze Code Viewer</h1>\n    <p>File management, code editing, and full live preview.</p>\n    <button id="btn">Test Script</button>\n  </div>\n  <script src="script.js"><\/script>\n</body>\n</html>' },
