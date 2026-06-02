@@ -1,40 +1,5 @@
 /**
- * Security, Anti-Spoofing, and Frame-Busting Guard
- */
-(function() {
-    const allowedDomain = "ituzebonheur.com";
-    const homeUrl = `https://${allowedDomain}`;
-    const errorUrl = `${homeUrl}/wrong`;
-    
-    try {
-        const currentHostname = window.location.hostname;
-        
-        if (window.self === window.top) {
-            if (currentHostname !== allowedDomain && currentHostname !== `www.${allowedDomain}`) {
-                window.location.replace(homeUrl);
-            }
-            return;
-        }
-        
-        const referrer = document.referrer;
-        if (!referrer) {
-            window.top.location.replace(errorUrl);
-            return;
-        }
-
-        const referrerHostname = new URL(referrer).hostname;
-        const isValidReferrer = referrerHostname === allowedDomain || referrerHostname === `www.${allowedDomain}`;
-        
-        if (!isValidReferrer) {
-            window.top.location.replace(errorUrl);
-        }
-    } catch (e) {
-        window.location.replace(errorUrl);
-    }
-})();
-
-/**
- * SPA Router for ituzebonheur.com
+ * SPA Router and Controller for ituzebonheur.com
  */
 class SPARouter {
     constructor(routes) {
@@ -49,6 +14,9 @@ class SPARouter {
 
     _init() {
         this._createLoadingBar();
+        this._registerServiceWorker(); // Triggers browser connection to /sw.js
+        this._initNetworkMonitoring();
+        
         document.addEventListener("click", this._handleLinkClick.bind(this));
         window.addEventListener("popstate", this._route.bind(this));
         window.addEventListener("DOMContentLoaded", () => {
@@ -60,6 +28,47 @@ class SPARouter {
             this._route();
         });
         window.navigateTo = this.navigateTo.bind(this);
+    }
+
+    // Connects your application flow to the background thread running /sw.js
+    _registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // The absolute path '/' ensures it accurately points to the root directory
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('[App] Service Worker connected successfully! Scope:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.error('[App] Service Worker connection failed:', {
+                            message: error.message,
+                            name: error.name
+                        });
+                    });
+            });
+        }
+    }
+
+    // Listens for device connection updates and reports them to the console and worker
+    _initNetworkMonitoring() {
+        const handleConnectionChange = () => {
+            const isOnline = navigator.onLine;
+            console.log('[App] Connectivity Status Changed:', { 
+                online: isOnline,
+                timestamp: new Date().toISOString()
+            });
+
+            // If a service worker is actively controlling the page, send it a state update message
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'STATUS_CHANGE',
+                    status: isOnline ? 'online' : 'offline'
+                });
+            }
+        };
+
+        window.addEventListener('online', handleConnectionChange);
+        window.addEventListener('offline', handleConnectionChange);
     }
 
     _createLoadingBar() {
@@ -97,16 +106,15 @@ class SPARouter {
             const newScript = document.createElement("script");
             if (script.src) {
                 newScript.src = script.src;
-                newScript.async = false; // Ensure sequential execution if needed
+                newScript.async = false; 
             } else {
                 newScript.textContent = script.textContent;
             }
-            document.head.appendChild(newScript).remove(); // Append to head, execute, and remove
+            document.head.appendChild(newScript).remove(); 
         });
     }
 
     async _route() {
-        // Cancel any ongoing fetch
         if (this.abortController) {
             this.abortController.abort();
         }
@@ -124,7 +132,6 @@ class SPARouter {
             }
         }
         
-        // Don't re-render the same page if content is already there
         if (this.appContainer.dataset.currentPage === match.file) {
             return;
         }
@@ -161,7 +168,6 @@ class SPARouter {
             render(htmlText);
             this._updateActiveLinks(path);
 
-            // Trigger analytics
             if (typeof ga === 'function') {
                 ga('send', 'pageview', path);
             }
@@ -172,7 +178,12 @@ class SPARouter {
                 return;
             }
             console.error("Routing error:", error);
-            this.appContainer.innerHTML = `<h1>Error Loading Page</h1><p>${navigator.onLine ? "Please try again later." : "You are offline."}</p>`;
+            
+            // Helpful dynamic UI showing if failure was due to offline status
+            this.appContainer.innerHTML = `
+                <h1>Error Loading Page</h1>
+                <p>${navigator.onLine ? "Please try again later." : "You appear to be offline. Visited pages will load automatically via cache."}</p>
+            `;
         } finally {
             clearTimeout(this.loadingTimeout);
             this._hideLoading();
@@ -195,7 +206,7 @@ class SPARouter {
     }
 }
 
-// Route Configuration
+// Route Configurations
 const routes = [
     { path: "/", file: "index.html" },
     { path: "/games", file: "games.html" },
@@ -207,5 +218,5 @@ const routes = [
     { path: "/search", file: "search.html" },
 ];
 
-// Initialize application router
+// Instantiating application routing parameters
 new SPARouter(routes);
