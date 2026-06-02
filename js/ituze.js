@@ -14,7 +14,7 @@ class SPARouter {
 
     _init() {
         this._createLoadingBar();
-        this._registerServiceWorker(); // Triggers browser connection to /sw.js
+        this._registerServiceWorker(); 
         this._initNetworkMonitoring();
         
         document.addEventListener("click", this._handleLinkClick.bind(this));
