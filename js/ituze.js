@@ -13,7 +13,6 @@ class SPARouter {
     }
 
     _init() {
-        this._createLoadingBar();
         this._registerServiceWorker(); 
         this._initNetworkMonitoring();
         
@@ -34,7 +33,6 @@ class SPARouter {
     _registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // The absolute path '/' ensures it accurately points to the root directory
                 navigator.serviceWorker.register('/sw.js')
                     .then((registration) => {
                         console.log('[App] Service Worker connected successfully! Scope:', registration.scope);
@@ -58,7 +56,6 @@ class SPARouter {
                 timestamp: new Date().toISOString()
             });
 
-            // If a service worker is actively controlling the page, send it a state update message
             if (navigator.serviceWorker && navigator.serviceWorker.controller) {
                 navigator.serviceWorker.controller.postMessage({
                     type: 'STATUS_CHANGE',
@@ -120,7 +117,11 @@ class SPARouter {
         }
         this.abortController = new AbortController();
 
-        const path = location.pathname;
+        let path = location.pathname;
+        if (path.length > 1 && path.endsWith('/')) {
+            path = path.slice(0, -1);
+        }
+
         let match = this.routes.find(r => r.path === path);
 
         if (!match) {
@@ -179,7 +180,6 @@ class SPARouter {
             }
             console.error("Routing error:", error);
             
-            // Helpful dynamic UI showing if failure was due to offline status
             this.appContainer.innerHTML = `
                 <h1>Error Loading Page</h1>
                 <p>${navigator.onLine ? "Please try again later." : "You appear to be offline. Visited pages will load automatically via cache."}</p>
@@ -197,25 +197,36 @@ class SPARouter {
 
     _handleLinkClick(e) {
         const link = e.target.closest("a");
-        if (link && link.href.startsWith(window.location.origin)) {
-            const path = link.getAttribute("href");
-            if (path.includes('.') && !path.endsWith('.html')) return;
+        if (!link) return;
+
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || link.target === "_blank") {
+            return;
+        }
+
+        if (link.href.startsWith(window.location.origin)) {
+            const pathname = link.pathname;
+
+            if (pathname.includes('.') && !pathname.endsWith('.html')) {
+                return; 
+            }
+
             e.preventDefault();
-            this.navigateTo(path);
+
+            const fullPath = link.pathname + link.search + link.hash;
+            this.navigateTo(fullPath);
         }
     }
 }
 
-// Route Configurations
 const routes = [
-    { path: "/", file: "index.html" },
-    { path: "/games", file: "games.html" },
-    { path: "/hunter", file: "hunter.html" },
-    { path: "/codeviewer", file: "codeviewer.html" },
-    { path: "/feedback", file: "feedback.html" },
-    { path: "/performance", file: "performance.html" },
-    { path: "/qrcode", file: "qrcode.html" },
-    { path: "/search", file: "search.html" },
+    { path: "/", file: "/index.html" },
+    { path: "/games", file: "/games.html" },
+    { path: "/hunter", file: "/hunter.html" },
+    { path: "/codeviewer", file: "/codeviewer.html" },
+    { path: "/feedback", file: "/feedback.html" },
+    { path: "/performance", file: "/performance.html" },
+    { path: "/qrcode", file: "/qrcode.html" },
+    { path: "/search", file: "/search.html" },
 ];
 
 // Instantiating application routing parameters
