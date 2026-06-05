@@ -1,35 +1,56 @@
 /**
  * SPA Router and Controller for ituzebonheur.com
+ * Stops browser reloading spinners and handles native navigation.
  */
 class SPARouter {
     constructor(routes) {
         this.routes = routes;
         this.cache = {};
-        this.appContainer = document.querySelector("#app");
+        this.appContainer = null; // Will be set safely after DOM loads
         this.loadingTimeout = null;
         this.abortController = null;
 
-        this._init();
+        // FIX: The dataset error happened because the script ran before the HTML existed.
+        // This guarantees the DOM is fully loaded before the router tries to find "#app".
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', this._init.bind(this));
+        } else {
+            this._init();
+        }
     }
 
     _init() {
+        // Now it is 100% safe to grab the container
+        this.appContainer = document.querySelector("#app");
+
+        // Failsafe: If someone deletes <div id="app"> from the HTML, log an error instead of crashing
+        if (!this.appContainer) {
+            console.error("[SPARouter] Critical Error: <div id='app'> not found in the HTML.");
+            return; 
+        }
+
+        this._createLoadingBar();
         this._registerServiceWorker(); 
         this._initNetworkMonitoring();
         
+        // Intercept clicks to stop the browser spinner
         document.addEventListener("click", this._handleLinkClick.bind(this));
+        
+        // Handle physical back/forward browser buttons
         window.addEventListener("popstate", this._route.bind(this));
-        window.addEventListener("DOMContentLoaded", () => {
-            const redirectPath = sessionStorage.getItem('redirect');
-            if (redirectPath) {
-                sessionStorage.removeItem('redirect');
-                history.replaceState(null, null, redirectPath);
-            }
-            this._route();
-        });
+        
+        const redirectPath = sessionStorage.getItem('redirect');
+        if (redirectPath) {
+            sessionStorage.removeItem('redirect');
+            history.replaceState(null, null, redirectPath);
+        }
+        
         window.navigateTo = this.navigateTo.bind(this);
+        
+        // Trigger the initial page load
+        this._route();
     }
 
-    // Connects your application flow to the background thread running /sw.js
     _registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -37,24 +58,15 @@ class SPARouter {
                     .then((registration) => {
                         console.log('[App] Service Worker connected successfully! Scope:', registration.scope);
                     })
-                    .catch((error) => {
-                        console.error('[App] Service Worker connection failed:', {
-                            message: error.message,
-                            name: error.name
-                        });
-                    });
+                    .catch((error) => console.error('[App] SW failed:', error));
             });
         }
     }
 
-    // Listens for device connection updates and reports them to the console and worker
     _initNetworkMonitoring() {
         const handleConnectionChange = () => {
             const isOnline = navigator.onLine;
-            console.log('[App] Connectivity Status Changed:', { 
-                online: isOnline,
-                timestamp: new Date().toISOString()
-            });
+            console.log('[App] Status:', isOnline ? 'online' : 'offline');
 
             if (navigator.serviceWorker && navigator.serviceWorker.controller) {
                 navigator.serviceWorker.controller.postMessage({
@@ -117,6 +129,7 @@ class SPARouter {
         }
         this.abortController = new AbortController();
 
+        // Normalize the path by removing trailing slashes (e.g., /games/ -> /games)
         let path = location.pathname;
         if (path.length > 1 && path.endsWith('/')) {
             path = path.slice(0, -1);
@@ -133,6 +146,7 @@ class SPARouter {
             }
         }
         
+        // Prevent re-rendering if we are already on the requested page
         if (this.appContainer.dataset.currentPage === match.file) {
             return;
         }
@@ -174,15 +188,14 @@ class SPARouter {
             }
 
         } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log('Fetch aborted');
-                return;
-            }
+            if (error.name === 'AbortError') return;
             console.error("Routing error:", error);
             
             this.appContainer.innerHTML = `
-                <h1>Error Loading Page</h1>
-                <p>${navigator.onLine ? "Please try again later." : "You appear to be offline. Visited pages will load automatically via cache."}</p>
+                <div style="text-align:center; padding: 2rem;">
+                    <h1>Error Loading Page</h1>
+                    <p>${navigator.onLine ? "Please try again later." : "You are offline. Visited pages will load automatically."}</p>
+                </div>
             `;
         } finally {
             clearTimeout(this.loadingTimeout);
@@ -195,29 +208,45 @@ class SPARouter {
         this._route();
     }
 
+    // THE SPINNER KILLER: This method determines what happens when any link is clicked
     _handleLinkClick(e) {
         const link = e.target.closest("a");
         if (!link) return;
 
+        // 1. Ignore clicks with modifier keys (Ctrl/Cmd) or links opening in new tabs
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || link.target === "_blank") {
             return;
         }
 
-        if (link.href.startsWith(window.location.origin)) {
-            const pathname = link.pathname;
+        // 2. Ignore mailto: and tel: links
+        const rawHref = link.getAttribute('href');
+        if (rawHref && (rawHref.startsWith('mailto:') || rawHref.startsWith('tel:'))) {
+            return;
+        }
 
-            if (pathname.includes('.') && !pathname.endsWith('.html')) {
-                return; 
+        // 3. ONLY intercept links that belong to your exact same domain
+        if (link.origin === window.location.origin) {
+            
+            // Check if the link points to a non-HTML file asset (.pdf, .png, .zip, etc.)
+            const pathname = link.pathname;
+            const fileExtension = pathname.split('/').pop().split('.')[1]; 
+            
+            if (fileExtension && fileExtension !== 'html') {
+                return; // Let the browser handle standard file downloads naturally
             }
 
+            // 4. STOP THE DEFAULT REFRESH BEHAVIOR. This prevents the browser spinner.
             e.preventDefault();
 
+            // 5. Build the clean URL including any query parameters or hash anchors
             const fullPath = link.pathname + link.search + link.hash;
             this.navigateTo(fullPath);
         }
     }
 }
 
+// Route Configurations
+// Ensure all file paths start with an absolute slash (/) to prevent fetch errors on nested routes
 const routes = [
     { path: "/", file: "/index.html" },
     { path: "/games", file: "/games.html" },
@@ -229,5 +258,6 @@ const routes = [
     { path: "/search", file: "/search.html" },
 ];
 
-// Instantiating application routing parameters
+// Instantiate application. 
+// No DOMContentLoaded wrapper is needed here because the class constructor now handles it natively!
 new SPARouter(routes);
