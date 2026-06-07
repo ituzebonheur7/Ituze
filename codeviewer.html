@@ -1,14 +1,19 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ituze IDE — A browser-based code editor with live preview, file management, Monaco editor integration, and multi-file project support. Build, edit, and preview HTML, CSS, and JavaScript projects instantly in your browser.">
     <title>IDE Codeviewer - Ituze</title>
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="images/code.png" type="image/png">
+    <link rel="icon" href="/images/code.png" type="image/png">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://unpkg.com">
     <script src="/js/ituze.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@1.17.0/dist/umd/lucide.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.53.0/min/vs/loader.min.js"></script>
 
     <style>
@@ -27,6 +32,9 @@
             --sidebar-w: 260px;
             --glass-bg: rgba(22, 27, 34, 0.72);
             --glass-border: rgba(48, 54, 61, 0.8);
+
+            --preview-bg: #ffffff;
+            --preview-text: #000000;
         }
 
         * { box-sizing: border-box; outline: none; }
@@ -51,13 +59,15 @@
         #launch-screen {
             position: fixed;
             inset: 0;
-            background: #0d1117;
+            background: #1c1c1d;
             z-index: 9999;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 28px;
+            justify-content: space-between;
+            padding: 60px 20px;
+            box-sizing: border-box;
+            overflow: hidden;
             transition: opacity 0.6s ease, transform 0.6s ease;
         }
         #launch-screen.fade-out {
@@ -65,48 +75,24 @@
             transform: scale(1.04);
             pointer-events: none;
         }
-        #launch-screen img {
-            width: 96px;
-            height: 96px;
-            border-radius: 22px;
-            box-shadow: 0 0 40px rgba(47,129,247,0.35);
-            animation: pulse-glow 2s ease-in-out infinite;
+
+        /* Top spacer */
+        .launch-top-spacer { height: 40px; }
+
+        /* Center logo area */
+        .launch-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
         }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 30px rgba(47,129,247,0.3); }
-            50%       { box-shadow: 0 0 60px rgba(47,129,247,0.6); }
-        }
-        .launch-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #c9d1d9;
-            letter-spacing: 0.5px;
-        }
-        .launch-bar-wrap {
-            width: 220px;
-            height: 3px;
-            background: #21262d;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .launch-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #2f81f7, #58a6ff);
-            border-radius: 4px;
-            animation: load-bar 2s ease forwards;
-        }
-        @keyframes load-bar {
-            0%   { width: 0%; }
-            30%  { width: 40%; }
-            60%  { width: 72%; }
-            85%  { width: 90%; }
-            100% { width: 100%; }
-        }
-        .launch-sub {
-            font-size: 12px;
-            color: #8b949e;
-            letter-spacing: 0.5px;
+
+        /* Bottom branding */
+        .launch-bottom {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 10px;
         }
 
         /* ── Header ── */
@@ -308,6 +294,10 @@
         .preview-mobile { width: 375px !important; border: 12px solid #222 !important; border-bottom: 25px solid #222 !important; border-radius: 30px; height: calc(100% - 40px) !important; margin: 20px auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .preview-tablet { width: 768px !important; border: 12px solid #222 !important; border-radius: 20px; height: calc(100% - 40px) !important; margin: 20px auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
+        /* Theme-aware preview wrapper */
+        #preview-section.theme-dark { background: #1e1e1e; }
+        #preview-section.theme-hc { background: #000000; }
+
         /* ── Settings Panel ── */
         #settings-panel {
             position: absolute; right: 0; top: 0; bottom: 0; width: 320px;
@@ -484,12 +474,28 @@
 </head>
 <body>
 
-<!-- Launch Screen -->
+<!-- Launch Screen — matches the exact layout from the provided design -->
 <div id="launch-screen">
-    <img src="https://ituzebonheur.com/images/ituze.png" alt="Ituze" onerror="this.style.display='none'">
-    <div class="launch-title">Ituze IDE</div>
-    <div class="launch-bar-wrap"><div class="launch-bar"></div></div>
-    <div class="launch-sub">Loading editor &amp; resources…</div>
+    <div class="launch-top-spacer"></div>
+
+    <div class="launch-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="90" height="90" viewBox="0 0 500 500">
+            <path fill="#0066ff" transform="translate(0 500) scale(.1 -.1)" d="M2325 4994c-433-44-765-148-1093-342-511-303-906-787-1096-1344-46-135-91-324-113-473-24-165-24-505 0-670 80-552 325-1043 712-1430 387-387 878-632 1430-712 165-24 505-24 670 0 552 80 1043 325 1430 712 387 387 632 878 712 1430 24 165 24 505 0 670-80 552-325 1043-712 1430-380 381-866 626-1397 706-127 19-449 33-543 23zm1613-659c3-19-16-74-53-161-56-129-58-132-81-122-13 6-24 15-24 19 0 4 22 59 50 121l49 113-59 3c-55 3-60 5-60 26 0 12 3 26 7 30 4 4 43 5 88 4l80-3 3-30zm220-210c3-19-16-74-53-161-56-129-58-132-81-122-13 6-24 15-24 19 0 4 22 59 50 121l49 113-59 3c-55 3-60 5-60 26 0 12 3 26 7 30 4 4 43 5 88 4l80-3 3-30zm220-180c3-19-16-74-53-161-56-129-58-132-81-122-13 6-24 15-24 19 0 4 22 59 50 121l49 113-59 3c-55 3-60 5-60 26 0 12 3 26 7 30 4 4 43 5 88 4l80-3 3-30zm-1824-215c25-34 48-70 51-80 9-28 18-25 78 18 92 67 177 114 218 119 53 8 138-35 251-126 113-92 271-247 292-288 44-87 42-307-3-405-12-24-55-82-96-130-41-48-75-91-74-95 0-4 41-43 90-87 50-43 112-105 139-137 61-73 74-128 68-289-4-109-6-120-37-176-84-150-321-374-483-457l-63-32-355 0-355 0-5 805-5 805-23 68c-14 40-50 108-88 164l-65 96 23 16c208 148 385 270 391 271 4 0 27-27 51-60zm-674-1075l0-1095-215 0-215 0 0 1095 0 1095 215 0 215 0 0-1095zm-1270 179c44-30 130-118 130-134 0-8 8-1 18 15 26 42 119 124 150 132 33 8 78-17 137-77 56-57 64-87 64-235 0-158-8-188-64-245-60-61-104-85-138-76-31 7-143 109-153 138-3 11-9 60-13 109l-6 88-105-72c-98-68-105-75-108-109l-3-37 113-3 113-3 3-52 3-53-180 0-181 0 0 100c0 96 1 100 30 133 16 19 65 58 107 87 96 65 105 76 97 115-6 30-40 75-56 75-15 0-60-53-70-83-11-31-17-31-77 8l-41 25 19 38c20 38 80 101 116 120 29 16 67 14 95-4zm3506-6c55-41 103-91 115-119l11-29 20 40c21 42 106 117 143 126 29 7 67-13 126-65 65-56 72-81 67-209-7-164-36-217-172-313l-68-49-44 32c-24 17-44 35-44 38 0 4 15 14 32 21 35 14 108 75 108 90 0 5-5 9-11 9-21 0-110 72-134 108l-25 37 0-88c0-105-10-128-82-191-61-54-87-63-127-46-47 19-137 113-145 150-8 41-8 263 1 313 9 59 125 167 179 167 12 0 34-10 50-22zM2765 3353c-27-8-54-18-58-22-4-4-5-112-1-239l7-232 84 0 84 0 48 45c81 76 123 182 107 269-9 47-79 152-118 176-39 23-84 24-153 3zM2710 2225l0-285 110 0c131 0 147 6 219 86 74 84 85 112 89 229 2 89 0 104-20 140-13 22-46 56-73 77l-50 38-137 0-138 0 0-285zM892 2710c-21-20-22-29-22-179 0-152 1-158 23-179 29-28 38-28 65 1 21 22 22 33 22 180 0 144-2 159-20 177-25 25-41 25-68 0zM4029 2711c-22-17-23-27-27-147-4-157 4-203 40-224 25-13 29-13 52 9 26 24 26 26 26 176 0 139-2 155-21 179-24 31-39 32-70 7zM4404 2722c-24-16-44-59-44-93 0-64 19-99 64-120 51-23 56-17 56 83 0 68-3 80-26 107-27 33-33 35-50 23z"></path>
+        </svg>
+    </div>
+
+    <!-- Bottom Ituze branding SVG, exact from provided design -->
+    <div class="launch-bottom">
+        <svg width="180" height="70" viewBox="0 0 180 70" fill="none" xmlns="http://www.w3.org/2000/svg" style="padding-bottom:10px;">
+            <text x="90" y="20" fill="#8a8d91" font-size="12" font-weight="500" letter-spacing="0.5" text-anchor="middle">Made by</text>
+            <g transform="translate(42, 34)">
+                <svg width="20" height="20" viewBox="0 0 500 500">
+                    <path fill="#0066ff" transform="translate(0 500) scale(.1 -.1)" d="M2325 4994c-433-44-765-148-1093-342-511-303-906-787-1096-1344-46-135-91-324-113-473-24-165-24-505 0-670 80-552 325-1043 712-1430 387-387 878-632 1430-712 165-24 505-24 670 0 552 80 1043 325 1430 712 387 387 632 878 712 1430 24 165 24 505 0 670-80 552-325 1043-712 1430-380 381-866 626-1397 706-127 19-449 33-543 23zm1613-659c3-19-16-74-53-161-56-129-58-132-81-122-13 6-24 15-24 19 0 4 22 59 50 121l49 113-59 3c-55 3-60 5-60 26 0 12 3 26 7 30 4 4 43 5 88 4l80-3 3-30zm220-210c3-19-16-74-53-161-56-129-58-132-81-122-13 6-24 15-24 19 0 4 22 59 50 121l49 113-59 3c-55 3-60 5-60 26 0 12 3 26 7 30 4 4 43 5 88 4l80-3 3-30zm220-180c3-19-16-74-53-161-56-129-58-132-81-122-13 6-24 15-24 19 0 4 22 59 50 121l49 113-59 3c-55 3-60 5-60 26 0 12 3 26 7 30 4 4 43 5 88 4l80-3 3-30zm-1824-215c25-34 48-70 51-80 9-28 18-25 78 18 92 67 177 114 218 119 53 8 138-35 251-126 113-92 271-247 292-288 44-87 42-307-3-405-12-24-55-82-96-130-41-48-75-91-74-95 0-4 41-43 90-87 50-43 112-105 139-137 61-73 74-128 68-289-4-109-6-120-37-176-84-150-321-374-483-457l-63-32-355 0-355 0-5 805-5 805-23 68c-14 40-50 108-88 164l-65 96 23 16c208 148 385 270 391 271 4 0 27-27 51-60zm-674-1075l0-1095-215 0-215 0 0 1095 0 1095 215 0 215 0 0-1095zm-1270 179c44-30 130-118 130-134 0-8 8-1 18 15 26 42 119 124 150 132 33 8 78-17 137-77 56-57 64-87 64-235 0-158-8-188-64-245-60-61-104-85-138-76-31 7-143 109-153 138-3 11-9 60-13 109l-6 88-105-72c-98-68-105-75-108-109l-3-37 113-3 113-3 3-52 3-53-180 0-181 0 0 100c0 96 1 100 30 133 16 19 65 58 107 87 96 65 105 76 97 115-6 30-40 75-56 75-15 0-60-53-70-83-11-31-17-31-77 8l-41 25 19 38c20 38 80 101 116 120 29 16 67 14 95-4zm3506-6c55-41 103-91 115-119l11-29 20 40c21 42 106 117 143 126 29 7 67-13 126-65 65-56 72-81 67-209-7-164-36-217-172-313l-68-49-44 32c-24 17-44 35-44 38 0 4 15 14 32 21 35 14 108 75 108 90 0 5-5 9-11 9-21 0-110 72-134 108l-25 37 0-88c0-105-10-128-82-191-61-54-87-63-127-46-47 19-137 113-145 150-8 41-8 263 1 313 9 59 125 167 179 167 12 0 34-10 50-22zM2765 3353c-27-8-54-18-58-22-4-4-5-112-1-239l7-232 84 0 84 0 48 45c81 76 123 182 107 269-9 47-79 152-118 176-39 23-84 24-153 3zM2710 2225l0-285 110 0c131 0 147 6 219 86 74 84 85 112 89 229 2 89 0 104-20 140-13 22-46 56-73 77l-50 38-137 0-138 0 0-285zM892 2710c-21-20-22-29-22-179 0-152 1-158 23-179 29-28 38-28 65 1 21 22 22 33 22 180 0 144-2 159-20 177-25 25-41 25-68 0zM4029 2711c-22-17-23-27-27-147-4-157 4-203 40-224 25-13 29-13 52 9 26 24 26 26 26 176 0 139-2 155-21 179-24 31-39 32-70 7zM4404 2722c-24-16-44-59-44-93 0-64 19-99 64-120 51-23 56-17 56 83 0 68-3 80-26 107-27 33-33 35-50 23z"></path>
+                </svg>
+                <text x="26" y="17" fill="#0066ff" font-size="22" font-weight="900" letter-spacing="1">Ituze</text>
+            </g>
+        </svg>
+    </div>
 </div>
 
 <header>
@@ -499,7 +505,7 @@
     </div>
     <div class="actions">
         <button class="btn" onclick="openInNewTab()"><i data-lucide="external-link" style="width:16px"></i> Full Screen</button>
-        <button class="btn" onclick="toggleSettings()"><i data-lucide="settings" style="width:16px"></i> Settings</button>
+        <button class="btn" id="settingsBtn" onclick="toggleSettings()"><i data-lucide="settings" style="width:16px"></i> Settings</button>
         <button class="btn btn-primary" onclick="updatePreview()"><i data-lucide="play" style="width:16px"></i> Run Code</button>
     </div>
 </header>
@@ -602,14 +608,6 @@
                     </select>
                 </div>
                 <div class="setting-group">
-                    <label class="setting-label">Font Family</label>
-                    <select id="set-font" onchange="applySettings()">
-                        <option value="'Fira Code', 'JetBrains Mono', monospace">Fira Code / JetBrains</option>
-                        <option value="Consolas, monospace">Consolas</option>
-                        <option value="monospace">Standard Monospace</option>
-                    </select>
-                </div>
-                <div class="setting-group">
                     <label class="setting-label">Line Height (1.1 - 3.0)</label>
                     <input type="range" id="set-lineheight" min="1.1" max="3.0" step="0.1" oninput="applySettings()">
                 </div>
@@ -618,15 +616,6 @@
                     <select id="set-wordwrap" onchange="applySettings()">
                         <option value="off">Off</option>
                         <option value="on">On</option>
-                    </select>
-                </div>
-                <div class="setting-group">
-                    <label class="setting-label">Cursor Style</label>
-                    <select id="set-cursor" onchange="applySettings()">
-                        <option value="line">Line</option>
-                        <option value="block">Block</option>
-                        <option value="underline">Underline</option>
-                        <option value="line-thin">Thin Line</option>
                     </select>
                 </div>
                 <div class="setting-group">
@@ -696,6 +685,9 @@
     let ctxTarget = null;
     let ctxTargetIsFolder = false;
 
+    // Track which panel is currently open: null | 'settings' | 'whatsNew' | 'ituze'
+    let openPanel = null;
+
     const defaultFiles = {
         'index.html': { type: 'file', content: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Cyber App</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <div class="card">\n    <h1>Ituze Code Viewer</h1>\n    <p>File management, code editing, and full live preview.</p>\n    <button id="btn">Test Script</button>\n  </div>\n  <script src="script.js"><\/script>\n</body>\n</html>' },
         'style.css': { type: 'file', content: 'body {\n  background: #0d1117;\n  color: #c9d1d9;\n  font-family: system-ui, sans-serif;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 100vh;\n  margin: 0;\n}\n\n.card {\n  text-align: center;\n  padding: 3rem;\n  border: 1px solid #30363d;\n  border-radius: 16px;\n  background: #161b22;\n  box-shadow: 0 12px 32px rgba(0,0,0,0.6);\n  max-width: 400px;\n}\n\nh1 { color: #58a6ff; margin-top: 0; font-size: 1.8rem; }\n\nbutton {\n  background: #238636;\n  color: white;\n  border: 1px solid rgba(240,246,252,0.1);\n  padding: 12px 28px;\n  border-radius: 8px;\n  cursor: pointer;\n  font-weight: 600;\n  font-size: 1rem;\n  transition: all 0.2s;\n  margin-top: 1rem;\n}\n\nbutton:hover {\n  background: #2ea043;\n  transform: translateY(-2px);\n}' },
@@ -723,18 +715,18 @@
         }
 
         const savedSettings = JSON.parse(localStorage.getItem('ituze_settings') || 'null') || {
-            theme: 'vs-dark', font: "'Fira Code', 'JetBrains Mono', monospace",
-            lineheight: 1.5, wrap: 'on', cursor: 'line',
+            theme: 'vs-dark',
+            lineheight: 1.5, wrap: 'on',
             glass: false, numbers: true, autorun: true, baseurl: ''
         };
 
         editor = monaco.editor.create(document.getElementById('monaco-editor'), {
             theme: savedSettings.theme,
-            fontFamily: savedSettings.font,
-            fontLigatures: true,
+            fontFamily: "Consolas, 'Courier New', monospace",
+            fontLigatures: false,
             lineHeight: savedSettings.lineheight * 14,
             wordWrap: savedSettings.wrap,
-            cursorStyle: savedSettings.cursor,
+            cursorStyle: 'line',
             lineNumbers: savedSettings.numbers ? 'on' : 'off',
             automaticLayout: true,
             minimap: { enabled: false },
@@ -761,15 +753,17 @@
             if (e.key === 'Delete' && document.activeElement === document.body && activeFile) {
                 if (confirm(`Delete '${activeFile}'?`)) deleteItem(activeFile);
             }
+            if (e.key === 'Escape') {
+                closeAllPanels();
+                hideContextMenu();
+            }
         });
 
         setupModels(files);
 
         document.getElementById('set-theme').value = savedSettings.theme;
-        document.getElementById('set-font').value = savedSettings.font;
         document.getElementById('set-lineheight').value = savedSettings.lineheight;
         document.getElementById('set-wordwrap').value = savedSettings.wrap;
-        document.getElementById('set-cursor').value = savedSettings.cursor;
         document.getElementById('set-glass').checked = savedSettings.glass;
         document.getElementById('set-numbers').checked = savedSettings.numbers;
         document.getElementById('set-autorun').checked = savedSettings.autorun;
@@ -792,6 +786,7 @@
         setupResizer();
         setupContextMenu();
         setupItuzePanel();
+        setupGlobalPanelClose();
         lucide.createIcons();
         updatePreview();
 
@@ -800,9 +795,77 @@
 
         // Auto-show What's New then auto-hide after 10s
         setTimeout(() => {
-            showWhatsNew();
-            setTimeout(hideWhatsNew, 10000);
+            openPanelExclusive('whatsNew');
+            setTimeout(() => {
+                if (openPanel === 'whatsNew') closePanelByName('whatsNew');
+            }, 10000);
         }, 2800);
+    }
+
+    // ── Single-panel management ──
+    // Only one panel open at a time: 'settings' | 'whatsNew' | 'ituze' | null
+    function openPanelExclusive(name) {
+        // Close all others first
+        if (openPanel && openPanel !== name) closePanelByName(openPanel);
+        openPanel = name;
+        if (name === 'whatsNew') {
+            document.getElementById('whats-new-panel').classList.add('show');
+        } else if (name === 'settings') {
+            const panel = document.getElementById('settings-panel');
+            panel.style.display = 'flex';
+            setTimeout(() => panel.classList.add('show'), 10);
+        } else if (name === 'ituze') {
+            document.getElementById('iframePanel').classList.add('open');
+        }
+    }
+
+    function closePanelByName(name) {
+        if (name === 'whatsNew') {
+            document.getElementById('whats-new-panel').classList.remove('show');
+        } else if (name === 'settings') {
+            const panel = document.getElementById('settings-panel');
+            panel.classList.remove('show');
+            setTimeout(() => { panel.style.display = 'none'; }, 300);
+        } else if (name === 'ituze') {
+            const panel = document.getElementById('iframePanel');
+            const content = document.getElementById('iframePanelContent');
+            panel.classList.remove('open');
+            setTimeout(() => { content.innerHTML = ''; }, 460);
+        }
+        if (openPanel === name) openPanel = null;
+    }
+
+    function closeAllPanels() {
+        if (openPanel) closePanelByName(openPanel);
+        openPanel = null;
+    }
+
+    // Global click-outside-to-close for all panels
+    function setupGlobalPanelClose() {
+        document.addEventListener('click', (e) => {
+            if (!openPanel) return;
+
+            const wnPanel    = document.getElementById('whats-new-panel');
+            const wnTrigger  = document.getElementById('whats-new-trigger');
+            const spPanel    = document.getElementById('settings-panel');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const iPanel     = document.getElementById('iframePanel');
+            const topLinkBtn = document.getElementById('topLink');
+
+            if (openPanel === 'whatsNew') {
+                if (!wnPanel.contains(e.target) && !wnTrigger.contains(e.target)) {
+                    closePanelByName('whatsNew');
+                }
+            } else if (openPanel === 'settings') {
+                if (!spPanel.contains(e.target) && settingsBtn && !settingsBtn.contains(e.target)) {
+                    closePanelByName('settings');
+                }
+            } else if (openPanel === 'ituze') {
+                if (!iPanel.contains(e.target) && !topLinkBtn.contains(e.target)) {
+                    closePanelByName('ituze');
+                }
+            }
+        });
     }
 
     // ── Model helpers ──
@@ -971,13 +1034,11 @@
     }
 
     // ── Create / Delete / Rename ──
-    // Supports slash paths like "example/app.js" → creates folder "example" and file "app.js" inside it
     function createItem(type, targetFolderPath) {
         const name = prompt(`Enter ${type} name (e.g. ${type === 'file' ? 'app.js or folder/app.js' : 'images'}):`);
         if (!name || !name.trim()) return;
         const raw = name.trim();
 
-        // Determine base container from right-click target folder
         let baseContainer = files;
         let basePath = '';
         if (targetFolderPath) {
@@ -989,14 +1050,12 @@
         }
 
         if (type === 'file') {
-            // Handle slash paths
             const segments = raw.split('/').filter(Boolean);
             if (segments.length === 0) return;
 
             let container = baseContainer;
             let pathAccum = basePath;
 
-            // Create intermediate folders
             for (let i = 0; i < segments.length - 1; i++) {
                 const seg = segments[i];
                 if (!container[seg]) {
@@ -1016,7 +1075,6 @@
             setupModels({ [fileName]: container[fileName] }, pathAccum);
             switchFile(pathAccum + fileName);
         } else {
-            // Folder
             const segments = raw.split('/').filter(Boolean);
             let container = baseContainer;
             let pathAccum = basePath;
@@ -1109,7 +1167,6 @@
                 openTabs = openTabs.map(p => p === path ? newPath : p);
                 if (activeFile === path) activeFile = newPath;
             } else if (node.type === 'folder') {
-                // Rename folder: update all open tabs + models that start with old path
                 const oldPrefix = path + '/';
                 const newPrefix = path.slice(0, path.lastIndexOf('/') + 1) + newName + '/';
                 renameFolderModels(node, oldPrefix, newPrefix);
@@ -1202,27 +1259,21 @@
         document.addEventListener('click', (e) => {
             if (!menu.contains(e.target)) hideContextMenu();
         });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') hideContextMenu();
-        });
     }
 
     function showContextMenuAt(x, y) {
         const menu = document.getElementById('vs-context-menu');
         const hasTarget = !!ctxTarget;
 
-        // Items always shown
         document.getElementById('ctx-new-file').style.display = '';
         document.getElementById('ctx-new-folder').style.display = '';
         document.getElementById('ctx-divider-1').style.display = hasTarget ? '' : 'none';
 
         if (!hasTarget) {
-            // No target: hide all file/folder operations
             ['ctx-cut','ctx-copy','ctx-rename','ctx-download','ctx-delete','ctx-divider-2'].forEach(id => {
                 document.getElementById(id).style.display = 'none';
             });
         } else if (ctxTargetIsFolder) {
-            // Folder target: hide cut/copy, show rename/download/delete
             document.getElementById('ctx-cut').style.display = 'none';
             document.getElementById('ctx-copy').style.display = 'none';
             document.getElementById('ctx-rename').style.display = '';
@@ -1230,7 +1281,6 @@
             document.getElementById('ctx-delete').style.display = '';
             document.getElementById('ctx-divider-2').style.display = '';
         } else {
-            // File target: show everything
             ['ctx-cut','ctx-copy','ctx-rename','ctx-download','ctx-delete','ctx-divider-2'].forEach(id => {
                 document.getElementById(id).style.display = '';
             });
@@ -1301,14 +1351,43 @@
         URL.revokeObjectURL(a.href);
     }
 
+    // ── Theme application (editor + UI + preview when empty) ──
+    function applyThemeToUI(theme) {
+        const previewSection = document.getElementById('preview-section');
+        const previewFrame   = document.getElementById('preview-frame');
+
+        // Remove existing theme classes
+        previewSection.classList.remove('theme-dark', 'theme-hc');
+
+        if (theme === 'vs-dark') {
+            previewSection.classList.add('theme-dark');
+        } else if (theme === 'hc-black') {
+            previewSection.classList.add('theme-hc');
+        }
+        // vs (light) → default white, no extra class needed
+
+        // Check if preview frame is actually showing user content
+        // If preview has no real user content (empty src / no blob), apply theme background to the iframe
+        const src = previewFrame.src || '';
+        const hasContent = src.startsWith('blob:') || (src !== '' && src !== window.location.href);
+        if (!hasContent) {
+            // No content loaded yet — apply theme bg to the iframe wrapper area
+            if (theme === 'vs') {
+                previewFrame.style.background = '#ffffff';
+            } else if (theme === 'vs-dark') {
+                previewFrame.style.background = '#1e1e1e';
+            } else if (theme === 'hc-black') {
+                previewFrame.style.background = '#000000';
+            }
+        }
+    }
+
     // ── Settings ──
     function applySettings(save = true) {
         const settings = {
             theme:      document.getElementById('set-theme').value,
-            font:       document.getElementById('set-font').value,
             lineheight: parseFloat(document.getElementById('set-lineheight').value),
             wrap:       document.getElementById('set-wordwrap').value,
-            cursor:     document.getElementById('set-cursor').value,
             glass:      document.getElementById('set-glass').checked,
             numbers:    document.getElementById('set-numbers').checked,
             autorun:    document.getElementById('set-autorun').checked,
@@ -1317,10 +1396,8 @@
         if (editor) {
             monaco.editor.setTheme(settings.theme);
             editor.updateOptions({
-                fontFamily:  settings.font,
                 lineHeight:  settings.lineheight * 14,
                 wordWrap:    settings.wrap,
-                cursorStyle: settings.cursor,
                 lineNumbers: settings.numbers ? 'on' : 'off'
             });
         }
@@ -1328,19 +1405,18 @@
         settings.glass ? sidebar.classList.add('glass-sidebar') : sidebar.classList.remove('glass-sidebar');
         const ari = document.getElementById('auto-run-status');
         ari.innerHTML = `<div style="width:8px;height:8px;border-radius:50%;background:${settings.autorun ? 'var(--accent)' : 'var(--text-dim)'};"></div> Auto-run: ${settings.autorun ? 'ON' : 'OFF'}`;
+
+        // Apply theme to the preview section / frame
+        applyThemeToUI(settings.theme);
+
         if (save) { localStorage.setItem('ituze_settings', JSON.stringify(settings)); updatePreview(); }
     }
 
     function toggleSettings() {
-        const panel = document.getElementById('settings-panel');
-        // Auto-close What's New when opening settings
-        hideWhatsNew();
-        if (panel.classList.contains('show')) {
-            panel.classList.remove('show');
-            setTimeout(() => panel.style.display = 'none', 300);
+        if (openPanel === 'settings') {
+            closePanelByName('settings');
         } else {
-            panel.style.display = 'flex';
-            setTimeout(() => panel.classList.add('show'), 10);
+            openPanelExclusive('settings');
         }
     }
 
@@ -1382,7 +1458,10 @@
         }
 
         const blob = new Blob([compiled], { type: 'text/html' });
-        document.getElementById('preview-frame').src = URL.createObjectURL(blob);
+        const frame = document.getElementById('preview-frame');
+        frame.src = URL.createObjectURL(blob);
+        // Once content is loaded, clear any manual background styling
+        frame.onload = () => { frame.style.background = ''; };
     }
 
     function openInNewTab() {
@@ -1415,59 +1494,23 @@
     }
 
     // ── What's New ──
-    let wnVisible = false;
-    let wnAutoHideTimer = null;
-
-    function showWhatsNew() {
-        wnVisible = true;
-        document.getElementById('whats-new-panel').classList.add('show');
-        // Close settings if open
-        const sp = document.getElementById('settings-panel');
-        if (sp.classList.contains('show')) {
-            sp.classList.remove('show');
-            setTimeout(() => sp.style.display = 'none', 300);
+    function toggleWhatsNew() {
+        if (openPanel === 'whatsNew') {
+            closePanelByName('whatsNew');
+        } else {
+            openPanelExclusive('whatsNew');
         }
     }
 
     function hideWhatsNew() {
-        wnVisible = false;
-        document.getElementById('whats-new-panel').classList.remove('show');
-        clearTimeout(wnAutoHideTimer);
+        closePanelByName('whatsNew');
     }
 
-    function toggleWhatsNew() {
-        if (wnVisible) {
-            hideWhatsNew();
-        } else {
-            showWhatsNew();
-            // Auto-hide again after 10s if opened manually
-            clearTimeout(wnAutoHideTimer);
-            wnAutoHideTimer = setTimeout(hideWhatsNew, 10000);
-        }
-    }
-
-    // Hide trigger button after 10s delay (auto-hide the badge)
+    // Hide trigger button after 13s
     setTimeout(() => {
         const trigger = document.getElementById('whats-new-trigger');
         if (trigger) trigger.classList.add('hidden-trigger');
     }, 13000);
-
-    // Click outside panels to close them
-    document.addEventListener('click', (e) => {
-        const wnPanel = document.getElementById('whats-new-panel');
-        const wnTrigger = document.getElementById('whats-new-trigger');
-        if (wnVisible && wnPanel && !wnPanel.contains(e.target) && wnTrigger && !wnTrigger.contains(e.target)) {
-            hideWhatsNew();
-        }
-        const sp = document.getElementById('settings-panel');
-        if (sp && sp.classList.contains('show')) {
-            const settingsBtn = document.querySelector('.actions .btn:nth-child(2)');
-            if (!sp.contains(e.target) && settingsBtn && !settingsBtn.contains(e.target)) {
-                sp.classList.remove('show');
-                setTimeout(() => sp.style.display = 'none', 300);
-            }
-        }
-    });
 
     // ── Ituze iframe panel ──
     function setupItuzePanel() {
@@ -1477,37 +1520,17 @@
 
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
+            if (openPanel === 'ituze') {
+                closePanelByName('ituze');
+                return;
+            }
             content.innerHTML = '';
             const iframe = document.createElement('iframe');
             iframe.src = 'https://ituzebonheur.com/me';
             iframe.title = 'Ituze';
             iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
             content.appendChild(iframe);
-            panel.classList.add('open');
-            // Auto-close other panels
-            hideWhatsNew();
-        });
-
-        document.addEventListener('click', (e) => {
-            if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
-                panel.classList.remove('open');
-                setTimeout(() => { content.innerHTML = ''; }, 460);
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (panel.classList.contains('open')) {
-                    panel.classList.remove('open');
-                    setTimeout(() => { content.innerHTML = ''; }, 460);
-                }
-                hideWhatsNew();
-                const sp = document.getElementById('settings-panel');
-                if (sp && sp.classList.contains('show')) {
-                    sp.classList.remove('show');
-                    setTimeout(() => sp.style.display = 'none', 300);
-                }
-            }
+            openPanelExclusive('ituze');
         });
     }
 
