@@ -15,6 +15,8 @@
             --ituze-blue: #005bb7;
             --ituze-soft-blue: #f0f7ff;
             --ituze-dark: #1a202c;
+            --white: #ffffff;
+            --gray: #edf2f7;
         }
 
         body {
@@ -25,65 +27,120 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
         .main-card {
-            background: #80808;
-            padding: 40px;
+            background: var(--white);
+            padding: 30px;
             border-radius: 32px;
             box-shadow: 0 20px 50px rgba(0, 91, 183, 0.1);
             width: 100%;
-            max-width: 440px;
+            max-width: 500px;
             text-align: center;
         }
 
         .brand-header img {
-            width: 70px;
-            height: auto;
+            width: 60px;
             margin-bottom: 10px;
         }
 
         h1 {
             color: var(--ituze-blue);
-            font-size: 26px;
-            margin: 0 0 10px 0;
-            font-weight: 800;
+            font-size: 24px;
+            margin: 0 0 5px 0;
         }
 
         .subtitle {
             color: #718096;
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        .input-wrapper {
+            font-size: 13px;
             margin-bottom: 25px;
+            display: block;
         }
 
-        input {
-            background: #D3D3D3;
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #edf2f7;
-            border-radius: 16px;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.4s ease;
-            box-sizing: border-box;
-            color: var(--ituze-dark);
+        /* Input Controls */
+        .type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
         }
 
-        input:focus {
+        .type-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid var(--gray);
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .type-btn.active {
+            background: var(--ituze-blue);
+            color: white;
             border-color: var(--ituze-blue);
-            box-shadow: 0 0 0 4px rgba(0, 91, 183, 0.08);
         }
 
+        .input-group {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group.active { display: flex; }
+
+        input, select {
+            background: #f8fafc;
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gray);
+            border-radius: 12px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--ituze-blue); }
+
+        /* Preview Area */
         #qrcode-display {
             background: #fff;
-            padding: 15px;
-            border-radius: 24px;
+            padding: 10px;
+            border-radius: 20px;
             display: inline-block;
             margin-bottom: 20px;
+            /* Checkerboard pattern to visibly show transparency */
+            background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                              linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                              linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* Export Settings */
+        .export-settings {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .label-small {
+            font-size: 11px;
+            font-weight: 700;
+            color: #4a5568;
+            text-transform: uppercase;
         }
 
         .btn-download {
@@ -96,22 +153,17 @@
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            transition: 0.3s;
         }
 
         .btn-download:hover {
             background-color: #004ba3;
-            transform: translateY(-2px);
-        }
-
-        .btn-download:active {
-            transform: translateY(0);
+            transform: scale(1.02);
         }
 
         .footer-tag {
-            margin-top: 25px;
-            font-size: 11px;
-            text-transform: uppercase;
+            margin-top: 20px;
+            font-size: 10px;
             letter-spacing: 2px;
             color: #a0aec0;
         }
@@ -123,66 +175,129 @@
     <div class="brand-header">
         <img src="/images/ituze.png" alt="Ituze Logo">
     </div>
-    <h1>QR codes - Ituze</h1>
-    <p class="subtitle"> • Live Preview</p>
+    <h1>Ituze QR </h1>
+    <span class="subtitle">WiFi & Real-time Styling Preview</span>
 
-    <div class="input-wrapper">
-        <input type="text" id="qr-input" placeholder="Type your link or text here..." value="https://ituzebonheur.com">
+    <div class="type-selector">
+        <button class="type-btn active" id="btn-text" onclick="setMode('text')">Text/URL</button>
+        <button class="type-btn" id="btn-wifi" onclick="setMode('wifi')">WiFi</button>
+    </div>
+
+    <div id="text-inputs" class="input-group active">
+        <input type="text" id="qr-data" placeholder="https://ituzebonheur.com" oninput="updateQR()">
+    </div>
+
+    <div id="wifi-inputs" class="input-group">
+        <input type="text" id="wifi-ssid" placeholder="Network Name (SSID)" oninput="updateQR()">
+        <input type="password" id="wifi-pass" placeholder="Password" oninput="updateQR()">
+        <select id="wifi-type" onchange="updateQR()">
+            <option value="WPA">WPA/WPA2</option>
+            <option value="WEP">WEP</option>
+            <option value="nopass">No Password</option>
+        </select>
     </div>
 
     <div id="qrcode-display"></div>
 
-    <button class="btn-download" onclick="downloadQR()">Save OR code Image</button>
+    <div class="export-settings">
+        <span class="label-small">Live Design Options</span>
+        <div class="settings-grid">
+            <div>
+                <label class="label-small">Background</label>
+                <select id="dl-bg" onchange="updateQR()">
+                    <option value="transparent">Transparent</option>
+                    <option value="#ffffff">White</option>
+                    <option value="#000000">Black</option>
+                </select>
+            </div>
+            <div>
+                <label class="label-small">Dot Shape</label>
+                <select id="dl-shape" onchange="updateQR()">
+                    <option value="rounded">Rounded</option>
+                    <option value="square">Square</option>
+                    <option value="extra-rounded">Extra Rounded</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
+    <button class="btn-download" onclick="downloadQR()">Download QR Image</button>
     <div class="footer-tag">Ituze Bonheur</div>
 </div>
 
 <script>
+    let currentMode = 'text';
+
     const qrCode = new QRCodeStyling({
         width: 300,
         height: 300,
         type: "svg",
         data: "https://ituzebonheur.com",
-        image: "/images/ituze.png",
-        dotsOptions: {
-            color: "#005bb7",
-            type: "rounded"
-        },
-        backgroundOptions: {
-            color: "#ffffff",
-        },
-        imageOptions: {
-            crossOrigin: "anonymous",
-            margin: 1,
-            imageSize: 0.25,
-            hideBackgroundDots: true 
-        },
-        cornersSquareOptions: {
-            color: "#005bb7",
-            type: "extra-rounded" 
-        },
-        cornersDotOptions: {
-            color: "#005bb7",
-            type: "dot"
-        }
+        image: "/images/ituze.svg",
+        dotsOptions: { color: "#005bb7", type: "rounded" },
+        backgroundOptions: { color: "transparent" },
+        imageOptions: { crossOrigin: "anonymous", margin: 5, imageSize: 0.3, hideBackgroundDots: true },
+        cornersSquareOptions: { color: "#005bb7", type: "extra-rounded" },
+        cornersDotOptions: { color: "#005bb7", type: "dot" }
     });
 
     qrCode.append(document.getElementById("qrcode-display"));
-    const input = document.getElementById("qr-input");
-    input.addEventListener("input", () => {
-        qrCode.update({
-            data: input.value
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('btn-text').classList.toggle('active', mode === 'text');
+        document.getElementById('btn-wifi').classList.toggle('active', mode === 'wifi');
+        
+        document.getElementById('text-inputs').classList.toggle('active', mode === 'text');
+        document.getElementById('wifi-inputs').classList.toggle('active', mode === 'wifi');
+        updateQR();
+    }
+
+    function updateQR() {
+        let finalData = "";
+
+        if (currentMode === 'text') {
+            finalData = document.getElementById('qr-data').value || "https://ituzebonheur.com";
+        } else {
+            const ssid = document.getElementById('wifi-ssid').value;
+            const pass = document.getElementById('wifi-pass').value;
+            const type = document.getElementById('wifi-type').value;
+            finalData = `WIFI:S:${ssid};T:${type};P:${pass};;`;
+        }
+
+        const bgSelection = document.getElementById('dl-bg').value;
+        const shapeSelection = document.getElementById('dl-shape').value;
+        
+        const dotColor = (bgSelection === "#005bb7") ? "#ffffff" : "#005bb7";
+
+        qrCode.update({ 
+            data: finalData,
+            dotsOptions: { 
+                color: dotColor, 
+                type: shapeSelection 
+            },
+            backgroundOptions: { 
+                color: bgSelection 
+            },
+            cornersSquareOptions: { 
+                color: dotColor, 
+                type: shapeSelection === 'square' ? 'square' : 'extra-rounded' 
+            },
+            cornersDotOptions: { 
+                color: dotColor 
+            }
         });
-    });
+    }
 
     function downloadQR() {
         qrCode.download({ 
-            name: "ituze-branded-qr", 
+            name: `ituze-qr-${currentMode}`, 
             extension: "png" 
         });
     }
+
+    updateQR();
 </script>
+
 </body>
-
 </html>
-
