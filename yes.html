@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>Date Proposal 🌸</title>
+    <link rel="icon" href="https://png.pngtree.com/png-vector/20220428/ourmid/pngtree-smooth-glossy-heart-vector-file-ai-and-png-png-image_4557871.png" type="image/png">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -88,7 +89,7 @@
                 <div class="w-48 h-48 rounded-3xl overflow-hidden shadow-inner border-4 border-white animate-float">
                     <img alt="Kawaii cat" class="w-full h-full object-cover" src="https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif">
                 </div>
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-primary-foreground leading-tight">🌸 Will you go on a date with me? 🌸</h1>
+                <h1 id="headline-1" class="text-3xl sm:text-4xl font-extrabold text-primary-foreground leading-tight">🌸 Will you go on a date with me? 🌸</h1>
                 <div class="flex items-center justify-center gap-4 mt-4 w-full h-24 relative">
                     <button onclick="goToScreen('screen-1', 'screen-2')" class="bg-primary text-white font-bold text-lg rounded-full px-8 py-4 shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all z-20">YES 💕</button>
                     <button id="no-btn" class="bg-slate-200 text-slate-700 font-medium text-lg rounded-full px-8 py-4 shadow-md transition-all duration-150 z-20">no… 🙈</button>
@@ -101,7 +102,7 @@
                 <div class="w-48 h-48 rounded-3xl overflow-hidden shadow-inner border-4 border-white animate-float">
                     <img alt="Surprised Spongebob" class="w-full h-full object-cover" src="https://media.tenor.com/W-oA2c99rJQAAAAM/spongebob-spongebob-squarepants.gif">
                 </div>
-                <h1 class="text-4xl font-extrabold text-primary-foreground leading-tight">WAIT YOU ACTUALLY SAID YES?? 😭</h1>
+                <h1 id="headline-2" class="text-4xl font-extrabold text-primary-foreground leading-tight">WAIT YOU ACTUALLY SAID YES?? 😭</h1>
                 <p class="text-lg text-primary-foreground/80 font-medium">I was so ready for you to say no 🥹</p>
                 <button onclick="goToScreen('screen-2', 'screen-3')" class="w-full bg-primary text-white font-bold text-lg rounded-full py-4 shadow-lg shadow-primary/30 hover:scale-105 transition-transform mt-4">okay okay! →</button>
             </div>
@@ -109,7 +110,7 @@
 
         <div id="screen-3" class="hidden w-full max-w-md mx-auto animate-pop z-10">
             <div class="border-4 border-primary/20 shadow-xl shadow-primary/10 rounded-[2rem] bg-white/80 backdrop-blur-sm p-8 flex flex-col items-center text-center gap-6">
-                <h1 class="text-3xl font-extrabold text-primary-foreground leading-tight">When are you free? 📅</h1>
+                <h1 id="headline-3" class="text-3xl font-extrabold text-primary-foreground leading-tight">When are you going to be free, beautiful? 📅</h1>
                 <div class="w-full text-left space-y-4">
                     <div class="flex flex-col gap-2">
                         <label class="text-sm font-bold text-primary-foreground ml-2">What Day? 📅</label>
@@ -129,7 +130,7 @@
                 <h1 class="text-3xl font-extrabold text-primary-foreground leading-tight">Where should I pick you up? 🏡</h1>
                 <p class="text-sm text-primary-foreground/70 font-medium">Please share your address or preferred pickup location below! 🚗</p>
                 <div class="w-full text-left">
-                    <textarea id="address-input" rows="3" placeholder="Enter your address here..." class="w-full bg-white px-4 py-3 rounded-2xl border-2 border-primary/30 focus:outline-none focus:border-primary text-base text-primary-foreground resize-none shadow-inner"></textarea>
+                    <textarea id="address-input" rows="3" placeholder="Enter your address here..." autocomplete="address-line1" class="w-full bg-white px-4 py-3 rounded-2xl border-2 border-primary/30 focus:outline-none focus:border-primary text-base text-primary-foreground resize-none shadow-inner"></textarea>
                 </div>
                 <button onclick="saveAddress()" class="w-full bg-primary text-white font-bold text-lg rounded-full py-4 shadow-lg shadow-primary/30 hover:scale-105 transition-transform mt-2">Next: Food Choices! 🍱</button>
             </div>
@@ -170,10 +171,10 @@
         <div id="screen-6" class="hidden w-full max-w-md mx-auto animate-pop z-10">
             <div class="border-4 border-primary/20 shadow-xl shadow-primary/10 rounded-[2rem] bg-[#FFF8F0] p-8 flex flex-col items-center text-center gap-6 relative">
                 <div class="w-40 h-40 rounded-full overflow-hidden shadow-inner border-4 border-white animate-float mb-2">
-                    <img alt="Shrek Rizz" class="w-full h-full object-cover" src="https://png.pngtree.com/png-vector/20220428/ourmid/pngtree-smooth-glossy-heart-vector-file-ai-and-png-png-image_4557871.png">
+                    <img alt="Heart" class="w-full h-full object-cover" src="https://png.pngtree.com/png-vector/20220428/ourmid/pngtree-smooth-glossy-heart-vector-file-ai-and-png-png-image_4557871.png">
                 </div>
                 <div class="space-y-4 w-full">
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-primary-foreground leading-relaxed">It's a date! I'm coming to get you 🚗💨</h1>
+                    <h1 id="headline-6" class="text-2xl sm:text-3xl font-extrabold text-primary-foreground leading-relaxed">It's a date! I'm coming to get you 🚗💨</h1>
                     
                     <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 text-left space-y-2 shadow-inner text-primary-foreground font-medium text-sm">
                         <p>📅 <strong>Date:</strong> <span id="summary-date"></span></p>
@@ -205,6 +206,7 @@
         let chosenTime = "";
         let chosenAddress = "";
         let chosenFood = "";
+        let girlName = "";
 
         function showWebsiteAlert(message) {
             const container = document.getElementById('toast-container');
@@ -225,6 +227,19 @@
         window.addEventListener('DOMContentLoaded', () => {
             const todayStr = new Date().toISOString().split('T')[0];
             document.getElementById('date-input').setAttribute('min', todayStr);
+            
+            if (window.location.hash) {
+                girlName = decodeURIComponent(window.location.hash.substring(1)).trim();
+            }
+
+            if (girlName) {
+                document.getElementById('headline-1').innerHTML = `🌸 Will you go on a date with me, ${girlName}? 🌸`;
+                document.getElementById('headline-2').innerHTML = `THANKS ${girlName}, ACTUALLY SAID YES?? 😭`;
+                document.getElementById('headline-6').innerHTML = `It's a date! I'm coming to pick you up, ${girlName}. 🚗💨`;
+            }
+
+            document.getElementById('headline-3').innerHTML = `When are you going to be free, beautiful? 📅`;
+
             triggerAmbientParticles();
         });
 
@@ -279,8 +294,14 @@
         }
 
         function submitDataToFormspree() {
+            if (!girlName) {
+                console.log("Form submission bypassed because no target name was found in the URL hash.");
+                return;
+            }
+
             const endpoint = 'https://formspree.io/f/mojzdrnb';
             const payload = {
+                Girl_Name: girlName, 
                 Date: chosenDate,
                 Time: chosenTime,
                 Pickup_Address: chosenAddress,
