@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/js/ituze.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
 
 <style>
@@ -36,7 +35,7 @@ body {
     padding: 35px;
     width: 340px;
     text-align: center;
-    display: none; /* Hidden by default to prevent flicker during fast redirect */
+    display: none;
     animation: fadeIn 0.4s ease forwards;
 }
 
@@ -151,14 +150,14 @@ const searchEngines = {
     perplexity: "https://www.perplexity.ai/search?q=",
 };
 
-const utmSource = "ItuzeBonheur";
+const utmSource = "ituzebonheur.com";
 
 (function() {
     const params = new URLSearchParams(window.location.search);
     const query = params.get("q");
 
     if (!query || !query.trim()) {
-        window.location.replace("https://ituzebonheur.com");
+        window.location.replace("/home");
         return;
     }
 
