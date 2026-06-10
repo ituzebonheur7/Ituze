@@ -6,7 +6,7 @@
   "edge_side_panel": {
     "preferred_width": 376
   },
-  "start_url": "/",
+  "start_url": "/home",
   "scope": "/",
   "display": "minimal-ui",
   "orientation": "portrait-primary",
