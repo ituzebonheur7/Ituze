@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-    <title>Date Proposal 🌸</title>
+    <title>Ituze - Date Proposal 🌸</title>
     <link rel="icon" href="https://png.pngtree.com/png-vector/20220428/ourmid/pngtree-smooth-glossy-heart-vector-file-ai-and-png-png-image_4557871.png" type="image/png">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -102,8 +102,8 @@
                 <div class="w-48 h-48 rounded-3xl overflow-hidden shadow-inner border-4 border-white animate-float">
                     <img alt="Surprised Spongebob" class="w-full h-full object-cover" src="https://media.tenor.com/W-oA2c99rJQAAAAM/spongebob-spongebob-squarepants.gif">
                 </div>
-                <h1 id="headline-2" class="text-4xl font-extrabold text-primary-foreground leading-tight">WAIT YOU ACTUALLY SAID YES?? 😭</h1>
-                <p class="text-lg text-primary-foreground/80 font-medium">I was so ready for you to say no 🥹</p>
+                <h1 id="headline-2" class="text-4xl font-extrabold text-primary-foreground leading-tight">You won't regret this</h1>
+                <p id="chess-paragraph" class="text-lg text-primary-foreground/80 font-medium">Don't worry I'm a chess player so I know how to protect my beautiful queen</p>
                 <button onclick="goToScreen('screen-2', 'screen-3')" class="w-full bg-primary text-white font-bold text-lg rounded-full py-4 shadow-lg shadow-primary/30 hover:scale-105 transition-transform mt-4">okay okay! →</button>
             </div>
         </div>
@@ -164,6 +164,10 @@
                         <span class="text-4xl mb-2">🍜</span>
                         <span class="font-bold text-primary-foreground">Ramen</span>
                     </button>
+                    <button onclick="selectFood('✨ Just a date')" class="flex flex-col items-center justify-center p-4 rounded-3xl border-2 border-primary/10 bg-white/60 hover:bg-primary/20 hover:scale-105 transition-all col-span-2 sm:col-span-3">
+                        <span class="text-4xl mb-2">✨</span>
+                        <span class="font-bold text-primary-foreground">Just a date</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -174,7 +178,7 @@
                     <img alt="Heart" class="w-full h-full object-cover" src="https://png.pngtree.com/png-vector/20220428/ourmid/pngtree-smooth-glossy-heart-vector-file-ai-and-png-png-image_4557871.png">
                 </div>
                 <div class="space-y-4 w-full">
-                    <h1 id="headline-6" class="text-2xl sm:text-3xl font-extrabold text-primary-foreground leading-relaxed">It's a date! I'm coming to get you 🚗💨</h1>
+                    <h1 id="headline-6" class="text-2xl sm:text-3xl font-extrabold text-primary-foreground leading-relaxed">It's a date! I'll pick you up 🚗💨</h1>
                     
                     <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 text-left space-y-2 shadow-inner text-primary-foreground font-medium text-sm">
                         <p>📅 <strong>Date:</strong> <span id="summary-date"></span></p>
@@ -190,7 +194,7 @@
                         </a>
                     </div>
 
-                    <p class="text-muted-foreground italic font-medium pt-4 text-xs">P.S. Normal people text. I made a website. during lunch. for you...</p>
+                    <p class="text-muted-foreground italic font-medium pt-4 text-xs">I made this website. in my lunch period. for you... I love you</p>
                 </div>
             </div>
         </div>
@@ -207,6 +211,7 @@
         let chosenAddress = "";
         let chosenFood = "";
         let girlName = "";
+        let gCalUrl = "";
 
         function showWebsiteAlert(message) {
             const container = document.getElementById('toast-container');
@@ -235,7 +240,10 @@
             if (girlName) {
                 document.getElementById('headline-1').innerHTML = `🌸 Will you go on a date with me, ${girlName}? 🌸`;
                 document.getElementById('headline-2').innerHTML = `THANKS ${girlName}, ACTUALLY SAID YES?? 😭`;
+                document.getElementById('chess-paragraph').innerHTML = `Don't worry I'm a chess player so I know how to protect my beautiful queen ${girlName}`;
                 document.getElementById('headline-6').innerHTML = `It's a date! I'm coming to pick you up, ${girlName}. 🚗💨`;
+            } else {
+                document.getElementById('chess-paragraph').innerHTML = `Don't worry I'm a chess player so I know how to protect my beautiful queen`;
             }
 
             document.getElementById('headline-3').innerHTML = `When are you going to be free, beautiful? 📅`;
@@ -287,8 +295,33 @@
             goToScreen('screen-4', 'screen-5');
         }
 
+        function generateCalendarLink() {
+            const cleanDate = rawDate.replace(/-/g, '');
+            const cleanTime = rawTime.replace(/:/g, '');
+            const startTimestamp = `${cleanDate}T${cleanTime}00`;
+            
+            const endObj = new Date(`${rawDate}T${rawTime}`);
+            endObj.setHours(endObj.getHours() + 3);
+            const endYear = endObj.getFullYear();
+            const endMonth = String(endObj.getMonth() + 1).padStart(2, '0');
+            const endDate = String(endObj.getDate()).padStart(2, '0');
+            const endHours = String(endObj.getHours()).padStart(2, '0');
+            const endMins = String(endObj.getMinutes()).padStart(2, '0');
+            const endTimestamp = `${endYear}${endMonth}${endDate}T${endHours}${endMins}00`;
+
+            const displayName = girlName ? girlName : "Our";
+            const eventTitle = encodeURIComponent(`${displayName} Special Date with Ituze`);
+            const eventDetails = encodeURIComponent(`Can't wait! 🥰\n\n🏡 Pickup Spot: ${chosenAddress}\n🍽️ Dinner Context: ${chosenFood}\n\nBuilt by Ituze 🌸`);
+            const eventLocation = encodeURIComponent(chosenAddress);
+            const utmSource = "ituzebonheur.com"; 
+
+            gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startTimestamp}/${endTimestamp}&details=${eventDetails}&location=${eventLocation}&utm_source=${encodeURIComponent(utmSource)}`;
+            return gCalUrl;
+        }
+
         function selectFood(foodName) {
             chosenFood = foodName;
+            generateCalendarLink();
             submitDataToFormspree();
             goToScreen('screen-5', 'screen-6');
         }
@@ -306,7 +339,7 @@
                 Time: chosenTime,
                 Pickup_Address: chosenAddress,
                 Food_Choice: chosenFood,
-                Response: "YES! 💕"
+                Calendar: gCalUrl
             };
 
             fetch(endpoint, {
@@ -328,25 +361,6 @@
             document.getElementById('summary-time').innerText = chosenTime;
             document.getElementById('summary-address').innerText = chosenAddress;
             document.getElementById('summary-food').innerText = chosenFood;
-
-            const cleanDate = rawDate.replace(/-/g, '');
-            const cleanTime = rawTime.replace(/:/g, '');
-            const startTimestamp = `${cleanDate}T${cleanTime}00`;
-            
-            const endObj = new Date(`${rawDate}T${rawTime}`);
-            endObj.setHours(endObj.getHours() + 3);
-            const endYear = endObj.getFullYear();
-            const endMonth = String(endObj.getMonth() + 1).padStart(2, '0');
-            const endDate = String(endObj.getDate()).padStart(2, '0');
-            const endHours = String(endObj.getHours()).padStart(2, '0');
-            const endMins = String(endObj.getMinutes()).padStart(2, '0');
-            const endTimestamp = `${endYear}${endMonth}${endDate}T${endHours}${endMins}00`;
-
-            const eventTitle = encodeURIComponent("Our Special Date ❤️");
-            const eventDetails = encodeURIComponent(`Can't wait! 🥰\n\n🏡 Pickup Spot: ${chosenAddress}\n🍽️ Dinner Context: ${chosenFood}\n\nBuilt by Ituze 🌸`);
-            const eventLocation = encodeURIComponent(chosenAddress);
-
-            const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startTimestamp}/${endTimestamp}&details=${eventDetails}&location=${eventLocation}`;
             
             document.getElementById('calendar-btn').setAttribute('href', gCalUrl);
         }
