@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,11 +10,8 @@
     <link rel="icon" href="/images/code.png" type="image/png">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://unpkg.com">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
     <script src="/js/ituze.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://unpkg.com/lucide@1.17.0/dist/umd/lucide.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.53.0/min/vs/loader.min.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
 
     <style>
         :root {
@@ -346,129 +344,7 @@
             border-radius: 4px; outline: none; width: calc(100% - 30px);
         }
 
-        /* ── What's New Panel ── */
-        #whats-new-panel {
-            position: fixed;
-            bottom: 56px;
-            left: 16px;
-            width: 365px;
-            height: 240px;
-            background: #1c2128;
-            border: 1px solid #30363d;
-            border-radius: 12px;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.6);
-            z-index: 1500;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(12px) scale(0.97);
-            pointer-events: none;
-            transition: opacity 0.28s ease, transform 0.28s ease;
-        }
-        #whats-new-panel.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-        }
-        .wn-header {
-            padding: 14px 16px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #30363d;
-        }
-        .wn-header-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .wn-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #e6edf3;
-            letter-spacing: 0.2px;
-        }
-        .wn-badge {
-            font-size: 10px;
-            font-weight: 600;
-            background: #238636;
-            color: #fff;
-            padding: 2px 7px;
-            border-radius: 20px;
-            letter-spacing: 0.3px;
-        }
-        .wn-close {
-            cursor: pointer;
-            color: #8b949e;
-            display: flex;
-            align-items: center;
-            padding: 2px;
-            border-radius: 4px;
-            transition: color 0.2s, background 0.2s;
-        }
-        .wn-close:hover { color: #e6edf3; background: #21262d; }
-        .wn-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 14px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .wn-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 12.5px;
-            line-height: 1.5;
-            color: #c9d1d9;
-        }
-        .wn-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            margin-top: 5px;
-        }
-        .wn-dot.new    { background: #2f81f7; }
-        .wn-dot.fix    { background: #3fb950; }
-        .wn-dot.perf   { background: #e3b341; }
 
-        /* ── What's New Trigger Button ── */
-        #whats-new-trigger {
-            position: fixed;
-            bottom: 16px;
-            left: 16px;
-            height: 34px;
-            padding: 0 14px;
-            background: #1c2128;
-            border: 1px solid #30363d;
-            border-radius: 20px;
-            color: #c9d1d9;
-            font-size: 12px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            cursor: pointer;
-            z-index: 1400;
-            transition: background 0.2s, border-color 0.2s, opacity 0.4s, transform 0.4s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-        }
-        #whats-new-trigger:hover { background: #21262d; border-color: var(--accent); color: var(--accent); }
-        #whats-new-trigger.hidden-trigger {
-            opacity: 0;
-            transform: translateY(8px);
-            pointer-events: none;
-        }
-        .wn-trigger-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #2f81f7;
-            flex-shrink: 0;
-        }
     </style>
 </head>
 <body>
@@ -628,50 +504,11 @@
     </div>
 </main>
 
-<!-- What's New trigger -->
-<button id="whats-new-trigger" onclick="toggleWhatsNew()">
-    <span class="wn-trigger-dot"></span>
-    What's new
-</button>
 
-<!-- What's New panel -->
-<div id="whats-new-panel">
-    <div class="wn-header">
-        <div class="wn-header-left">
-            <span class="wn-title">What's New</span>
-            <span class="wn-badge">Latest</span>
-        </div>
-        <span class="wn-close" onclick="hideWhatsNew()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </span>
-    </div>
-    <div class="wn-body">
-        <div class="wn-item">
-            <span class="wn-dot new"></span>
-            <span><strong>JSON support</strong> — .json files now open with full syntax highlighting and formatting in the editor.</span>
-        </div>
-        <div class="wn-item">
-            <span class="wn-dot new"></span>
-            <span><strong>Slash-path file creation</strong> — Type <code style="background:#21262d;padding:1px 5px;border-radius:3px;font-size:11px;">example/app.js</code> to auto-create folders and files in one step.</span>
-        </div>
-        <div class="wn-item">
-            <span class="wn-dot new"></span>
-            <span><strong>Folder context menu</strong> — Right-click any folder to add files, rename, download as ZIP, or delete.</span>
-        </div>
-        <div class="wn-item">
-            <span class="wn-dot new"></span>
-            <span><strong>Launch screen</strong> — A new splash screen gives resources time to fully load on startup.</span>
-        </div>
-        <div class="wn-item">
-            <span class="wn-dot fix"></span>
-            <span><strong>Bug fixes</strong> — Resolved issues with tab state, model disposal, and panel auto-close behaviour.</span>
-        </div>
-        <div class="wn-item">
-            <span class="wn-dot perf"></span>
-            <span><strong>Performance improvements</strong> — Faster tree rendering and reduced localStorage writes.</span>
-        </div>
-    </div>
-</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://unpkg.com/lucide@1.17.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.53.0/min/vs/loader.min.js"></script>
 
 <script>
     // ── State ──
