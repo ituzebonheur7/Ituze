@@ -9,32 +9,29 @@
   const CONFIG = {
     syncAndWakeLockPaths: [
       '/home', 
-      '/home.html', 
       '/games', 
-      '/games.html'
     ],
 
     scrollbarPaths: [
       '/home',
-      '/home.html',
       '/games',
-      '/games.html',
-      '/performance.html'
+      '/feedback',
+      '/me',
+      '/qrcode',
     ],
 
     precacheAssets: [
-      'index.html',
-      'home.html',
-      'games.html',
-      'codeviewer.html',
-      'feedback.html',
-      'hunter.html',
-      'me.html',
-      'performance.html',
-      'qrcode.html',
-      'yes.html',
+      'index',
+      'home',
+      'games',
+      'codeviewer',
+      'feedback',
+      'hunter',
+      'me',
+      'performance',
+      'qrcode',
+      'yes',
       'favicon.ico',
-      'manifest.json'
     ]
   };
 
