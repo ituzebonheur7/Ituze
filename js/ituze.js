@@ -1,264 +1,222 @@
+/**
+ * Ituze Bonheur
+ * Core Application Hub
+ * Includes: Cross-tab Sync, Wake Lock Management, Scrollingbar, & Background Precaching.
+ */
 (function () {
   'use strict';
 
-  var CONTENT_SELECTOR = '#page-content';
-  var TITLE_SELECTOR = 'title';
-  var OPT_OUT_ATTR = 'data-no-instant';
+  const CONFIG = {
+    syncAndWakeLockPaths: [
+      '/home', 
+      '/home.html', 
+      '/games', 
+      '/games.html'
+    ],
 
-  var pageCache = new Map();
-  var inFlightFetches = new Map();
-  var scrollPositions = new Map();
-  var historyIdCounter = 0;
+    scrollbarPaths: [
+      '/home',
+      '/home.html',
+      '/games',
+      '/games.html',
+      '/performance.html'
+    ],
 
-  function isInstantNavLink(link) {
-    if (!link || !link.href) return false;
-    if (link.hasAttribute(OPT_OUT_ATTR)) return false;
-    
-    var target = link.getAttribute('target');
-    if (target && target.toLowerCase() === '_blank') return false;
-    if (link.hasAttribute('download')) return false;
-    
-    var rel = (link.getAttribute('rel') || '').toLowerCase();
-    if (rel.indexOf('external') !== -1) return false;
-    
-    var href = link.getAttribute('href') || '';
-    if (
-      href === '' ||
-      href.charAt(0) === '#' ||
-      href.indexOf('mailto:') === 0 ||
-      href.indexOf('tel:') === 0 ||
-      href.indexOf('javascript:') === 0 ||
-      href.indexOf('sms:') === 0 ||
-      href.indexOf('blob:') === 0 ||
-      href.indexOf('data:') === 0
-    ) {
-      return false;
+    precacheAssets: [
+      'index.html',
+      'home.html',
+      'games.html',
+      'codeviewer.html',
+      'feedback.html',
+      'hunter.html',
+      'me.html',
+      'performance.html',
+      'qrcode.html',
+      'yes.html',
+      'favicon.ico',
+      'manifest.json'
+    ]
+  };
+
+  function isPathAllowed(pathList) {
+    const currentPath = window.location.pathname;
+    return pathList.some(path => currentPath.includes(path));
+  }
+
+
+  if (isPathAllowed(CONFIG.syncAndWakeLockPaths)) {
+    const KEY_THEME  = "themeColor";
+    const KEY_CUSTOM = "customAccent";
+    const KEY_NAME   = "displayName";
+
+    const PRESETS = {
+      green:  "#00ff9c",
+      blue:   "#4da3ff",
+      red:    "#ff4d4d",
+      yellow: "#ffe44d",
+    };
+
+    function resolveAccent() {
+      try {
+        const theme  = localStorage.getItem(KEY_THEME)  || "green";
+        const custom = localStorage.getItem(KEY_CUSTOM) || "#00ff9c";
+        return theme === "custom" ? custom : (PRESETS[theme] || PRESETS.green);
+      } catch (_) { return "#00ff9c"; }
     }
-    
-    if (link.origin !== window.location.origin) return false;
-    
-    var path = link.pathname || '';
-    var downloadLikeExtensions = [
-      '.pdf', '.zip', '.rar', '.7z', '.tar', '.gz',
-      '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
-      '.mp3', '.mp4', '.mov', '.avi', '.wav', '.ogg',
-      '.exe', '.dmg', '.apk', '.iso',
-      '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.ico'
-    ];
-    for (var i = 0; i < downloadLikeExtensions.length; i++) {
-      if (path.toLowerCase().lastIndexOf(downloadLikeExtensions[i]) ===
-          path.length - downloadLikeExtensions[i].length) {
-        return false;
+
+    function resolveName() {
+      try { return localStorage.getItem(KEY_NAME) || "Ituze"; }
+      catch (_) { return "Ituze"; }
+    }
+
+    function applyAccent(hex) {
+      if (!hex || !hex.startsWith("#")) return;
+      const r = document.documentElement;
+      r.style.setProperty("--accent",                  hex);
+      r.style.setProperty("--matrix-color",            hex);
+      r.style.setProperty("--glass-border",            `color-mix(in srgb, ${hex} 20%, rgba(255,255,255,0.15))`);
+      r.style.setProperty("--glass-bg",                "rgba(0,0,0,0.25)");
+      r.style.setProperty("--launcher-border-color",   `color-mix(in srgb, ${hex} 35%, rgba(255,255,255,0.18))`);
+      r.style.setProperty("--launcher-section-bg",     "rgba(15,23,42,0.6)");
+      r.style.setProperty("--launcher-section-border", `color-mix(in srgb, ${hex} 30%, rgba(148,163,184,0.35))`);
+    }
+
+    function applyName(name) {
+      const greeting = document.getElementById("greeting");
+      if (greeting) {
+        const hour = new Date().getHours();
+        const salutation =
+          hour < 5  ? "Good night"   :
+          hour < 12 ? "Good morning" :
+          hour < 17 ? "Good afternoon" : "Good evening";
+        greeting.textContent = `${salutation}, ${name}`;
       }
     }
-    
-    return true;
-  }
 
-  function getCacheKey(url) {
-    var u = new URL(url, window.location.href);
-    return u.origin + u.pathname + u.search;
-  }
-
-  function fetchPage(url) {
-    var cacheKey = getCacheKey(url);
-
-    if (pageCache.has(cacheKey)) {
-      return Promise.resolve(pageCache.get(cacheKey));
-    }
-
-    if (inFlightFetches.has(cacheKey)) {
-      return inFlightFetches.get(cacheKey);
-    }
-
-    var fetchPromise = fetch(cacheKey, {
-      credentials: 'same-origin',
-      cache: 'no-store'
-    })
-      .then(function (response) {
-        if (!response.ok) {
-          throw new Error('Network response was not OK: ' + response.status);
-        }
-        var contentType = response.headers.get('Content-Type') || '';
-        if (contentType.indexOf('text/html') === -1 &&
-            contentType.indexOf('application/xhtml+xml') === -1) {
-          throw new Error('Response is not HTML: ' + contentType);
-        }
-        return response.text();
-      })
-      .then(function (html) {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(html, 'text/html');
-
-        var newContentEl = doc.querySelector(CONTENT_SELECTOR);
-        var newTitleEl = doc.querySelector(TITLE_SELECTOR);
-
-        if (!newContentEl) {
-          throw new Error(
-            'Content container "' + CONTENT_SELECTOR +
-            '" not found in fetched page: ' + cacheKey
-          );
-        }
-
-        var pageData = {
-          title: newTitleEl ? newTitleEl.textContent : document.title,
-          html: newContentEl.innerHTML
-        };
-
-        pageCache.set(cacheKey, pageData);
-
-        return pageData;
-      })
-      .catch(function (err) {
-        console.error('[instant-nav] Failed to fetch/parse page:', cacheKey, err);
-        return null;
-      })
-      .finally(function () {
-        inFlightFetches.delete(cacheKey);
-      });
-
-    inFlightFetches.set(cacheKey, fetchPromise);
-    return fetchPromise;
-  }
-
-  function applyPageContent(pageData) {
-    var contentEl = document.querySelector(CONTENT_SELECTOR);
-    if (!contentEl) {
-      return;
-    }
-
-    if (pageData.title) {
-      document.title = pageData.title;
-    }
-
-    contentEl.innerHTML = pageData.html;
-
-    var oldScripts = contentEl.querySelectorAll('script');
-    oldScripts.forEach(function (oldScript) {
-      var newScript = document.createElement('script');
-
-      for (var i = 0; i < oldScript.attributes.length; i++) {
-        var attr = oldScript.attributes[i];
-        newScript.setAttribute(attr.name, attr.value);
+    function applyAll() {
+      applyAccent(resolveAccent());
+      if (!document.getElementById("displayNameInput")) {
+        applyName(resolveName());
       }
+    }
 
-      newScript.textContent = oldScript.textContent;
+    function broadcast(key) {
+      try {
+        window.dispatchEvent(new StorageEvent("storage", {
+          key,
+          newValue: localStorage.getItem(key),
+          storageArea: localStorage,
+        }));
+      } catch (_) {}
+    }
 
-      oldScript.parentNode.replaceChild(newScript, oldScript);
+    function saveTheme(themeKeyOrHex, customHex) {
+      try {
+        if (themeKeyOrHex === "custom" && customHex) {
+          localStorage.setItem(KEY_THEME,  "custom");
+          localStorage.setItem(KEY_CUSTOM, customHex);
+          applyAccent(customHex);
+        } else {
+          localStorage.setItem(KEY_THEME, themeKeyOrHex);
+          applyAccent(PRESETS[themeKeyOrHex] || themeKeyOrHex);
+        }
+        broadcast(KEY_THEME);
+      } catch (_) {}
+    }
+
+    function saveName(name) {
+      try {
+        const resolved = (name || "").trim() || "Ituze";
+        localStorage.setItem(KEY_NAME, resolved);
+        applyName(resolved);
+        broadcast(KEY_NAME);
+      } catch (_) {}
+    }
+
+    window.addEventListener("storage", function (e) {
+      if (e.key === KEY_THEME || e.key === KEY_CUSTOM) {
+        applyAccent(resolveAccent());
+      }
+      if (e.key === KEY_NAME) {
+        if (!document.getElementById("displayNameInput")) {
+          applyName(resolveName());
+        }
+      }
     });
 
-    document.dispatchEvent(new CustomEvent('instant-nav:page-loaded', {
-      detail: { title: document.title, url: window.location.href }
-    }));
+    applyAll();
+
+    window.Sync = { applyAll, saveTheme, saveName, applyAccent, applyName, resolveAccent, resolveName };
   }
 
-  function navigateTo(url, options) {
-    options = options || {};
+  if (isPathAllowed(CONFIG.syncAndWakeLockPaths)) {
+    let wakeLock = null;
 
-    var targetUrl = new URL(url, window.location.href);
-    var cacheKey = getCacheKey(targetUrl.href);
-
-    if (!options.isPopState) {
-      var currentState = window.history.state;
-      if (currentState && typeof currentState.__instantNavId !== 'undefined') {
-        scrollPositions.set(currentState.__instantNavId, {
-          x: window.scrollX,
-          y: window.scrollY
-        });
+    async function requestWakeLock() {
+      if (!("wakeLock" in navigator)) return;
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+      } catch (err) {
+        console.warn(`Wake Lock down: ${err.message}`);
       }
     }
 
-    fetchPage(cacheKey).then(function (pageData) {
-      if (!pageData) {
-        window.location.href = targetUrl.href;
-        return;
+    requestWakeLock();
+
+    document.addEventListener("visibilitychange", async () => {
+      if (document.visibilityState === "visible") {
+        await requestWakeLock();
       }
+    });
 
-      applyPageContent(pageData);
+    window.addEventListener("focus", async () => {
+      await requestWakeLock();
+    });
+  }
 
-      if (options.isPopState) {
-        var saved = scrollPositions.get(options.historyId);
-        if (saved) {
-          window.scrollTo(saved.x, saved.y);
-        } else {
-          window.scrollTo(0, 0);
+  if (isPathAllowed(CONFIG.scrollbarPaths)) {
+    (function hideScrollbars() {
+      const style = document.createElement('style');
+      style.innerHTML = `
+        * { 
+          -ms-overflow-style: none !important; 
+          scrollbar-width: none !important; 
+        } 
+        *::-webkit-scrollbar { 
+          display: none !important; 
         }
+      `;
+      document.documentElement.appendChild(style);
+    })();
+  }
+
+  function initializePrecache() {
+    setTimeout(() => {
+      if (!('requestIdleCallback' in window)) {
+        executePrefetching();
       } else {
-        historyIdCounter += 1;
-        var newState = { __instantNavId: historyIdCounter };
-
-        if (options.replace) {
-          window.history.replaceState(newState, pageData.title, targetUrl.href);
-        } else {
-          window.history.pushState(newState, pageData.title, targetUrl.href);
-        }
-
-        if (targetUrl.hash) {
-          var target = document.getElementById(targetUrl.hash.slice(1));
-          if (target) {
-            target.scrollIntoView();
-          } else {
-            window.scrollTo(0, 0);
-          }
-        } else {
-          window.scrollTo(0, 0);
-        }
+        requestIdleCallback(() => executePrefetching());
       }
-    });
+    }, 5000);
   }
 
-  document.addEventListener('click', function (event) {
-    if (
-      event.defaultPrevented ||
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
-      return;
-    }
+  function executePrefetching() {
+    const fragment = document.createDocumentFragment();
 
-    var link = event.target.closest ? event.target.closest('a') : null;
-    if (!link) return;
-
-    if (!isInstantNavLink(link)) return;
-
-    var targetUrl = new URL(link.href, window.location.href);
-    var currentUrl = new URL(window.location.href);
-
-    var isSamePage =
-      targetUrl.origin === currentUrl.origin &&
-      targetUrl.pathname === currentUrl.pathname &&
-      targetUrl.search === currentUrl.search;
-
-    if (isSamePage && targetUrl.hash) {
-      return;
-    }
-
-    event.preventDefault();
-
-    navigateTo(targetUrl.href, { replace: false, isPopState: false });
-  });
-
-  window.addEventListener('popstate', function (event) {
-    var state = event.state;
-
-    if (!state || typeof state.__instantNavId === 'undefined') {
-      return;
-    }
-
-    navigateTo(window.location.href, {
-      isPopState: true,
-      historyId: state.__instantNavId
+    CONFIG.precacheAssets.forEach(assetPath => {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = assetPath;
+      fragment.appendChild(link);
     });
-  });
 
-  (function tagInitialHistoryState() {
-    historyIdCounter += 1;
-    var state = window.history.state || {};
-    state.__instantNavId = historyIdCounter;
-    window.history.replaceState(state, document.title, window.location.href);
-  })();
+    document.head.appendChild(fragment);
+  }
+
+  if (document.readyState === 'complete') {
+    initializePrecache();
+  } else {
+    window.addEventListener('load', initializePrecache);
+  }
 
 })();
