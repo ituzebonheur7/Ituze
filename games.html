@@ -2,23 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="preconnect" href="/">
+  <link rel="preconnect" href="/home">
   <link rel="manifest" href="/manifest.json">
   <title>Game Lab - Ituze</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/js/sync.js"></script>
-  <script src="/js/scrollbar.js"></script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
   <script src="/js/ituze.js"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script> <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
   <style>
     :root {
-      --glass-bg: rgba(0, 0, 0, 0.25);
-      --glass-border: rgba(255, 255, 255, 0.15);
-      --text-main: #e5e7eb;
+      /* ── Fixed: accent + matrix-color now defined ── */
+      --accent:        #00f5ff;          /* electric cyan */
+      --accent-glow:   rgba(0, 245, 255, 0.18);
+      --accent-dim:    rgba(0, 245, 255, 0.08);
+      --matrix-color:  #00f5ff;
+      --glass-bg:      rgba(0, 0, 0, 0.28);
+      --glass-border:  rgba(255, 255, 255, 0.10);
+      --text-main:     #e5e7eb;
+      --text-muted:    rgba(229,231,235,0.5);
+      --danger:        #ff4c6a;
+      --danger-dim:    rgba(255, 76, 106, 0.15);
     }
-    * { box-sizing: border-box; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
       background: #020617;
       background-image: radial-gradient(circle at top, #0b1120 0%, #020617 55%, #000 100%);
@@ -27,20 +34,22 @@
       overflow: hidden;
       user-select: none;
     }
+
     canvas {
       position: fixed;
       inset: 0;
       z-index: -1;
     }
 
+    /* ─── Top "Ituze" pill button ─────────────────────── */
     .top-btn {
       position: fixed;
       top: 20px;
       left: 20px;
-      width: 100px; 
+      width: 100px;
       height: 42px;
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 15px;
+      font-weight: 700;
       color: var(--accent);
       background: var(--glass-bg);
       backdrop-filter: blur(26px);
@@ -53,19 +62,24 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      letter-spacing: 1px;
     }
-
+    .top-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
     .top-btn.hidden {
       opacity: 0;
       transform: scale(0.8);
       pointer-events: none;
     }
 
+    /* ─── Profile iframe panel ───────────────────────── */
     #iframePanel {
       position: fixed;
       top: 20px;
       left: 20px;
-      width: 100px; 
+      width: 100px;
       height: 42px;
       border-radius: 25px;
       opacity: 0;
@@ -77,34 +91,25 @@
       box-shadow: 0 0 0 rgba(0,0,0,0);
       transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
     #iframePanel.open {
       opacity: 1;
       width: 400px;
       height: 600px;
       border-radius: 24px;
       pointer-events: auto;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px var(--glass-border);
     }
-
     #iframePanelContent {
       width: 100%;
       height: 100%;
       display: flex;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.35s ease 0.15s;
     }
+    #iframePanel.open #iframePanelContent { opacity: 1; }
+    #iframePanelContent iframe { width: 100%; height: 100%; border: none; }
 
-    #iframePanel.open #iframePanelContent {
-      opacity: 1;
-    }
-
-    #iframePanelContent iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
+    /* ─── Main menu ──────────────────────────────────── */
     #menu {
       position: relative;
       z-index: 1;
@@ -120,40 +125,227 @@
       font-weight: 300;
       margin-bottom: 50px;
       letter-spacing: 2px;
-      text-shadow: 0 0 30px var(--accent);
+      text-shadow: 0 0 40px var(--accent-glow);
     }
     .button-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 30px;
+      gap: 24px;
       justify-content: center;
       max-width: 1200px;
-      padding-bottom: 80px;
+      padding: 0 20px 100px;
     }
+
+    /* ─── Game cards ─────────────────────────────────── */
     .game-card {
+      position: relative;
       background: var(--glass-bg);
       backdrop-filter: blur(26px);
-      width: 300px;
-      padding: 35px 0;
+      -webkit-backdrop-filter: blur(26px);
+      width: 280px;
+      padding: 36px 20px;
       border: 1px solid var(--glass-border);
-      border-radius: 16px;
+      border-radius: 18px;
       cursor: pointer;
-      transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      font-size: 1.4rem;
+      transition: border-color 0.3s ease, transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+      font-size: 1.25rem;
       font-weight: 700;
       text-align: center;
       text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    .game-card:hover { border-color: var(--accent); transform: translateY(-8px); }
-    .add-btn { border-style: dashed; opacity: 0.5; }
+    .game-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 20px var(--accent-glow);
+    }
 
+    /* Delete button on custom cards */
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--danger-dim);
+      border: 1px solid rgba(255,76,106,0.3);
+      color: var(--danger);
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+      z-index: 5;
+    }
+    .game-card:hover .delete-btn {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .delete-btn:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .add-btn {
+      border-style: dashed;
+      opacity: 0.55;
+      font-size: 1.1rem;
+    }
+    .add-btn:hover { opacity: 1; }
+
+    /* ─── Game stage ─────────────────────────────────── */
+    #stage {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      z-index: 10;
+      background: #000;
+    }
+    #controls {
+      background: rgba(2, 6, 23, 0.92);
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--glass-border);
+      flex-shrink: 0;
+    }
+    .btn {
+      padding: 9px 20px;
+      border-radius: 20px;
+      background: var(--glass-bg);
+      color: var(--accent);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    #gameFrame { width: 100%; flex: 1; border: none; }
     #stage:fullscreen #controls { display: none; }
     #stage:-webkit-full-screen #controls { display: none; }
 
-    #stage { display: none; flex-direction: column; height: 100vh; width: 100vw; z-index: 10; background: #000; }
-    #controls { background: rgba(2, 6, 23, 0.9); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); }
-    .btn { padding: 10px 20px; border-radius: 20px; background: var(--glass-bg); color: var(--accent); border: 1px solid var(--glass-border); cursor: pointer; font-weight: 600; }
-    #gameFrame { width: 100%; height: 100%; border: none; }
+    /* ─── Add-Game Modal ─────────────────────────────── */
+    #modalOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #modalOverlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #modal {
+      background: rgba(10, 15, 35, 0.92);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 40px 36px;
+      width: 420px;
+      max-width: calc(100vw - 40px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 30px var(--accent-glow);
+      transform: translateY(20px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    #modalOverlay.visible #modal {
+      transform: translateY(0) scale(1);
+    }
+    #modal h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+      text-align: center;
+      text-shadow: 0 0 20px var(--accent-glow);
+    }
+    .modal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .modal-field label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .modal-field input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+      font-family: inherit;
+    }
+    .modal-field input::placeholder { color: rgba(229,231,235,0.25); }
+    .modal-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--glass-border);
+    }
+    .modal-btn.cancel {
+      background: var(--glass-bg);
+      color: var(--text-muted);
+    }
+    .modal-btn.cancel:hover { color: var(--text-main); border-color: rgba(255,255,255,0.25); }
+    .modal-btn.confirm {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: rgba(0,245,255,0.3);
+    }
+    .modal-btn.confirm:hover {
+      background: rgba(0,245,255,0.18);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    /* ─── Error shake on empty submit ───────────────── */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60%  { transform: translateX(-6px); }
+      40%,80%  { transform: translateX(6px); }
+    }
+    .shake { animation: shake 0.35s ease; }
   </style>
 </head>
 <body oncontextmenu="return false;">
@@ -162,7 +354,7 @@
 
   <div id="iframePanel">
     <div id="iframePanelContent">
-      <iframe id="profileIframe" src="https://ituzebonheur.com/me" title="Ituze"></iframe>
+      <!-- iframe injected lazily on open -->
     </div>
   </div>
 
@@ -171,118 +363,272 @@
   <div id="menu">
     <h1 id="greeting">Welcome, Ituze</h1>
     <div class="button-container" id="gameList">
+      <!-- Permanent game cards -->
       <div class="game-card" onclick="loadGame('https://ozgames.io/geometry-dash.embed')">Geometry Dash</div>
       <div class="game-card" onclick="loadGame('https://geometrylitepc.io/slope-2.embed')">Slope 2</div>
       <div class="game-card" onclick="loadGame('https://azgames.io/game/escape-road/')">Escape Road</div>
       <div class="game-card" onclick="loadGame('https://azgames.io/game/traffic-road/')">Traffic Rider</div>
       <div class="game-card" onclick="loadGame('https://skunblocked.com/')">Smash Karts</div>
-      <div class="game-card add-btn" onclick="addCustomGame()">+ Add Game</div>
+      <!-- New permanent card -->
+      <div class="game-card" onclick="loadGame('https://www.onlinegames.io/games/2024/unity/drift-king/index.html')">Drift King</div>
+      <!-- Custom cards inserted here by JS -->
+      <div class="game-card add-btn" id="addBtn" onclick="openModal()">+ Add Game</div>
     </div>
   </div>
 
+  <!-- Game Stage -->
   <div id="stage">
     <div id="controls">
       <button class="btn" onclick="goBack()">← Exit Hub</button>
-      <span style="font-weight:700; opacity:0.8; letter-spacing:1px;">ITUZE BONHEUR</span>
+      <span style="font-weight:700;opacity:0.8;letter-spacing:2px;font-size:13px;">ITUZE BONHEUR</span>
       <button class="btn" onclick="toggleFullscreen()">Fullscreen</button>
     </div>
-    <iframe id="gameFrame" src="" allow="fullscreen; autoplay; microphone; clipboard-write"></iframe>
+    <iframe id="gameFrame" src="about:blank" allow="fullscreen; autoplay; microphone; clipboard-write"></iframe>
   </div>
+
+  <!-- Add Game Modal -->
+  <div id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div id="modal">
+      <h2>+ Add Game</h2>
+      <div class="modal-field">
+        <label>Game Name</label>
+        <input id="newGameName" type="text" placeholder="e.g. Agar.io" autocomplete="off" />
+      </div>
+      <div class="modal-field">
+        <label>Game URL</label>
+        <input id="newGameUrl" type="url" placeholder="https://..." autocomplete="off" />
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn confirm" onclick="submitCustomGame()">Add Game</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/screen.js"></script>
   <script>
-    const iframePanel = document.getElementById("iframePanel");
-    const topBtn = document.getElementById("topLink");
-    const profileIframe = document.getElementById("profileIframe");
-
-
-    topBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      profileIframe.src = profileIframe.src; // Force Refresh
-      topBtn.classList.add("hidden");
-      iframePanel.classList.add("open");
-    });
-
-
-    document.addEventListener("click", (e) => {
-      if (!iframePanel.contains(e.target) && !topBtn.contains(e.target)) {
-        iframePanel.classList.remove("open");
-        topBtn.classList.remove("hidden");
-      }
-    });
-
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    let matrixEnabled = true;
-
-    // Apply synced name to greeting on load
+    /* ══════════════════════════════════════════════════
+       1. GREETING
+    ══════════════════════════════════════════════════ */
     (function () {
       const name = (window.Sync && window.Sync.resolveName()) ||
                    (localStorage.getItem("displayName") || "Ituze");
-      const hour = new Date().getHours();
-      const salutation =
-        hour < 5  ? "Good night"   :
-        hour < 12 ? "Good morning" :
-        hour < 17 ? "Good afternoon" : "Good evening";
-      document.getElementById("greeting").textContent = `${salutation}, ${name}`;
+      const h = new Date().getHours();
+      const sal = h < 5 ? "Good night" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+      document.getElementById("greeting").textContent = `${sal}, ${name}`;
     })();
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener("resize", resize);
-    resize();
 
-    const chars = "ABCDEFGHIJKLMNOPRSTUVWXYZ0123456789";
+    /* ══════════════════════════════════════════════════
+       2. MATRIX BACKGROUND
+    ══════════════════════════════════════════════════ */
+    const canvas = document.getElementById("matrix");
+    const ctx    = canvas.getContext("2d");
+    let matrixEnabled = true;
+    let drops = [];
     const fontSize = 16;
-    let columns = Math.floor(canvas.width / fontSize);
-    let drops = Array(columns).fill(1);
+    const chars = "ABCDEFGHIJKLMNOPRSTUVWXYZ0123456789";
+
+    function initMatrix() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+      // Fixed: reinitialize drops array on every resize
+      const columns = Math.floor(canvas.width / fontSize);
+      drops = Array(columns).fill(1);
+    }
+
+    window.addEventListener("resize", initMatrix);
+    initMatrix();
 
     function drawMatrix() {
       if (!matrixEnabled) return;
       ctx.fillStyle = "rgba(0,0,0,0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--matrix-color").trim();
+      ctx.fillStyle = getComputedStyle(document.documentElement)
+                        .getPropertyValue("--matrix-color").trim() || "#00f5ff";
       ctx.font = fontSize + "px monospace";
       for (let i = 0; i < drops.length; i++) {
-        const text = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, drops[i] * fontSize);
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
       }
     }
     setInterval(drawMatrix, 35);
 
-    /* --- Game Hub Logic --- */
+    /* ══════════════════════════════════════════════════
+       3. PROFILE PANEL — lazy load + full unload on close
+    ══════════════════════════════════════════════════ */
+    const iframePanel        = document.getElementById("iframePanel");
+    const iframePanelContent = document.getElementById("iframePanelContent");
+    const topBtn             = document.getElementById("topLink");
+    let profileIframeLoaded  = false;
+
+    topBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      // Lazy-inject the iframe only on first open
+      if (!profileIframeLoaded) {
+        const iframe = document.createElement("iframe");
+        iframe.id    = "profileIframe";
+        iframe.title = "Ituze Profile";
+        iframe.src   = "https://ituzebonheur.com/me";
+        iframe.style.cssText = "width:100%;height:100%;border:none;";
+        iframePanelContent.appendChild(iframe);
+        profileIframeLoaded = true;
+      }
+      topBtn.classList.add("hidden");
+      iframePanel.classList.add("open");
+    });
+
+    function closeProfilePanel() {
+      iframePanel.classList.remove("open");
+      topBtn.classList.remove("hidden");
+      // Tab-like closure: nuke the iframe completely to kill all resources
+      setTimeout(() => {
+        iframePanelContent.innerHTML = "";
+        profileIframeLoaded = false;
+      }, 500); // wait for CSS transition to finish
+    }
+
+    document.addEventListener("click", (e) => {
+      if (iframePanel.classList.contains("open") &&
+          !iframePanel.contains(e.target) &&
+          !topBtn.contains(e.target)) {
+        closeProfilePanel();
+      }
+    });
+
+    /* ══════════════════════════════════════════════════
+       4. GAME HUB — lazy load + full unload on exit
+    ══════════════════════════════════════════════════ */
     function loadGame(url) {
-      document.getElementById('gameFrame').src = url;
-      document.getElementById('menu').style.display = 'none';
-      document.getElementById('stage').style.display = 'flex';
-      topBtn.style.display = 'none';
+      const frame = document.getElementById("gameFrame");
+      frame.src = url;                          // lazy load: only now
+      document.getElementById("menu").style.display  = "none";
+      document.getElementById("stage").style.display = "flex";
+      topBtn.style.display  = "none";
       matrixEnabled = false;
     }
 
     function goBack() {
-      document.getElementById('gameFrame').src = 'about:blank';
-      document.getElementById('menu').style.display = 'flex';
-      document.getElementById('stage').style.display = 'none';
-      topBtn.style.display = 'flex';
+      const frame = document.getElementById("gameFrame");
+      frame.src = "about:blank";                // tab-like closure: immediate unload
+      document.getElementById("menu").style.display  = "flex";
+      document.getElementById("stage").style.display = "none";
+      topBtn.style.display  = "flex";
       matrixEnabled = true;
     }
 
     function toggleFullscreen() {
-      const stage = document.getElementById('stage');
+      const stage = document.getElementById("stage");
       if (!document.fullscreenElement) stage.requestFullscreen();
       else document.exitFullscreen();
     }
 
-    function addCustomGame() {
-      const name = prompt("Game Name:");
-      const url = prompt("URL:");
-      if (name && url) {
-        const div = document.createElement("div");
-        div.className = "game-card";
-        div.textContent = name;
-        div.onclick = () => loadGame(url);
-        document.getElementById("gameList").insertBefore(div, document.querySelector(".add-btn"));
-      }
+    /* ══════════════════════════════════════════════════
+       5. CUSTOM GAMES — localStorage persistence
+    ══════════════════════════════════════════════════ */
+    const STORAGE_KEY = "customGames_v1";
+
+    function getCustomGames() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch { return []; }
     }
+
+    function saveCustomGames(games) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
+    }
+
+    function buildCustomCard(game, index) {
+      const div = document.createElement("div");
+      div.className = "game-card";
+      div.onclick = () => loadGame(game.url);
+      div.textContent = game.name;
+
+      const del = document.createElement("button");
+      del.className = "delete-btn";
+      del.title = "Remove game";
+      del.textContent = "✕";
+      del.onclick = (e) => {
+        e.stopPropagation();
+        deleteCustomGame(index);
+      };
+      div.appendChild(del);
+      return div;
+    }
+
+    function renderCustomGames() {
+      // Remove existing custom cards (keep permanent + add-btn)
+      document.querySelectorAll(".game-card.custom").forEach(el => el.remove());
+      const addBtn = document.getElementById("addBtn");
+      const games  = getCustomGames();
+      games.forEach((g, i) => {
+        const card = buildCustomCard(g, i);
+        card.classList.add("custom");
+        addBtn.parentNode.insertBefore(card, addBtn);
+      });
+    }
+
+    function deleteCustomGame(index) {
+      const games = getCustomGames();
+      games.splice(index, 1);
+      saveCustomGames(games);
+      renderCustomGames();
+    }
+
+    // Restore custom games on load
+    renderCustomGames();
+
+    /* ══════════════════════════════════════════════════
+       6. ADD-GAME MODAL
+    ══════════════════════════════════════════════════ */
+    const modalOverlay = document.getElementById("modalOverlay");
+    const nameInput    = document.getElementById("newGameName");
+    const urlInput     = document.getElementById("newGameUrl");
+
+    function openModal() {
+      nameInput.value = "";
+      urlInput.value  = "";
+      modalOverlay.classList.add("visible");
+      setTimeout(() => nameInput.focus(), 350);
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove("visible");
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === modalOverlay) closeModal();
+    }
+
+    function submitCustomGame() {
+      const name = nameInput.value.trim();
+      const url  = urlInput.value.trim();
+
+      if (!name) { flash(nameInput); return; }
+      if (!url)  { flash(urlInput);  return; }
+
+      const games = getCustomGames();
+      games.push({ name, url });
+      saveCustomGames(games);
+      renderCustomGames();
+      closeModal();
+    }
+
+    function flash(el) {
+      el.classList.remove("shake");
+      void el.offsetWidth; // reflow
+      el.classList.add("shake");
+      el.focus();
+      el.addEventListener("animationend", () => el.classList.remove("shake"), { once: true });
+    }
+
+    // Allow Enter key in modal inputs
+    [nameInput, urlInput].forEach(input => {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") submitCustomGame();
+        if (e.key === "Escape") closeModal();
+      });
+    });
   </script>
 </body>
 </html>
