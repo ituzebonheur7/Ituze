@@ -277,9 +277,19 @@
     document.head.appendChild(fragment);
   }
 
-  if (document.readyState === 'complete') {
-    initializePrecache();
-  } else {
-    window.addEventListener('load', initializePrecache);
-  }
+if (document.readyState === 'complete') {
+  initializePrecache();
+} else {
+  window.addEventListener('load', initializePrecache);
+}
+
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log('Service Worker registered'))
+      .catch(err => console.error('Service Worker registration failed:', err));
+  });
+}
+
 })();
