@@ -1,15 +1,17 @@
 const CACHE_NAME = 'ituze';
 const OFFLINE_URL = '/offline.html';
+const OFFLINE_IMAGE = '/images/ituze.svg';
 
 const STATIC_ASSETS = [
   '/',
-  '/index.html',
+  '/home',
   OFFLINE_URL,
+  OFFLINE_IMAGE,
   '/favicon.ico'
 ];
 
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing and pre-caching core assets...');
+  console.log('[Service Worker] Installing and updating core assets in unified cache...');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_ASSETS);
@@ -18,20 +20,8 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating and clearing old caches...');
-  event.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(
-        keyList.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting legacy cache:', key);
-            return caches.delete(key);
-          }
-        })
-      );
-    })
-  );
-  return self.clients.claim();
+  console.log('[Service Worker] Activating and taking immediate control...');
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {
@@ -48,7 +38,9 @@ self.addEventListener('fetch', (event) => {
         const networkResponse = await fetch(event.request);
 
         if (networkResponse && networkResponse.status === 200) {
-          cache.put(event.request, networkResponse.clone());
+          if (url.origin === self.location.origin) {
+            cache.put(event.request, networkResponse.clone());
+          }
         }
 
         return networkResponse;
@@ -58,6 +50,11 @@ self.addEventListener('fetch', (event) => {
         const cachedResponse = await cache.match(event.request);
         if (cachedResponse) {
           return cachedResponse;
+        }
+
+        if (event.request.destination === 'image') {
+          const fallbackImage = await cache.match(OFFLINE_IMAGE);
+          if (fallbackImage) return fallbackImage;
         }
 
         if (event.request.mode === 'navigate') {
@@ -75,9 +72,31 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Listen for messages from the front-end script
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'STATUS_CHANGE') {
     console.log(`[Service Worker] Main application reported status change: User is now ${event.data.status.toUpperCase()}`);
   }
+});
+
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : { title: 'Notification', body: 'New updates available!' };
+  const options = {
+    body: data.body,
+    icon: '/favicon.ico',
+    badge: '/favicon.ico',
+    data: { url: data.url || '/' }
+  };
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url === event.notification.data.url && 'focus' in client) return client.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(event.notification.data.url);
+    })
+  );
 });
