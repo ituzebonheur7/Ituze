@@ -9,8 +9,8 @@
     <link rel="icon" href="/images/code.png" type="image/png">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://unpkg.com">
-    <script src="/js/ituze.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RPPG857F8"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date);gtag('config','G-4RPPG857F8')</script>
+    <script src="/js/ituze.js"></script>
 
     <style>
         :root {
@@ -51,7 +51,6 @@
             overflow: hidden;
         }
 
-        /* ── Launch Screen ── */
         #launch-screen {
             position: fixed;
             inset: 0;
@@ -72,10 +71,8 @@
             pointer-events: none;
         }
 
-        /* Top spacer */
         .launch-top-spacer { height: 40px; }
 
-        /* Center logo area */
         .launch-center {
             display: flex;
             align-items: center;
@@ -83,7 +80,6 @@
             flex: 1;
         }
 
-        /* Bottom branding */
         .launch-bottom {
             display: flex;
             flex-direction: column;
@@ -91,7 +87,6 @@
             padding-bottom: 10px;
         }
 
-        /* ── Header ── */
         header {
             height: var(--header-h);
             background: var(--panel);
@@ -158,7 +153,6 @@
 
         main { flex: 1; display: flex; overflow: hidden; }
 
-        /* ── Sidebar ── */
         #sidebar {
             width: var(--sidebar-w);
             background: var(--panel);
@@ -203,9 +197,80 @@
             border-left: 3px solid var(--accent);
             padding-left: 12px;
         }
+        .tree-item.drag-over {
+            background: rgba(47, 129, 247, 0.2);
+            border-left: 3px solid var(--accent);
+        }
         .folder-indent { margin-left: 19px; border-left: 1px solid var(--border); }
 
-        /* ── Context Menu ── */
+        #upload-zone {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
+        #upload-zone.show {
+            display: flex;
+        }
+        .upload-card {
+            background: var(--panel);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            max-width: 480px;
+        }
+        .upload-card.drag-over {
+            border-color: var(--accent);
+            background: rgba(47, 129, 247, 0.1);
+            box-shadow: 0 0 24px rgba(47, 129, 247, 0.3);
+            transform: scale(1.02);
+        }
+        .upload-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 20px;
+            opacity: 0.7;
+        }
+        .upload-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .upload-subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+        .upload-browse {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-bottom: 12px;
+        }
+        .upload-browse:hover { background: var(--accent-hover); }
+        .upload-types {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 16px;
+        }
+        #file-input-upload { display: none; }
+
         :root {
             --vs-surface: #252526;
             --vs-border-cm: #454545;
@@ -245,7 +310,6 @@
         .menu-divider { height: 1px; background-color: var(--vs-border-cm); margin: 4px 0; }
         .menu-item.danger:hover { background-color: var(--vs-danger-hover); }
 
-        /* ── Editor ── */
         #editor-container { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg); }
         #tab-bar {
             height: var(--tab-h);
@@ -275,7 +339,6 @@
         }
         #resizer:hover, #resizer.active { background: var(--accent); }
 
-        /* ── Preview ── */
         #preview-section { width: 40%; display: flex; flex-direction: column; background: #ffffff; position: relative; }
         .preview-toolbar {
             background: var(--panel); padding: 8px 15px;
@@ -290,11 +353,9 @@
         .preview-mobile { width: 375px !important; border: 12px solid #222 !important; border-bottom: 25px solid #222 !important; border-radius: 30px; height: calc(100% - 40px) !important; margin: 20px auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .preview-tablet { width: 768px !important; border: 12px solid #222 !important; border-radius: 20px; height: calc(100% - 40px) !important; margin: 20px auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-        /* Theme-aware preview wrapper */
         #preview-section.theme-dark { background: #1e1e1e; }
         #preview-section.theme-hc { background: #000000; }
 
-        /* ── Settings Panel ── */
         #settings-panel {
             position: absolute; right: 0; top: 0; bottom: 0; width: 320px;
             background: var(--panel); border-left: 1px solid var(--border);
@@ -323,7 +384,6 @@
         }
         .checkbox-label input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
 
-        /* ── Buttons ── */
         .btn {
             cursor: pointer; background: var(--hover); border: 1px solid var(--border);
             color: var(--text); padding: 6px 12px; border-radius: 6px; font-size: 13px;
@@ -336,19 +396,34 @@
         .icon-btn { cursor: pointer; opacity: 0.7; transition: opacity 0.2s; display: flex; align-items: center; }
         .icon-btn:hover { opacity: 1; color: var(--accent); }
 
-        /* ── Rename input ── */
         .tree-rename-input {
             background: var(--bg); border: 1px solid var(--accent);
             color: var(--text); font-size: 13px; padding: 2px 6px;
             border-radius: 4px; outline: none; width: calc(100% - 30px);
         }
 
-
+        [data-tooltip] {
+            position: relative;
+        }
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 10001;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
-<!-- Launch Screen — matches the exact layout from the provided design -->
 <div id="launch-screen">
     <div class="launch-top-spacer"></div>
 
@@ -358,7 +433,6 @@
         </svg>
     </div>
 
-    <!-- Bottom Ituze branding SVG, exact from provided design -->
     <div class="launch-bottom">
         <svg width="180" height="70" viewBox="0 0 180 70" fill="none" xmlns="http://www.w3.org/2000/svg" style="padding-bottom:10px;">
             <text x="90" y="20" fill="#8a8d91" font-size="12" font-weight="500" letter-spacing="0.5" text-anchor="middle">Made by</text>
@@ -372,15 +446,32 @@
     </div>
 </div>
 
+<div id="upload-zone">
+    <div class="upload-card" id="upload-card">
+        <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        <div class="upload-title">Drag & drop your files here</div>
+        <div class="upload-subtitle">or browse your computer</div>
+        <button class="upload-browse" onclick="document.getElementById('file-input-upload').click()">Browse Files</button>
+        <div class="upload-types">Supports .html, .css, .js and .txt files</div>
+    </div>
+    <input type="file" id="file-input-upload" multiple accept=".html,.css,.js,.txt">
+</div>
+
 <header>
     <div class="logo-area">
         <span class="logo-icon"><i data-lucide="terminal-square" style="width:22px;height:22px;"></i></span>
         <button id="topLink" class="top-btn" aria-label="Open Ituze profile">Ituze</button>
     </div>
     <div class="actions">
-        <button class="btn" onclick="openInNewTab()"><i data-lucide="external-link" style="width:16px"></i> Full Screen</button>
-        <button class="btn" id="settingsBtn" onclick="toggleSettings()"><i data-lucide="settings" style="width:16px"></i> Settings</button>
-        <button class="btn btn-primary" onclick="updatePreview()"><i data-lucide="play" style="width:16px"></i> Run Code</button>
+        <button class="btn" id="uploadBtn" onclick="showUploadZone()" data-tooltip="Upload Files"><i data-lucide="upload" style="width:16px"></i> Upload</button>
+        <button class="btn" onclick="downloadProject()" data-tooltip="Download Project as ZIP"><i data-lucide="download" style="width:16px"></i> Download</button>
+        <button class="btn" onclick="openInNewTab()" data-tooltip="Run Code"><i data-lucide="external-link" style="width:16px"></i> Full Screen</button>
+        <button class="btn" id="settingsBtn" onclick="toggleSettings()" data-tooltip="Settings"><i data-lucide="settings" style="width:16px"></i> Settings</button>
+        <button class="btn btn-primary" onclick="updatePreview()" data-tooltip="Run Code"><i data-lucide="play" style="width:16px"></i> Run Code</button>
     </div>
 </header>
 
@@ -400,7 +491,6 @@
         <div id="file-tree"></div>
     </div>
 
-    <!-- Context Menu -->
     <div class="vs-context-menu" id="vs-context-menu">
         <ul class="menu-list">
             <li class="menu-item" id="ctx-new-file" onclick="handleContext('new-file')">
@@ -412,6 +502,10 @@
                 <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10v6"></path><path d="M9 13h6"></path><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>
                 <span class="menu-label">New Folder</span>
                 <span class="shortcut">Alt+Shift+N</span>
+            </li>
+            <li class="menu-item" id="ctx-upload-file" onclick="handleContext('upload-file')">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span class="menu-label">Upload File</span>
             </li>
             <li class="menu-divider" id="ctx-divider-1"></li>
             <li class="menu-item" id="ctx-cut" onclick="handleContext('cut')">
@@ -503,14 +597,11 @@
     </div>
 </main>
 
-
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/lucide@1.17.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.53.0/min/vs/loader.min.js"></script>
 
 <script>
-    // ── State ──
     let editor;
     let files = {};
     let openTabs = ['index.html'];
@@ -520,7 +611,6 @@
     let ctxTarget = null;
     let ctxTargetIsFolder = false;
 
-    // Track which panel is currently open: null | 'settings' | 'whatsNew' | 'ituze'
     let openPanel = null;
 
     const defaultFiles = {
@@ -530,14 +620,14 @@
         'assets': { type: 'folder', children: {} }
     };
 
-    // ── Launch screen ──
+    const SUPPORTED_UPLOAD_TYPES = ['html', 'css', 'js', 'txt'];
+
     function dismissLaunch() {
         const ls = document.getElementById('launch-screen');
         ls.classList.add('fade-out');
         setTimeout(() => { ls.style.display = 'none'; }, 650);
     }
 
-    // ── Monaco init ──
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.53.0/min/vs' }});
     require(['vs/editor/editor.main'], () => { initIDE(); });
 
@@ -591,6 +681,7 @@
             if (e.key === 'Escape') {
                 closeAllPanels();
                 hideContextMenu();
+                hideUploadZone();
             }
         });
 
@@ -622,30 +713,17 @@
         setupContextMenu();
         setupItuzePanel();
         setupGlobalPanelClose();
+        setupUploadZone();
         lucide.createIcons();
         updatePreview();
 
-        // Dismiss launch screen after resources are ready
         setTimeout(dismissLaunch, 2200);
-
-        // Auto-show What's New then auto-hide after 10s
-        setTimeout(() => {
-            openPanelExclusive('whatsNew');
-            setTimeout(() => {
-                if (openPanel === 'whatsNew') closePanelByName('whatsNew');
-            }, 10000);
-        }, 2800);
     }
 
-    // ── Single-panel management ──
-    // Only one panel open at a time: 'settings' | 'whatsNew' | 'ituze' | null
     function openPanelExclusive(name) {
-        // Close all others first
         if (openPanel && openPanel !== name) closePanelByName(openPanel);
         openPanel = name;
-        if (name === 'whatsNew') {
-            document.getElementById('whats-new-panel').classList.add('show');
-        } else if (name === 'settings') {
+        if (name === 'settings') {
             const panel = document.getElementById('settings-panel');
             panel.style.display = 'flex';
             setTimeout(() => panel.classList.add('show'), 10);
@@ -655,9 +733,7 @@
     }
 
     function closePanelByName(name) {
-        if (name === 'whatsNew') {
-            document.getElementById('whats-new-panel').classList.remove('show');
-        } else if (name === 'settings') {
+        if (name === 'settings') {
             const panel = document.getElementById('settings-panel');
             panel.classList.remove('show');
             setTimeout(() => { panel.style.display = 'none'; }, 300);
@@ -675,23 +751,16 @@
         openPanel = null;
     }
 
-    // Global click-outside-to-close for all panels
     function setupGlobalPanelClose() {
         document.addEventListener('click', (e) => {
             if (!openPanel) return;
 
-            const wnPanel    = document.getElementById('whats-new-panel');
-            const wnTrigger  = document.getElementById('whats-new-trigger');
             const spPanel    = document.getElementById('settings-panel');
             const settingsBtn = document.getElementById('settingsBtn');
             const iPanel     = document.getElementById('iframePanel');
             const topLinkBtn = document.getElementById('topLink');
 
-            if (openPanel === 'whatsNew') {
-                if (!wnPanel.contains(e.target) && !wnTrigger.contains(e.target)) {
-                    closePanelByName('whatsNew');
-                }
-            } else if (openPanel === 'settings') {
+            if (openPanel === 'settings') {
                 if (!spPanel.contains(e.target) && settingsBtn && !settingsBtn.contains(e.target)) {
                     closePanelByName('settings');
                 }
@@ -703,7 +772,6 @@
         });
     }
 
-    // ── Model helpers ──
     function getMonacoLang(filename) {
         const ext = filename.split('.').pop().toLowerCase();
         if (ext === 'js')   return 'javascript';
@@ -711,6 +779,7 @@
         if (ext === 'json') return 'json';
         if (ext === 'ts')   return 'typescript';
         if (ext === 'md')   return 'markdown';
+        if (ext === 'txt')  return 'plaintext';
         return 'html';
     }
 
@@ -741,7 +810,7 @@
     }
 
     function getFileNode(path) {
-        const parts = path.split('/');
+        const parts = path.split('/').filter(Boolean);
         let current = files;
         for (let i = 0; i < parts.length; i++) {
             if (!current[parts[i]]) return null;
@@ -753,7 +822,7 @@
     }
 
     function getParentAndName(path) {
-        const parts = path.split('/');
+        const parts = path.split('/').filter(Boolean);
         const name = parts.pop();
         let current = files;
         for (let p of parts) {
@@ -763,11 +832,10 @@
         return { parent: current, name };
     }
 
-    // ── File switching ──
     function switchFile(path) {
         if (activeFile && editor.getModel()) {
             const node = getFileNode(activeFile);
-            if (node) node.content = editor.getModel().getValue();
+            if (node && node.type === 'file') node.content = editor.getModel().getValue();
         }
         activeFile = path;
         const uri = monaco.Uri.parse(`file:///${path}`);
@@ -788,7 +856,6 @@
         localStorage.setItem('ituze_state', JSON.stringify({ openTabs, activeFile }));
     }
 
-    // ── Tree rendering ──
     function renderTree() {
         const container = document.getElementById('file-tree');
         container.innerHTML = '';
@@ -810,6 +877,25 @@
                 if (node.type === 'file') {
                     div.onclick = () => switchFile(fullPath);
                 }
+
+                div.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (node.type === 'folder') {
+                        div.classList.add('drag-over');
+                    }
+                });
+                div.addEventListener('dragleave', () => {
+                    div.classList.remove('drag-over');
+                });
+                div.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    div.classList.remove('drag-over');
+                    if (node.type === 'folder') {
+                        const files = e.dataTransfer.files;
+                        handleUploadedFiles(files, fullPath);
+                    }
+                });
+
                 parent.appendChild(div);
                 if (node.type === 'folder') {
                     const childCont = document.createElement('div');
@@ -831,6 +917,7 @@
         if (ext === 'json') return 'braces';
         if (ext === 'md')   return 'file-text';
         if (ext === 'ts')   return 'file-code-2';
+        if (ext === 'txt')  return 'file-text';
         return 'file-code';
     }
     function getFileColor(filename) {
@@ -841,6 +928,7 @@
         if (ext === 'json') return '#cbcb41';
         if (ext === 'md')   return '#519aba';
         if (ext === 'ts')   return '#3178c6';
+        if (ext === 'txt')  return '#9ca3af';
         return '#8b949e';
     }
 
@@ -868,7 +956,6 @@
         saveState();
     }
 
-    // ── Create / Delete / Rename ──
     function createItem(type, targetFolderPath) {
         const name = prompt(`Enter ${type} name (e.g. ${type === 'file' ? 'app.js or folder/app.js' : 'images'}):`);
         if (!name || !name.trim()) return;
@@ -997,7 +1084,9 @@
                 const oldModel = monaco.editor.getModel(oldUri);
                 const content = oldModel ? oldModel.getValue() : node.content;
                 if (oldModel) oldModel.dispose();
-                monaco.editor.createModel(content, getMonacoLang(newName), newUri);
+                if (!monaco.editor.getModel(newUri)) {
+                    monaco.editor.createModel(content, getMonacoLang(newName), newUri);
+                }
                 node.content = content;
                 openTabs = openTabs.map(p => p === path ? newPath : p);
                 if (activeFile === path) activeFile = newPath;
@@ -1047,7 +1136,6 @@
         }
     }
 
-    // ── Download folder as ZIP ──
     async function downloadFolderAsZip(path) {
         const node = getFileNode(path);
         if (!node || node.type !== 'folder') return;
@@ -1078,6 +1166,60 @@
         URL.revokeObjectURL(a.href);
     }
 
+    async function downloadProject() {
+        const zip = new JSZip();
+
+        function addToZip(zipFolder, obj) {
+            for (let k in obj) {
+                const child = obj[k];
+                if (child.type === 'file') {
+                    const fullPath = k;
+                    const parts = k.split('/');
+                    for (let i = 0; i < parts.length; i++) {
+                        if (i === parts.length - 1) {
+                            const fileName = parts[i];
+                            const model = monaco.editor.getModel(monaco.Uri.parse(`file:///${fullPath}`));
+                            const content = model ? model.getValue() : (child.content || '');
+                            zipFolder.file(fileName, content);
+                        }
+                    }
+                } else if (child.type === 'folder') {
+                    const sub = zipFolder.folder(k);
+                    addToZip(sub, child.children);
+                }
+            }
+        }
+
+        addToZip(zip, files);
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'project.zip';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    function downloadFile(path) {
+        const content = getFileContent(path);
+        const name = path.split('/').pop();
+        const ext = name.split('.').pop().toLowerCase();
+        const mimeMap = { html: 'text/html', css: 'text/css', js: 'application/javascript', json: 'application/json', ts: 'application/typescript', md: 'text/markdown', txt: 'text/plain' };
+        const mime = mimeMap[ext] || 'text/plain';
+        const blob = new Blob([content], { type: mime });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    function getFileContent(path) {
+        const model = monaco.editor.getModel(monaco.Uri.parse(`file:///${path}`));
+        if (model) return model.getValue();
+        const node = getFileNode(path);
+        return node ? node.content || '' : '';
+    }
+
     // ── Context Menu ──
     function setupContextMenu() {
         const sidebar = document.getElementById('sidebar');
@@ -1102,6 +1244,7 @@
 
         document.getElementById('ctx-new-file').style.display = '';
         document.getElementById('ctx-new-folder').style.display = '';
+        document.getElementById('ctx-upload-file').style.display = '';
         document.getElementById('ctx-divider-1').style.display = hasTarget ? '' : 'none';
 
         if (!hasTarget) {
@@ -1143,6 +1286,9 @@
             case 'new-folder':
                 createItem('folder', ctxTargetIsFolder ? ctxTarget : null);
                 break;
+            case 'upload-file':
+                triggerUploadForFolder(ctxTargetIsFolder ? ctxTarget : null);
+                break;
             case 'cut':
                 if (!ctxTarget) break;
                 clipboard = { action: 'cut', path: ctxTarget, content: getFileContent(ctxTarget) };
@@ -1165,33 +1311,116 @@
         }
     }
 
-    function getFileContent(path) {
-        const model = monaco.editor.getModel(monaco.Uri.parse(`file:///${path}`));
-        if (model) return model.getValue();
-        const node = getFileNode(path);
-        return node ? node.content || '' : '';
+    function setupUploadZone() {
+        const zone = document.getElementById('upload-zone');
+        const card = document.getElementById('upload-card');
+        const input = document.getElementById('file-input-upload');
+
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zone.classList.add('show');
+            card.classList.add('drag-over');
+        });
+
+        zone.addEventListener('dragleave', (e) => {
+            if (e.target === zone) {
+                card.classList.remove('drag-over');
+                zone.classList.remove('show');
+            }
+        });
+
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            card.classList.remove('drag-over');
+            zone.classList.remove('show');
+            handleUploadedFiles(e.dataTransfer.files);
+        });
+
+        input.addEventListener('change', (e) => {
+            handleUploadedFiles(e.target.files);
+            hideUploadZone();
+            input.value = '';
+        });
+
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zone.classList.add('show');
+        });
+
+        document.addEventListener('dragleave', (e) => {
+            if (e.clientX === 0 && e.clientY === 0) {
+                zone.classList.remove('show');
+            }
+        });
     }
 
-    function downloadFile(path) {
-        const content = getFileContent(path);
-        const name = path.split('/').pop();
-        const ext = name.split('.').pop().toLowerCase();
-        const mimeMap = { html: 'text/html', css: 'text/css', js: 'application/javascript', json: 'application/json', ts: 'application/typescript', md: 'text/markdown' };
-        const mime = mimeMap[ext] || 'text/plain';
-        const blob = new Blob([content], { type: mime });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = name;
-        a.click();
-        URL.revokeObjectURL(a.href);
+    function showUploadZone() {
+        document.getElementById('upload-zone').classList.add('show');
     }
 
-    // ── Theme application (editor + UI + preview when empty) ──
+    function hideUploadZone() {
+        document.getElementById('upload-zone').classList.remove('show');
+    }
+
+    function triggerUploadForFolder(folderPath) {
+        const input = document.getElementById('file-input-upload');
+        input.dataset.targetFolder = folderPath || '';
+        input.click();
+    }
+
+    function handleUploadedFiles(fileList, targetFolderPath) {
+        const files_array = Array.from(fileList);
+        let uploadedCount = 0;
+
+        files_array.forEach(file => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!SUPPORTED_UPLOAD_TYPES.includes(ext)) {
+                console.warn(`Skipped unsupported file: ${file.name}`);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                const filename = file.name;
+
+                let baseContainer = files;
+                let basePath = '';
+                if (targetFolderPath) {
+                    const node = getFileNode(targetFolderPath);
+                    if (node && node.type === 'folder') {
+                        baseContainer = node.children;
+                        basePath = targetFolderPath + '/';
+                    }
+                }
+
+                if (!baseContainer[filename]) {
+                    baseContainer[filename] = { type: 'file', content: content };
+                    const uri = monaco.Uri.parse(`file:///${basePath}${filename}`);
+                    if (!monaco.editor.getModel(uri)) {
+                        monaco.editor.createModel(content, getMonacoLang(filename), uri);
+                    }
+                    switchFile(basePath + filename);
+                    uploadedCount++;
+                } else {
+                    console.warn(`File already exists: ${filename}`);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        setTimeout(() => {
+            if (uploadedCount > 0) {
+                saveToLocalStorage();
+                renderTree();
+            }
+        }, 100);
+    }
+
     function applyThemeToUI(theme) {
         const previewSection = document.getElementById('preview-section');
         const previewFrame   = document.getElementById('preview-frame');
 
-        // Remove existing theme classes
         previewSection.classList.remove('theme-dark', 'theme-hc');
 
         if (theme === 'vs-dark') {
@@ -1199,14 +1428,10 @@
         } else if (theme === 'hc-black') {
             previewSection.classList.add('theme-hc');
         }
-        // vs (light) → default white, no extra class needed
 
-        // Check if preview frame is actually showing user content
-        // If preview has no real user content (empty src / no blob), apply theme background to the iframe
         const src = previewFrame.src || '';
         const hasContent = src.startsWith('blob:') || (src !== '' && src !== window.location.href);
         if (!hasContent) {
-            // No content loaded yet — apply theme bg to the iframe wrapper area
             if (theme === 'vs') {
                 previewFrame.style.background = '#ffffff';
             } else if (theme === 'vs-dark') {
@@ -1217,7 +1442,6 @@
         }
     }
 
-    // ── Settings ──
     function applySettings(save = true) {
         const settings = {
             theme:      document.getElementById('set-theme').value,
@@ -1241,7 +1465,6 @@
         const ari = document.getElementById('auto-run-status');
         ari.innerHTML = `<div style="width:8px;height:8px;border-radius:50%;background:${settings.autorun ? 'var(--accent)' : 'var(--text-dim)'};"></div> Auto-run: ${settings.autorun ? 'ON' : 'OFF'}`;
 
-        // Apply theme to the preview section / frame
         applyThemeToUI(settings.theme);
 
         if (save) { localStorage.setItem('ituze_settings', JSON.stringify(settings)); updatePreview(); }
@@ -1262,12 +1485,39 @@
         if (device === 'tablet') frame.classList.add('preview-tablet');
     }
 
-    // ── Preview ──
-    function getBaseTag() {
-        const url = document.getElementById('set-baseurl').value.trim();
+    function normalizeBaseUrl(url) {
         if (!url) return '';
-        const formattedUrl = url.endsWith('/') ? url : url + '/';
-        return `<base href="${formattedUrl}">`;
+        const trimmed = url.trim();
+        if (!trimmed) return '';
+        if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+            return 'https://' + trimmed;
+        }
+        if (!trimmed.endsWith('/')) {
+            return trimmed + '/';
+        }
+        return trimmed;
+    }
+
+    function injectBaseTag(html, baseUrl) {
+        if (!baseUrl) return html;
+
+        html = html.replace(/<base[^>]*>/gi, '');
+
+        const headMatch = html.match(/<head[^>]*>/i);
+        if (headMatch) {
+            const headEnd = headMatch.index + headMatch[0].length;
+            const baseTag = `\n<base href="${baseUrl}">`;
+            return html.slice(0, headEnd) + baseTag + html.slice(headEnd);
+        }
+
+        const docStart = html.match(/<!DOCTYPE|<html/i);
+        if (docStart) {
+            const insertPos = docStart.index + docStart[0].length;
+            const head = `<head><base href="${baseUrl}"></head>`;
+            return html.slice(0, insertPos) + head + html.slice(insertPos);
+        }
+
+        return `<head><base href="${baseUrl}"></head>` + html;
     }
 
     function updatePreview() {
@@ -1281,10 +1531,13 @@
         const jsContent   = jsModel   ? jsModel.getValue()   : '';
 
         let compiled = htmlContent;
+        const baseUrl = normalizeBaseUrl(document.getElementById('set-baseurl').value);
+        compiled = injectBaseTag(compiled, baseUrl);
+
         if (compiled.includes('</head>')) {
-            compiled = compiled.replace('</head>', `\n${getBaseTag()}\n<style>${cssContent}</style>\n</head>`);
+            compiled = compiled.replace('</head>', `\n<style>${cssContent}</style>\n</head>`);
         } else {
-            compiled = `${getBaseTag()}<style>${cssContent}</style>` + compiled;
+            compiled = `<style>${cssContent}</style>` + compiled;
         }
         if (compiled.includes('</body>')) {
             compiled = compiled.replace('</body>', `\n<script>${jsContent}<\/script>\n</body>`);
@@ -1295,7 +1548,6 @@
         const blob = new Blob([compiled], { type: 'text/html' });
         const frame = document.getElementById('preview-frame');
         frame.src = URL.createObjectURL(blob);
-        // Once content is loaded, clear any manual background styling
         frame.onload = () => { frame.style.background = ''; };
     }
 
@@ -1328,26 +1580,6 @@
         saveState();
     }
 
-    // ── What's New ──
-    function toggleWhatsNew() {
-        if (openPanel === 'whatsNew') {
-            closePanelByName('whatsNew');
-        } else {
-            openPanelExclusive('whatsNew');
-        }
-    }
-
-    function hideWhatsNew() {
-        closePanelByName('whatsNew');
-    }
-
-    // Hide trigger button after 13s
-    setTimeout(() => {
-        const trigger = document.getElementById('whats-new-trigger');
-        if (trigger) trigger.classList.add('hidden-trigger');
-    }, 13000);
-
-    // ── Ituze iframe panel ──
     function setupItuzePanel() {
         const btn = document.getElementById('topLink');
         const panel = document.getElementById('iframePanel');
@@ -1361,7 +1593,7 @@
             }
             content.innerHTML = '';
             const iframe = document.createElement('iframe');
-            iframe.src = 'https://ituzebonheur.com/me';
+            iframe.src = '/me';
             iframe.title = 'Ituze';
             iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
             content.appendChild(iframe);
@@ -1369,7 +1601,6 @@
         });
     }
 
-    // ── Resizer ──
     function setupResizer() {
         const resizer = document.getElementById('resizer');
         const editorCont = document.getElementById('editor-container');
@@ -1377,11 +1608,20 @@
         const iframe = document.getElementById('preview-frame');
         let isResizing = false;
 
+        const stopResize = () => {
+            if (isResizing) {
+                isResizing = false;
+                resizer.classList.remove('active');
+                iframe.style.pointerEvents = 'auto';
+            }
+        };
+
         resizer.addEventListener('mousedown', () => {
             isResizing = true;
             resizer.classList.add('active');
             iframe.style.pointerEvents = 'none';
         });
+
         window.addEventListener('mousemove', (e) => {
             if (!isResizing) return;
             let offset = e.clientX - 260;
@@ -1390,13 +1630,10 @@
             editorCont.style.flex = `0 0 ${percent}%`;
             previewSect.style.width = `${100 - percent}%`;
         });
-        window.addEventListener('mouseup', () => {
-            if (isResizing) {
-                isResizing = false;
-                resizer.classList.remove('active');
-                iframe.style.pointerEvents = 'auto';
-            }
-        });
+
+        window.addEventListener('mouseup', stopResize);
+        window.addEventListener('mouseleave', stopResize);
+        window.addEventListener('blur', stopResize);
     }
 </script>
 </body>
