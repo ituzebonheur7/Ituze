@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <style>
+        body{
+            font-family:Arial,sans-serif;
+            background:#111;
+            color:#fff;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            margin:0;
+        }
+
+        form{
+            width:100%;
+            max-width:400px;
+            background:#1b1b1b;
+            padding:20px;
+            border-radius:10px;
+        }
+
+        input,textarea,button{
+            width:100%;
+            padding:12px;
+            margin:10px 0;
+            border:none;
+            border-radius:6px;
+            box-sizing:border-box;
+        }
+
+        input,textarea{
+            background:#2a2a2a;
+            color:white;
+        }
+
+        button{
+            background:#0078ff;
+            color:white;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        button:hover{
+            background:#005fcc;
+        }
+    </style>
+</head>
+<body>
+
+<form action="https://formsubmit.co/YOUR_EMAIL@example.com" method="POST">
+
+    <!-- Disable CAPTCHA -->
+    <input type="hidden" name="_captcha" value="false">
+
+    <!-- No redirect after submit -->
+    <input type="hidden" name="_next" value="">
+
+    <!-- Disable template -->
+    <input type="hidden" name="_template" value="table">
+
+    <h2>Contact Us</h2>
+
+    <input
+        type="text"
+        name="name"
+        placeholder="Your Name"
+        required
+    >
+
+    <input
+        type="email"
+        name="email"
+        placeholder="Your Email"
+        required
+    >
+
+    <textarea
+        name="message"
+        rows="6"
+        placeholder="Your Message"
+        required
+    ></textarea>
+
+    <button type="submit">Send</button>
+
+</form>
+
+</body>
+</html>
